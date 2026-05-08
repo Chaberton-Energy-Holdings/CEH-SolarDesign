@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f4f5f7;color:#2d3748;height:100vh;display:flex;flex-direction:column}
+#header{background:#fff;border-bottom:2px solid #1a2744;padding:8px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0}
+#header h1{font-size:15px;font-weight:700;color:#1a2744;letter-spacing:.3px}
+.badge{font-size:11px;background:#1a2744;color:#f5c400;padding:2px 8px;border-radius:12px;font-weight:600}
+#main{display:flex;flex:1;min-height:0;overflow:hidden;position:relative}
+#sidebar{width:310px;min-width:280px;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;flex-shrink:0}
+#map{flex:1;min-width:0}
+#design-bar{display:flex;align-items:center;gap:4px;padding:6px 8px;border-bottom:1px solid #e2e8f0;background:#f8f9fc;flex-wrap:wrap;flex-shrink:0}
+.d-tab{padding:4px 10px;font-size:11px;font-weight:600;border-radius:5px;cursor:pointer;border:1.5px solid transparent;display:flex;align-items:center;gap:4px}
+.d-tab.active{color:#fff;background:#1a2744;border-color:#1a2744}
+.d-tab:not(.active){background:#fff;color:#4a5568;border-color:#e2e8f0}
+.d-tab:not(.active):hover{background:#f4f5f7;color:#1a2744;border-color:#1a2744}
+.d-tab .del{font-size:10px;opacity:.7;margin-left:2px}.d-tab .del:hover{opacity:1}
+#btn-add-design{padding:4px 8px;font-size:11px;font-weight:600;background:#fff;border:1.5px dashed #cbd5e0;border-radius:5px;cursor:pointer;color:#718096}
+#btn-add-design:hover{border-color:#1a2744;color:#1a2744}
+#btn-add-design:disabled{opacity:.4;cursor:not-allowed}
+.tab-bar{display:flex;border-bottom:2px solid #e0e4ef;background:#fff;flex-shrink:0}
+.tab{flex:1;padding:7px 4px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;color:#718096;border-bottom:2px solid transparent;text-transform:uppercase;letter-spacing:.4px}
+.tab.active{color:#1a2744;border-bottom-color:#f5c400;background:#fffdf0}
+.tab:hover:not(.active){color:#1a2744;background:#f8f9fc}
+.tab-content{display:none;flex:1;overflow-y:auto;padding:12px;flex-direction:column;gap:10px}
+.tab-content.active{display:flex}
+.sec{background:#fff;border:1px solid #e8edf4;border-radius:8px;padding:10px 12px}
+.sec h3{font-size:11px;font-weight:700;color:#1a2744;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.field{display:flex;flex-direction:column;gap:3px;margin-bottom:7px}
+.field:last-child{margin-bottom:0}
+.field label{font-size:12px;color:#4a5568}
+.field input[type=number],.field input[type=password],.field select{padding:5px 8px;border:1px solid #cbd5e0;border-radius:5px;font-size:13px;background:#fff;width:100%;color:#1a2744}
+.range-row{display:flex;align-items:center;gap:8px}
+.range-row input{flex:1;accent-color:#f5c400}
+.rval{font-size:12px;font-weight:600;color:#1a2744;min-width:44px;text-align:right}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trow{display:flex;gap:6px}
+.tbtn{flex:1;padding:6px 4px;font-size:12px;font-weight:500;border:1.5px solid #cbd5e0;border-radius:6px;background:#fff;cursor:pointer;transition:all .15s;color:#1a2744}
+.tbtn.on{background:#1a2744;color:#fff;border-color:#1a2744}
+.tbtn:hover:not(.on){background:#f4f5f7;border-color:#a0aec0}
+.abtn{width:100%;padding:8px;font-size:13px;font-weight:600;border:none;border-radius:6px;cursor:pointer;transition:all .15s;margin-bottom:4px}
+.apri{background:#1a2744;color:#fff}.apri:hover{background:#223058}
+.adng{background:#fff;color:#c62828;border:1.5px solid #ef9a9a}.adng:hover{background:#ffebee}
+.asec{background:#fff;color:#1a2744;border:1.5px solid #cbd5e0}.asec:hover{background:#f0f2f5}
+.aobs{background:#fff;color:#e65100;border:1.5px solid #ffb74d}.aobs:hover{background:#fff3e0}
+.aobs.drawing{background:#e65100;color:#fff}
+.tprev{display:flex;align-items:center;justify-content:center;margin:6px 0 2px}
+.tdim{font-size:11px;color:#666;text-align:center}
+.hint{font-size:11px;color:#888;font-style:italic;margin-top:6px}
+#status{font-size:12px;color:#1a2744;font-weight:500}
+.onote{font-size:11px;color:#8896b0;margin-top:5px;font-style:italic}
+.locrow{display:flex;gap:6px;margin-top:4px}
+.lchip{flex:1;background:#eef1f8;border-radius:5px;padding:4px 7px;font-size:11px;color:#1a2744;text-align:center}
+.lchip span{display:block;font-size:10px;color:#8896b0;margin-bottom:1px}
+.ibar-wrap{margin-top:8px}
+.ibar-lbl{display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:3px}
+.ibar-bg{height:7px;background:#e0e0e0;border-radius:4px;overflow:hidden}
+.ibar-fill{height:100%;background:linear-gradient(90deg,#1a2744,#f5c400);border-radius:4px;transition:width .4s}
+.lrow{display:flex;justify-content:space-between;font-size:11px;color:#4a5568;padding:2px 0;border-bottom:1px solid #e8ecf4}
+.lrow:last-child{border-bottom:none}
+.lrow.total{font-weight:600;color:#1a2744}
+.mnote{font-size:10px;color:#8896b0;margin-top:5px;font-style:italic}
+.obs-count{font-size:12px;color:#e65100;margin-top:4px}
+.str-legend{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.str-pill{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px}
+.cmp-table th{padding:6px 8px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;white-space:nowrap;background:#f8f9fc;color:#1a2744}
+.cmp-table td{padding:5px 8px;border-bottom:1px solid #e8ecf4;white-space:nowrap}
+.cmp-table tr:last-child td{font-weight:700;background:#f8f9fc;border-top:2px solid #e2e8f0;color:#1a2744}
+.d-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.src-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px}
+/* Mode pill toggle */
+.mode-pill{display:flex;background:#f0f2f5;border-radius:20px;padding:3px;gap:2px;flex-shrink:0}
+.mode-pill button{border:none;border-radius:16px;padding:4px 14px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:#718096;transition:all .2s}
+.mode-pill button.active{background:#1a2744;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);font-weight:600}
+/* Input mode sidebar additions */
+/* #input-mode-panel styles defined below */
+#input-mode-panel .field label{font-size:11px;color:#666;font-weight:500}
+#input-mode-panel input[type=number]{width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:13px;box-sizing:border-box}
+.im-coords{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.im-stat{background:#f0f7ff;border-radius:6px;padding:6px 10px;font-size:11px;color:#555}
+.im-stat strong{display:block;font-size:14px;font-weight:700;color:#1976d2}
+.im-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+#input-mode-panel{display:none;padding:12px 14px;border-bottom:2px solid #1976d2;background:#f8fbff}
+
+/* BESS Financial Table */
+.fin-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.fin-table th{background:#2d3748;color:#fff;padding:5px 8px;text-align:right;font-weight:600;white-space:nowrap;position:sticky;top:0;z-index:1}
+.fin-table th:first-child{text-align:left}
+.fin-table td{padding:4px 8px;border-bottom:1px solid #f0f0f0;text-align:right;white-space:nowrap;color:#333}
+.fin-table td:first-child{text-align:left;font-weight:500}
+.fin-table tr:hover td{background:#e8f5e9}
+.fin-table tr.fin-optimal td{background:#fff9c4;font-weight:700}
+.fin-table tr.fin-optimal td:first-child::after{content:' ★';color:#f9a825}
+.fin-table tr.fin-selected td{background:#e3f2fd}
+.fin-scroll{max-height:200px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:6px}
+.fin-inputs{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.fin-inputs label{font-size:12px;color:#555;display:flex;align-items:center;gap:6px}
+.fin-inputs input{padding:4px 8px;border:1px solid #ccc;border-radius:5px;font-size:12px;width:90px;background:#fff}
+.fin-chip{background:#f5f5f5;border-radius:8px;padding:6px 12px;font-size:11px;color:#555;text-align:center;flex:1;min-width:100px}
+.fin-chip strong{display:block;font-size:14px;font-weight:700;color:#1a2744;margin-top:2px}
+.fin-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+
+/* BESS Drawer */
+#main{position:relative}
+#bess-modal{display:none;position:absolute;bottom:0;left:310px;right:0;z-index:2000;height:50%;flex-direction:column;border-top:2px solid #1a2744}
+#bess-box{background:#fff;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+#bess-header{padding:6px 14px;border-bottom:1px solid #e0e4ef;display:flex;align-items:center;gap:10px;flex-shrink:0;background:#fff}
+#bess-header h2{font-size:13px;font-weight:700;flex:1;color:#1a2744}
+#bess-close{background:none;border:none;font-size:18px;cursor:pointer;color:#718096;line-height:1;padding:2px 6px}
+#bess-close:hover{color:#1a2744}
+#bess-handle{width:36px;height:4px;background:#e0e4ef;border-radius:2px;margin:0 6px 0 0;flex-shrink:0;cursor:ns-resize}
+#bess-body{overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:8px;height:100%}
+.bess-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.bess-chip{background:#f8f9fc;border-radius:8px;padding:8px 10px;text-align:center;border:1px solid #e2e8f0}
+.bess-chip span{display:block;font-size:10px;color:#888;margin-bottom:3px}
+.bess-chip strong{font-size:14px;font-weight:700;color:#1a2744}
+.bess-card{background:#fff;border:1px solid #e0e4ef;border-radius:8px;padding:8px 10px;box-shadow:0 1px 3px rgba(26,39,68,0.05)}
+.bess-card h3{font-size:11px;font-weight:700;color:#1a2744;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.bess-ctrl{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.bess-ctrl label{font-size:12px;color:#555}
+.bess-ctrl input[type=date],.bess-ctrl select,.bess-ctrl input[type=number]{padding:4px 8px;border:1px solid #ccc;border-radius:5px;font-size:12px;background:#fff}
+canvas.bess-canvas{width:100%;border-radius:6px;display:block}
+.bess-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
+.bess-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#555}
+.bess-legend-swatch{width:22px;height:3px;border-radius:2px}
+.abess{background:#1a2744;color:#fff;font-weight:600}.abess:hover{background:#223058}
+/* Map search control */
+#map-search-wrap{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.25);padding:6px 8px;display:flex;gap:6px;align-items:center;min-width:260px}
+#map-search-input{border:none;outline:none;font-size:13px;flex:1;min-width:0;color:#333;background:transparent}
+#map-search-input::placeholder{color:#aaa}
+#map-search-btn{background:#1a2744;color:#f5c400;border:none;border-radius:5px;padding:4px 10px;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+#map-search-btn:hover{background:#223058}
+#map-search-results{position:absolute;top:100%;left:0;right:0;background:#fff;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.2);margin-top:4px;z-index:9999;overflow:hidden;display:none}
+.map-search-result{padding:8px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid #f0f0f0;color:#333;line-height:1.3}
+.map-search-result:last-child{border-bottom:none}
+.map-search-result:hover{background:#e3f2fd}
+.map-search-result strong{display:block;font-size:12px;color:#111}
+.map-search-result span{color:#888;font-size:11px}
+</style>
+</head>
+<body>
+<div id="header">
+  <h1>Solar Layout Tool</h1>
+  <span style="flex:1"></span>
+  <div class="mode-pill">
+    <button id="pill-map" class="active" onclick="setAppMode('map')">🗺 Map Mode</button>
+    <button id="pill-input" onclick="setAppMode('input')">✏️ Input Mode</button>
+  </div>
+  <span id="status" style="font-size:12px;color:#1976d2">Draw a polygon to begin</span>
+</div>
+<div id="main">
+  <div id="sidebar">
+    <div id="design-bar">
+      <button id="btn-add-design" onclick="addDesign()">+ Design</button>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('setup')">Setup</div>
+      <div class="tab" onclick="switchTab('losses')">Losses</div>
+      <div class="tab" onclick="switchTab('site')">Site</div>
+      <div class="tab" onclick="switchTab('summary')">Summary</div>
+      <div class="tab" onclick="switchTab('export')">Export</div>
+    </div>
+
+    <!-- SETUP TAB -->
+    <div class="tab-content active" id="tab-setup">
+      <div class="sec">
+        <h3>Table Type</h3>
+        <div class="trow">
+          <button class="tbtn on" id="btn-ftype-ft" onclick="setType('FT')">Fixed Tilt</button>
+          <button class="tbtn" id="btn-ftype-sat" onclick="setType('SAT')">Single-Axis Tracker</button>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>Module</h3>
+        <div class="field">
+          <label>Preset</label>
+          <select id="mod-preset" onchange="applyModPreset()">
+            <option value="custom">Custom</option>
+            <option value="620|1.134|2.462|0.80" selected>Qcells Q.TRON XL-G2.3/BFG — 620W | 3.720×8.077ft</option>
+            <option value="585|1.134|2.278|0.80">Imperial Star ISN7-UHSB144-585/M — 585W | 3.720×7.474ft</option>
+          </select>
+        </div>
+        <div class="two-col">
+          <div class="field"><label>Width (<span class="u">ft</span>)</label><input type="number" id="mod-w" value="3.720" min="0.1" step="0.001" oninput="onModManualEdit()"/></div>
+          <div class="field"><label>Height (<span class="u">ft</span>)</label><input type="number" id="mod-h" value="8.077" min="0.1" step="0.001" oninput="onModManualEdit()"/></div>
+        </div>
+        <div class="two-col">
+          <div class="field"><label>Module Wp</label><input type="number" id="mod-wp" value="620" min="100" max="1000" step="5" oninput="onModManualEdit()"/></div>
+          <div class="field"><label>Bifaciality <span style="font-weight:400;color:#aaa;font-size:10px">rear/front</span></label>
+            <div class="range-row"><input type="range" id="bifaciality" min="0" max="0.9" value="0.80" step="0.01" oninput="onBifacialChange()"/><span class="rval" id="bif-val">0.80</span></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Orientation</label>
+          <div class="trow">
+            <button class="tbtn on" id="btn-port" onclick="setOrientation('portrait')">Portrait</button>
+            <button class="tbtn" id="btn-land" onclick="setOrientation('landscape')">Landscape</button>
+          </div>
+        </div>
+        <div class="onote" id="orient-note">FT Portrait: long edge runs N/S</div>
+        <div class="field" id="im-modules-field" style="display:none">
+          <label>Total Modules <span style="font-weight:400;color:#aaa;font-size:10px">Input Mode only</span></label>
+          <input type="number" id="im-modules" placeholder="e.g. 10000" min="1" step="1"
+            style="width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:13px"
+            oninput="onInputModeChange()">
+          <div class="mnote" id="im-mod-note" style="margin-top:3px"></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>Table Configuration</h3>
+        <div class="two-col">
+          <div class="field"><label>Modules wide (E/W)</label><input type="number" id="mods-x" value="1" min="1" max="30" step="1" oninput="onDimChange()"/></div>
+          <div class="field"><label>Modules tall (N/S)</label><input type="number" id="mods-y" value="24" min="1" max="80" step="1" oninput="onDimChange()"/></div>
+        </div>
+        <div class="tprev"><canvas id="tbl-canvas" width="60" height="80"></canvas></div>
+        <div class="tdim" id="tbl-dims">—</div>
+
+      </div>
+      <div class="sec" id="sec-strings" style="display:none">
+        <h3>SAT String Configuration</h3>
+        <div class="field"><label>Max strings per table</label>
+          <div class="trow">
+            <button class="tbtn" id="btn-str1" onclick="setMaxStrings(1)">1</button>
+            <button class="tbtn" id="btn-str2" onclick="setMaxStrings(2)">2</button>
+            <button class="tbtn" id="btn-str3" onclick="setMaxStrings(3)">3</button>
+            <button class="tbtn on" id="btn-str4" onclick="setMaxStrings(4)">4</button>
+          </div>
+        </div>
+        <div class="field"><label>Fill direction</label>
+          <div class="trow">
+            <button class="tbtn on" id="btn-fill-n" onclick="setFillDir('north')">North</button>
+            <button class="tbtn" id="btn-fill-c" onclick="setFillDir('center')">Aligned</button>
+            <button class="tbtn" id="btn-fill-s" onclick="setFillDir('south')">South</button>
+          </div>
+        </div>
+        <div class="str-legend" id="str-legend"></div>
+        <div class="onote" id="str-note">Fill from north boundary inward.</div>
+      </div>
+      <div class="sec">
+        <h3>Azimuth & Tilt</h3>
+        <div class="field"><label id="az-label">Azimuth (° from N)</label>
+          <div class="range-row"><input type="range" id="azimuth" min="0" max="359" value="180" step="1" oninput="onAzChange()"/><span class="rval" id="az-val">180°</span></div>
+        </div>
+        <div class="field" id="tilt-field"><label>Tilt Angle (°)</label>
+          <div class="range-row"><input type="range" id="tilt" min="0" max="60" value="20" step="1" oninput="onTiltChange()"/><span class="rval" id="tilt-val">20°</span></div>
+        </div>
+        <div class="field" id="maxrot-field" style="display:none"><label>Max Rotation (°)</label>
+          <div class="range-row"><input type="range" id="maxrot" min="30" max="60" value="52" step="1" oninput="onMaxRotChange()"/><span class="rval" id="rot-val">52°</span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>Spacing</h3>
+        <div class="field"><label>Row Spacing (<span class="u">ft</span>)</label>
+          <div class="range-row"><input type="range" id="row-sp" min="0" max="66" value="20" step="1" oninput="onSpacingChange()"/><span class="rval" id="rs-val">20.0 ft</span></div>
+        </div>
+        <div class="field"><label>Col Spacing (<span class="u">ft</span>)</label>
+          <div class="range-row"><input type="range" id="col-sp" min="0" max="33" value="15" step="0.5" oninput="onSpacingChange()"/><span class="rval" id="cs-val">15.0 ft</span></div>
+        </div>
+        <div class="field"><label>Pitch (<span class="u">ft</span>)</label>
+          <div style="font-size:13px;font-weight:600;color:#1976d2;padding:4px 0" id="pitch-val">—</div>
+        </div>
+
+      </div>
+      <div class="sec" id="sec-alignment">
+        <h3>Row Alignment</h3>
+        <div class="trow">
+          <button class="tbtn on" id="btn-align-c" onclick="setAlignment('center')">Aligned</button>
+          <button class="tbtn" id="btn-align-l" onclick="setAlignment('left')">Push Left</button>
+          <button class="tbtn" id="btn-align-r" onclick="setAlignment('right')">Push Right</button>
+        </div>
+        <div class="onote" id="align-note">All rows share a common grid origin</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px" id="map-layout-btns">
+        <button class="abtn apri" onclick="generateLayout()">Generate Layout</button>
+        <button class="abtn asec" onclick="clearTables()">Clear Tables</button>
+        <button class="abtn adng" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+
+    <!-- LOSSES TAB -->
+    <div class="tab-content" id="tab-losses">
+      <div class="sec">
+        <h3>AC System Size</h3>
+        <div class="field"><label>AC Capacity Limit (kWac) — 0 = no limit</label>
+          <input type="number" id="ac-size" value="0" min="0" step="10" oninput="invalidatePVWatts();calcStats();if(appMode==='input')onInputModeChange()"/>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>System Losses</h3>
+        <div class="field"><label>Inverter Efficiency (%)</label>
+          <div class="range-row"><input type="range" id="inv-eff" min="93" max="99" value="97" step="0.5" oninput="onLossChange()"/><span class="rval" id="inv-val">97.0%</span></div>
+        </div>
+        <div class="field"><label>Soiling Loss (%)</label>
+          <div class="range-row"><input type="range" id="soiling" min="0" max="10" value="2" step="0.5" oninput="onLossChange()"/><span class="rval" id="soil-val">2.0%</span></div>
+        </div>
+        <div class="field"><label>Additional Losses (%) <span style="font-weight:400;color:#aaa;font-size:10px">mismatch+wiring+LID+availability etc.</span></label>
+          <div class="range-row"><input type="range" id="add-loss" min="0" max="25" value="13" step="0.5" oninput="onLossChange()"/><span class="rval" id="add-val">13.0%</span></div>
+        </div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #e0e0e0">
+          <div class="lrow"><span>GCR shading loss</span><span id="gcr-loss-val">—</span></div>
+          <div class="lrow"><span>Clipping loss (DC:AC)</span><span id="clip-loss-val">—</span></div>
+          <div class="lrow total"><span>Combined PR</span><span id="pr-val">—</span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>Ground Albedo</h3>
+        <div class="field"><label>Albedo <span style="font-weight:400;color:#aaa;font-size:10px">0.2=grass, 0.25=gravel, 0.35=sand</span></label>
+          <div class="range-row"><input type="range" id="albedo" min="0" max="0.6" value="0.2" step="0.01" oninput="onBifacialChange()"/><span class="rval" id="alb-val">0.20</span></div>
+        </div>
+        <div class="onote" id="bifacial-note">Est. bifacial gain: —</div>
+      </div>
+      <div class="sec">
+        <h3>Loss Model Notes</h3>
+        <p style="font-size:11px;color:#666;line-height:1.6">
+          <strong>Additional losses</strong> default: FT 13% / SAT 12%.<br><br>
+          <strong>Bifacial gain</strong> applied to both estimate and PVWatts (bifaciality × albedo × view factor).<br><br>
+          <strong>PR</strong> = inverter × (1−soiling) × (1−additional) × (1−GCR shading) × (1−clipping)
+        </p>
+      </div>
+    </div>
+
+    <!-- SITE TAB -->
+    <div class="tab-content" id="tab-site">
+      <div class="sec">
+        <h3>Obstructions <span style="font-size:10px;color:#888;font-weight:400">(shared across all designs)</span></h3>
+        <p style="font-size:12px;color:#555;margin-bottom:8px">Draw polygons over areas where tables cannot be placed.</p>
+        <button class="abtn aobs" id="btn-draw-obs" onclick="startDrawObs()">Draw Obstruction</button>
+        <button class="abtn adng" id="btn-clear-obs" onclick="clearObstructions()" style="display:none">Clear All Obstructions</button>
+        <div class="obs-count" id="obs-count"></div>
+      </div>
+      <div class="sec">
+        <h3>Site Location</h3>
+        <div id="no-loc" style="font-size:12px;color:#aaa;font-style:italic">Draw a polygon to detect location</div>
+        <!-- Input Mode: manual lat/lng entry -->
+        <div id="im-latlng-fields" style="display:none;margin-bottom:8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field"><label style="font-size:11px;color:#666">Latitude</label>
+              <input type="number" id="im-lat" placeholder="39.5" step="0.0001"
+                style="width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:13px"
+                oninput="onInputModeChange()">
+            </div>
+            <div class="field"><label style="font-size:11px;color:#666">Longitude</label>
+              <input type="number" id="im-lng" placeholder="-105.2" step="0.0001"
+                style="width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:13px"
+                oninput="onInputModeChange()">
+            </div>
+          </div>
+        </div>
+        <div id="loc-info" style="display:none">
+          <div class="locrow">
+            <div class="lchip"><span>Latitude</span><strong id="loc-lat">—</strong></div>
+            <div class="lchip"><span>Longitude</span><strong id="loc-lng">—</strong></div>
+          </div>
+          <div class="locrow"><div class="lchip" style="width:100%;flex:unset"><span>Est. GHI</span><strong id="loc-ghi">—</strong> kWh/m²/yr</div></div>
+          <div class="ibar-wrap">
+            <div class="ibar-lbl"><span>Low irradiance</span><span>High irradiance</span></div>
+            <div class="ibar-bg"><div class="ibar-fill" id="irr-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY TAB -->
+    <div class="tab-content" id="tab-summary">
+      <div class="sec">
+        <h3>Active Design &nbsp;<span id="energy-source-badge" class="src-badge" style="background:#e3f2fd;color:#1565c0">Estimated</span></h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div class="lchip" style="text-align:center"><span>Tables</span><strong id="s-tables">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>Modules</span><strong id="s-mods">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>Total Strings</span><strong id="s-strings">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>DC kWp</span><strong id="s-dc">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>AC kWac</span><strong id="s-ac">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>GCR</span><strong id="s-gcr">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>Pitch</span><strong id="s-pitch">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>ILR</span><strong id="s-ilr">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>TMY GHI (kWh/m²/yr)</span><strong id="pv-ghi">—</strong></div>
+          <div class="lchip" style="text-align:center"><span>Capacity Factor</span><strong id="pv-cf">—</strong></div>
+          <div class="lchip" style="grid-column:span 2;text-align:center"><span>Annual MWh (AC)</span><strong id="s-energy">—</strong></div>
+          <div class="lchip" style="grid-column:span 2;text-align:center"><span>Specific Yield (kWh/kWp)</span><strong id="s-spec">—</strong></div>
+        </div>
+        <p class="hint" id="energy-note">Generate a layout to see estimates.</p>
+        <p class="mnote" id="energy-model-note"></p>
+      </div>
+      <div class="sec" id="str-breakdown" style="display:none">
+        <h3>String Breakdown</h3>
+        <div class="lrow"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#a8cdf4;border:1px solid #5ba4e8;display:inline-block"></span>4-string</span><span id="sb-4">0</span></div>
+        <div class="lrow"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#5ba4e8;border:1px solid #1976d2;display:inline-block"></span>3-string</span><span id="sb-3">0</span></div>
+        <div class="lrow"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#1976d2;border:1px solid #1255a0;display:inline-block"></span>2-string</span><span id="sb-2">0</span></div>
+        <div class="lrow"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#1a2744;border:1px solid #111b30;display:inline-block"></span>1-string</span><span id="sb-1">0</span></div>
+      </div>
+      <div class="sec" id="cmp-sec" style="display:none">
+        <h3>Design Comparison</h3>
+        <div id="cmp-wrap" style="overflow-x:auto"></div>
+      </div>
+      <div class="sec">
+        <h3>PVWatts Production Model</h3>
+        <p style="font-size:11px;color:#666;margin-bottom:8px">Run NREL PVWatts v8 for the active design. Results replace the estimated values above.</p>
+        <div class="field"><label>NREL API Key</label>
+          <input type="password" id="pvwatts-key" placeholder="Enter your NREL API key" oninput="updatePVWattsBtn()"/>
+        </div>
+        <button class="abtn apri" id="btn-pvwatts" onclick="runPVWatts()" style="opacity:.4;cursor:not-allowed;margin-bottom:0" disabled>Run PVWatts &amp; Load Hourly Data</button>
+        <div id="pvwatts-missing" style="font-size:11px;color:#e65100;margin-top:4px"></div>
+        <div id="pvwatts-status" style="font-size:11px;color:#888;margin-top:4px;font-style:italic"></div>
+      </div>
+      <div class="sec" id="pvwatts-results" style="display:none">
+        <h3>PVWatts Monthly Breakdown <span id="pvwatts-design-label" style="font-size:10px;font-weight:400;color:#888"></span></h3>
+        <div id="pv-monthly-chart" style="display:flex;align-items:flex-end;gap:3px;height:80px"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:3px">
+          <span style="font-size:9px;color:#aaa">Jan</span><span style="font-size:9px;color:#aaa">Feb</span><span style="font-size:9px;color:#aaa">Mar</span><span style="font-size:9px;color:#aaa">Apr</span><span style="font-size:9px;color:#aaa">May</span><span style="font-size:9px;color:#aaa">Jun</span><span style="font-size:9px;color:#aaa">Jul</span><span style="font-size:9px;color:#aaa">Aug</span><span style="font-size:9px;color:#aaa">Sep</span><span style="font-size:9px;color:#aaa">Oct</span><span style="font-size:9px;color:#aaa">Nov</span><span style="font-size:9px;color:#aaa">Dec</span>
+        </div>
+        <div id="clipping-summary" style="display:none;margin-top:10px;padding-top:8px;border-top:1px solid #eee">
+          <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Clipping Summary</div>
+          <div class="lrow"><span>Total clipped energy</span><span id="clip-mwh">—</span></div>
+          <div class="lrow"><span>Clipping as % of DC gen</span><span id="clip-pct-dc">—</span></div>
+          <div class="lrow"><span>Hours with clipping</span><span id="clip-hours">—</span></div>
+          <div class="lrow"><span>Peak clipping hour</span><span id="clip-peak">—</span></div>
+        </div>
+        <p id="export-hint" style="font-size:11px;color:#888;margin-top:8px;font-style:italic;display:none">&#10003; Hourly data ready — see Export tab to download CSV or run BESS analysis.</p>
+        <p class="mnote" style="margin-top:6px">Source: NREL PVWatts v8 — TMY weather data</p>
+      </div>
+    </div>
+
+    <!-- EXPORT TAB -->
+    <div class="tab-content" id="tab-export">
+      <div class="sec">
+        <h3>Layout Export</h3>
+        <p class="mnote" style="margin-bottom:8px">Exports the active design boundary, tables, and obstacles.</p>
+        <button class="abtn asec" onclick="exportKMZ()" style="width:100%">&#x1F4E5; Export KMZ (Google Earth / GIS)</button>
+        <p class="mnote" style="margin-top:6px">Opens in Google Earth, QGIS, ArcGIS, and other GIS tools. Includes boundary, tables, and obstacles as separate layers.</p>
+      </div>
+      <div class="sec">
+        <h3>Design Summary Report</h3>
+        <p class="mnote" style="margin-bottom:8px">Exports a PDF summary of the active design including configuration, losses, and energy results.</p>
+        <button class="abtn apri" onclick="exportPDF()" style="width:100%">&#x1F4C4; Export PDF Summary</button>
+        <p class="mnote" style="margin-top:6px">Includes table type, module config, spacing, tilt/azimuth, losses, site info, and energy stats. Run PVWatts first for full energy data.</p>
+      </div>
+      <div class="sec" id="export-energy-sec">
+        <h3>Energy Data Export</h3>
+        <div id="export-no-data" style="font-size:12px;color:#aaa;font-style:italic;margin-bottom:8px">Run PVWatts in the Summary tab first to enable energy exports.</div>
+        <div id="export-data-ready" style="display:none">
+          <div style="font-size:12px;color:#2e7d32;margin-bottom:10px;font-weight:500">&#10003; Hourly data ready for active design</div>
+          <button class="abtn asec" onclick="exportCSV()" style="width:100%;margin-bottom:6px">&#x1F4E5; Download 8760 CSV</button>
+          <div id="8760-status" style="font-size:11px;color:#888;margin-bottom:8px;font-style:italic"></div>
+          <div id="export-stale-warn" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:6px 10px;font-size:11px;color:#f57f17;font-weight:500;margin-bottom:6px">
+            ⚠ Design or boundary changed since last PVWatts run — re-run PVWatts in the Summary tab for accurate BESS analysis.
+          </div>
+          <button class="abtn abess" id="btn-bess" onclick="openBESS()" style="width:100%;display:none">&#x26A1; BESS Clipping Analysis</button>
+          <p class="mnote" style="margin-top:6px">BESS analysis only available when an AC export limit is set.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div id="map"></div>
+</div>
+
+<!-- BESS Modal -->
+<div id="bess-modal">
+  <div id="bess-box">
+    <div id="bess-header">
+      <div style="display:flex;flex-direction:column;width:100%">
+        <div id="bess-handle" style="margin:4px auto 2px"></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <h2>⚡ BESS Clipping Recapture Analysis</h2>
+          <span id="bess-design-lbl" style="font-size:12px;color:#888"></span>
+          <div id="bess-stale-warn" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:3px 10px;font-size:11px;color:#f57f17;font-weight:500">
+            ⚠ Design changed — re-run PVWatts for updated analysis
+          </div>
+          <button id="bess-close" onclick="closeBESS()">✕</button>
+        </div>
+      </div>
+    </div>
+    <div id="bess-body">
+      <!-- Top row: stats chips + config -->
+      <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;flex-shrink:0">
+        <div class="bess-stats" style="flex:1;min-width:260px">
+          <div class="bess-chip"><span>Total Clipping</span><strong id="bess-total-clip">—</strong></div>
+          <div class="bess-chip"><span>Clipping Recovered</span><strong id="bess-recovered">—</strong></div>
+          <div class="bess-chip"><span>% Clipping Captured</span><strong id="bess-pct">—</strong></div>
+          <div class="bess-chip"><span>Est. Cycles/yr</span><strong id="bess-cycles">—</strong></div>
+          <div class="bess-chip" id="bess-grid-chip" style="display:none"><span>Grid Charged</span><strong id="bess-grid-charged">—</strong></div>
+          <div class="bess-chip" id="bess-total-chip" style="display:none"><span>Total Dispatched</span><strong id="bess-total-dispatched">—</strong></div>
+        </div>
+      </div>
+      <div class="bess-card" style="flex-shrink:0">
+        <h3>Battery Configuration</h3>
+        <div class="bess-ctrl">
+          <label>Capacity (kWh): <strong id="bess-kwh-val">—</strong></label>
+          <input type="range" id="bess-kwh-slider" min="1" max="100" step="1" value="4" oninput="onBESSSlider()" style="width:160px;accent-color:#00897b">
+          <label style="margin-left:8px">RTE (%)</label>
+          <input type="number" id="bess-rte" value="88" min="50" max="100" step="1" style="width:60px" oninput="runBESS()">
+          <span style="margin-left:12px;font-size:11px;color:#888">AC Export Limit: <strong id="bess-aclim-lbl" style="color:#555">—</strong></span>
+          <label style="margin-left:14px;display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:#555">
+            <input type="checkbox" id="bess-grid-charge" onchange="onGridChargeToggle()" style="accent-color:#7b1fa2">
+            Grid Charging
+          </label>
+          <span id="bess-grid-rate-wrap" style="display:none;align-items:center;gap:5px;font-size:12px;color:#555">
+            <label>Buy Rate ($/kWh)</label>
+            <input type="number" id="bess-grid-rate" value="0.06" min="0" max="1" step="0.01" style="width:70px" oninput="runBESS()">
+            <label style="margin-left:8px">Import Limit (kW)</label>
+            <input type="number" id="bess-import-limit" value="" min="0" step="100" style="width:90px" placeholder="= AC limit" oninput="runBESS()">
+          </span>
+        </div>
+        <p style="font-size:11px;color:#888;font-style:italic" id="bess-dispatch-note2">Battery power = DC kWp. Charges from clipping, dispatches until midnight. Grid charging: 10pm–6am when enabled.</p>
+      </div>
+      <!-- Charts side by side -->
+      <div style="display:flex;gap:8px;min-height:280px;flex-shrink:0">
+        <div class="bess-card" style="flex:1;min-width:0;overflow:hidden;display:flex;flex-direction:column">
+          <h3>Daily Generation &amp; Export Profile</h3>
+          <div class="bess-ctrl">
+            <label>Date:</label>
+            <input type="date" id="bess-date" onchange="drawDailyChart()">
+            <button onclick="jumpWorstDay()" style="padding:3px 8px;font-size:10px;border:1px solid #ccc;border-radius:5px;cursor:pointer;background:#fff">Worst Day</button>
+            <button onclick="nudgeDay(-1)" style="padding:3px 6px;font-size:10px;border:1px solid #ccc;border-radius:5px;cursor:pointer;background:#fff">◀</button>
+            <button onclick="nudgeDay(1)" style="padding:3px 6px;font-size:10px;border:1px solid #ccc;border-radius:5px;cursor:pointer;background:#fff">▶</button>
+          </div>
+          <canvas id="bess-daily-canvas" class="bess-canvas" height="140"></canvas>
+          <div class="bess-legend" style="margin-bottom:4px">
+            <div class="bess-legend-item"><div class="bess-legend-swatch" style="background:#f9a825"></div>PV Production</div>
+            <div class="bess-legend-item"><div class="bess-legend-swatch" style="border-top:2px dashed #e53935;width:22px;height:0;margin-top:6px"></div>IX Limit</div>
+            <div class="bess-legend-item"><div class="bess-legend-swatch" style="background:#43a047"></div>Grid Export</div>
+            <div class="bess-legend-item" id="bess-gc-legend" style="display:none"><div class="bess-legend-swatch" style="background:#7b1fa2"></div>Grid Import (kW)</div>
+          </div>
+          <canvas id="bess-soc-canvas" class="bess-canvas" height="70"></canvas>
+          <div class="bess-legend">
+            <div class="bess-legend-item"><div class="bess-legend-swatch" style="background:#1976d2"></div>SOC — PV Clipping</div>
+            <div class="bess-legend-item" id="bess-gc-soc-legend" style="display:none"><div class="bess-legend-swatch" style="background:#7b1fa2;opacity:0.7"></div>SOC — Grid Charged</div>
+            <div class="bess-legend-item"><div class="bess-legend-swatch" style="border-top:1px dashed #aaa;background:none;width:22px;height:0;margin-top:6px"></div>Capacity</div>
+          </div>
+        </div>
+        <div class="bess-card" style="flex:1;min-width:0;overflow:hidden;display:flex;flex-direction:column">
+          <h3>Battery Sizing Curve</h3>
+          <canvas id="bess-sizing-canvas" class="bess-canvas" style="flex:1;min-height:0"></canvas>
+          <div class="bess-legend">
+            <div class="bess-legend-item"><div class="bess-legend-swatch" style="background:#00897b"></div>Clip-only MWh/yr</div>
+            <div class="bess-legend-item" id="bess-gc-sizing-legend" style="display:none"><div class="bess-legend-swatch" style="border-top:2px dashed #7b1fa2;background:none;width:22px;height:0;margin-top:6px"></div>Clip+Grid MWh/yr</div>
+            <div class="bess-legend-item"><div class="bess-legend-swatch" style="border-top:2px dashed #f9a825;background:none;width:22px;height:0;margin-top:6px"></div>% Captured</div>
+            <div class="bess-legend-item"><div style="width:10px;height:10px;background:#00897b;transform:rotate(45deg);display:inline-block;margin-right:5px"></div>Elbow</div>
+            <div class="bess-legend-item"><div class="bess-legend-swatch" style="background:#e53935;width:10px;height:10px;border-radius:50%"></div>Selected</div>
+          </div>
+        </div>
+      </div>
+      <!-- Financial Analysis -->
+      <div class="bess-card" style="flex-shrink:0">
+        <h3>Financial Analysis — Incremental Return on Capacity</h3>
+        <div class="fin-inputs">
+          <label>Energy Rate ($/kWh)
+            <input type="number" id="fin-rate" value="0.14" min="0.01" max="1" step="0.01" oninput="runFinancial()">
+          </label>
+          <label>BESS Capex ($/kWh)
+            <input type="number" id="fin-capex" value="250" min="1" max="2000" step="10" oninput="runFinancial()">
+          </label>
+          <label>Payback Target (yrs)
+            <input type="number" id="fin-payback" value="10" min="1" max="30" step="1" oninput="runFinancial()">
+          </label>
+          <label>Battery Life (yrs)
+            <input type="number" id="fin-life" value="20" min="1" max="40" step="1" oninput="runFinancial()">
+          </label>
+          <label>Annual Degradation (%)
+            <input type="number" id="fin-deg" value="1.5" min="0" max="10" step="0.1" oninput="runFinancial()">
+          </label>
+          <label>Rate Escalation (%/yr)
+            <input type="number" id="fin-esc" value="0" min="0" max="10" step="0.1" oninput="runFinancial()">
+          </label>
+        </div>
+        <div class="fin-chips" id="fin-chips"></div>
+        <div class="fin-scroll">
+          <table class="fin-table" id="fin-table">
+            <thead><tr>
+              <th>Battery Size</th>
+              <th>Duration (hrs)</th>
+              <th>Yr 1 Recapture (kWh)</th>
+              <th>Incr. Recapture (kWh)</th>
+              <th>Yr 1 Revenue</th>
+              <th>Battery Cost</th>
+              <th>Simple Payback</th>
+              <th>Lifetime Revenue</th>
+              <th>Lifetime NPV</th>
+            </tr></thead>
+            <tbody id="fin-tbody"></tbody>
+          </table>
+        </div>
+        <p style="font-size:10px;color:#aaa;margin-top:6px;font-style:italic">★ = Optimal size (largest battery meeting payback target). Blue = selected slider size. Duration = kWh ÷ DC kWp (DC-coupled, battery power = DC kWp). Lifetime revenue applies degradation &amp; escalation annually. NPV = Lifetime Revenue − Battery Cost.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script>
+// ── Constants ──────────────────────────────────────────────
+const D_COLORS=['#1976d2','#e65100','#2e7d32','#6a1b9a','#c62828'];
+const D_NAMES=['D1','D2','D3','D4','D5'];
+const CFG_KEYS=['mod-preset','mod-w','mod-h','mod-wp','mods-x','mods-y',
+  'azimuth','tilt','maxrot','row-sp','col-sp','ac-size',
+  'inv-eff','soiling','add-loss','bifaciality','albedo'];
+// Blue gradient: 1=darkest navy, 2=base blue, 3=lighter, 4=lightest
+const STR_COLORS={
+  1:{fill:'#1a2744',stroke:'#111b30'},
+  2:{fill:'#1976d2',stroke:'#1255a0'},
+  3:{fill:'#5ba4e8',stroke:'#1976d2'},
+  4:{fill:'#a8cdf4',stroke:'#5ba4e8'}};
+const PVWATTS_CAL=0.93;
+
+// ── State ──────────────────────────────────────────────────
+let units='ft',activeIdx=0,drawingObs=false;
+let designDirty=false; // true when design changed since last PVWatts run
+let appMode='map'; // 'map' or 'input'
+let siteLat=null,siteLng=null,obstructions=[];
+let tableType='SAT',orientation='portrait',alignment='center',maxStrings=4,fillDir='north';
+const designs=[];
+
+// ── Map ────────────────────────────────────────────────────
+const map=L.map('map').setView([35,-100],4);
+const osmTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',{attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',subdomains:'abcd',maxZoom:22});
+const satTile=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri',maxZoom:22});
+
+// ── Map Search Control ────────────────────────────────────────────────────────
+const SearchControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    const wrap=L.DomUtil.create('div');
+    const inner=document.createElement('div');
+    inner.id='map-search-wrap';
+    inner.style.position='relative';
+
+    const icon=document.createElement('span');
+    icon.textContent='Search:';
+    icon.style.cssText='font-size:11px;color:#888;white-space:nowrap';
+
+    const inp=document.createElement('input');
+    inp.id='map-search-input';
+    inp.placeholder='Address or lat, lng...';
+    inp.autocomplete='off';
+
+    const btn=document.createElement('button');
+    btn.id='map-search-btn';
+    btn.textContent='Go';
+    btn.onclick=runMapSearch;
+
+    const results=document.createElement('div');
+    results.id='map-search-results';
+
+    inner.appendChild(icon);
+    inner.appendChild(inp);
+    inner.appendChild(btn);
+    inner.appendChild(results);
+    wrap.appendChild(inner);
+
+    L.DomEvent.disableClickPropagation(wrap);
+    L.DomEvent.disableScrollPropagation(wrap);
+
+    // Enter/Escape on the input
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){runMapSearch();}
+      if(e.key==='Escape'){clearMapSearchResults();}
+    });
+
+    return wrap;
+  }
+});
+new SearchControl().addTo(map);
+
+let searchMarker=null;
+
+function clearMapSearchResults(){
+  const r=document.getElementById('map-search-results');
+  if(r){r.innerHTML='';r.style.display='none';}
+}
+
+async function runMapSearch(){
+  const inp=document.getElementById('map-search-input');
+  const q=(inp.value||'').trim();
+  if(!q) return;
+
+  // Check if input is coordinates: "lat, lng" or "lat lng"
+  const coordMatch=q.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/);
+  if(coordMatch){
+    const lat=parseFloat(coordMatch[1]),lng=parseFloat(coordMatch[2]);
+    if(lat>=-90&&lat<=90&&lng>=-180&&lng<=180){
+      zoomToLocation(lat,lng,16,q);
+      clearMapSearchResults();
+      return;
+    }
+  }
+
+  // Geocode via Nominatim
+  const btn=document.getElementById('map-search-btn');
+  btn.textContent='…';btn.disabled=true;
+  try{
+    const url=`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(q)}`;
+    const resp=await fetch(url,{headers:{'Accept-Language':'en'}});
+    const results=await resp.json();
+    showMapSearchResults(results);
+  }catch(err){
+    showMapSearchError('Search failed. Try lat, lng coordinates.');
+  }finally{
+    btn.textContent='Go';btn.disabled=false;
+  }
+}
+
+function showMapSearchResults(results){
+  const r=document.getElementById('map-search-results');
+  if(!results||results.length===0){
+    r.innerHTML='<div class="map-search-result"><strong>No results found</strong></div>';
+    r.style.display='block';
+    return;
+  }
+  r.innerHTML=results.map((res,i)=>{
+    const parts=res.display_name.split(',');
+    const main=parts[0].trim();
+    const sub=parts.slice(1,3).join(',').trim();
+    return `<div class="map-search-result" onclick="selectMapResult(${res.lat},${res.lon},'${main.replace(/'/g,"\'")}')">
+      <strong>${main}</strong><span>${sub}</span>
+    </div>`;
+  }).join('');
+  r.style.display='block';
+}
+
+function showMapSearchError(msg){
+  const r=document.getElementById('map-search-results');
+  r.innerHTML=`<div class="map-search-result"><strong style="color:#e53935">${msg}</strong></div>`;
+  r.style.display='block';
+}
+
+function selectMapResult(lat,lon,label){
+  zoomToLocation(parseFloat(lat),parseFloat(lon),17,label);
+  clearMapSearchResults();
+  document.getElementById('map-search-input').value=label;
+}
+
+function zoomToLocation(lat,lng,zoom,label){
+  map.setView([lat,lng],zoom);
+  if(searchMarker) map.removeLayer(searchMarker);
+  searchMarker=L.circleMarker([lat,lng],{
+    radius:8,color:'#1976d2',fillColor:'#1976d2',fillOpacity:0.8,weight:2
+  }).addTo(map).bindPopup(label).openPopup();
+  // Remove marker after 5 seconds
+  setTimeout(()=>{if(searchMarker){map.removeLayer(searchMarker);searchMarker=null;}},5000);
+}
+
+// Close results when clicking elsewhere on map
+map.on('click',clearMapSearchResults);
+osmTile.addTo(map);
+L.control.layers({'Street Map':osmTile,'Satellite':satTile}).addTo(map);
+const obsGroup=L.layerGroup().addTo(map);
+const drawnItems=new L.FeatureGroup().addTo(map);
+const drawCtrl=new L.Control.Draw({
+  draw:{polygon:{shapeOptions:{color:'#1976d2',weight:2,fillOpacity:0.1}},polyline:false,rectangle:false,circle:false,circlemarker:false,marker:false},
+  edit:{featureGroup:drawnItems}
+});
+map.addControl(drawCtrl);
+
+map.on(L.Draw.Event.CREATED,e=>{
+  if(e.layerType!=='polygon')return;
+  if(drawingObs){
+    e.layer.setStyle({color:'#c62828',weight:2,fillColor:'#ef5350',fillOpacity:0.35});
+    obsGroup.addLayer(e.layer);obstructions.push(e.layer);
+    drawingObs=false;
+    document.getElementById('btn-draw-obs').classList.remove('drawing');
+    document.getElementById('btn-draw-obs').textContent='Draw Obstruction';
+    document.getElementById('btn-clear-obs').style.display='';
+    updateObsCount();setStatus(`${obstructions.length} obstruction(s) set.`);
+  } else {
+    const d=designs[activeIdx];
+    if(d.boundaryLayer)drawnItems.removeLayer(d.boundaryLayer);
+    e.layer.setStyle({color:D_COLORS[activeIdx],weight:2,fillOpacity:0.08});
+    drawnItems.addLayer(e.layer);
+    d.boundaryLayer=e.layer;
+    d.boundaryLatLngs=e.layer.getLatLngs()[0].map(ll=>({lat:ll.lat,lng:ll.lng}));
+    markDirty();
+    updateSiteLocation();setStatus('Boundary set. Click "Generate Layout".');
+  }
+});
+map.on(L.Draw.Event.EDITED,e=>{
+  e.layers.eachLayer(l=>{
+    designs.forEach(d=>{if(d.boundaryLayer===l){d.boundaryLatLngs=l.getLatLngs()[0].map(ll=>({lat:ll.lat,lng:ll.lng}));if(d===designs[activeIdx]){markDirty();updateSiteLocation();}}});
+  });generateLayout();
+});
+
+// ── Helpers ────────────────────────────────────────────────
+const FT=3.28084;
+function toM(v){return units==='ft'?v/FT:v;}
+function fmtDim(m){return units==='ft'?(m*FT).toFixed(2)+' ft':m.toFixed(2)+' m';}
+function uStr(){return units==='ft'?'ft':'m';}
+function g(id){const el=document.getElementById(id);return el?parseFloat(el.value)||0:0;}
+function gv(id){const el=document.getElementById(id);return el?el.value:'';}
+function setStatus(t){document.getElementById('status').textContent=t;}
+function setEl(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+
+// ── Energy model ───────────────────────────────────────────
+function estimateGHI(lat,lng){
+  const a=Math.abs(lat);let gh;
+  if(a<=25)gh=1750+275*Math.cos((a/25)*Math.PI/2);
+  else if(a<=45)gh=1750-185*((a-25)/20);
+  else if(a<=65)gh=1565-550*((a-45)/20);
+  else gh=Math.max(650,1015-460*((a-65)/25));
+  if(lat>20&&lat<40&&lng>-120&&lng<-95)gh+=130;
+  else if(lat>15&&lat<35&&lng>-15&&lng<60)gh+=180;
+  else if(lat>-35&&lat<-15&&lng>120&&lng<145)gh+=130;
+  else if(lat>-30&&lat<-15&&lng>-75&&lng<-65)gh+=180;
+  else if(lat>20&&lat<35&&lng>65&&lng<80)gh+=90;
+  return Math.min(2200,gh);
+}
+function tiltFactor(td,lat){
+  const opt=Math.min(45,Math.abs(lat)*1.05),diff=Math.abs(td-opt),peak=0.05+0.001*Math.abs(lat);
+  return Math.max(0.90,Math.min(1.10,1+peak*Math.cos((diff/45)*Math.PI/2)));
+}
+function azimuthFactor(az,lat){const optAz=lat>=0?180:0,dev=Math.min(Math.abs(az-optAz),360-Math.abs(az-optAz));return 0.60+0.40*Math.cos((dev/180)*Math.PI);}
+function satGainFactor(lat){return 1.20+0.003*Math.min(Math.abs(lat),45);}
+function maxRotFactor(r){return 0.88+0.0027*Math.min(r,60);}
+function gcrShadingLoss(gcr,lat,tilt,isSAT){
+  if(isSAT){const se=Math.max(5,(90-Math.abs(lat)-23.5))*Math.PI/180;const gl=Math.sin(se);if(gcr<=gl*0.5)return 0.001;const r=gcr/gl;return Math.min(0.15,0.03*(r-0.5)*(r-0.5));}
+  const sed=Math.max(5,90-Math.abs(lat)-23.5),ser=sed*Math.PI/180,tr=tilt*Math.PI/180;
+  const sf=Math.cos(tr)+Math.sin(tr)/Math.tan(ser),gsf=1/sf;
+  if(gcr<=gsf)return 0.001;const or=(gcr-gsf)/(1-gsf);return Math.min(0.20,or*or*0.25);
+}
+function clippingLoss(ilr){if(ilr<=1)return 0;const o=ilr-1;return Math.min(0.25,0.55*o*o+0.02*o);}
+function bifacialGain(bif,alb,isSAT){const vf=isSAT?0.35:0.25;return 1+bif*alb*vf;}
+
+// ── Design management ──────────────────────────────────────
+function makeDesign(copyFrom=null){
+  const cfg={};
+  if(copyFrom){
+    CFG_KEYS.forEach(k=>cfg[k]=copyFrom.config[k]);
+    cfg.tableType=copyFrom.config.tableType;cfg.orientation=copyFrom.config.orientation;
+    cfg.alignment=copyFrom.config.alignment;cfg.maxStrings=copyFrom.config.maxStrings;cfg.fillDir=copyFrom.config.fillDir;
+  } else {
+    CFG_KEYS.forEach(k=>{const el=document.getElementById(k);cfg[k]=el?el.value:'';});
+    cfg.tableType=tableType;cfg.orientation=orientation;cfg.alignment=alignment;cfg.maxStrings=maxStrings;cfg.fillDir=fillDir;
+  }
+  return{config:cfg,boundaryLatLngs:copyFrom&&copyFrom.boundaryLatLngs?[...copyFrom.boundaryLatLngs]:null,
+    tableRects:[],tableGroup:L.layerGroup().addTo(map),boundaryLayer:null,stats:null,pvwatts:null};
+}
+function initDesigns(){units='ft';designs.push(makeDesign());renderDesignBar();loadDesign(0);setUnits('ft');document.getElementById('row-sp').value=20;document.getElementById('col-sp').value=15;setEl('rs-val','20.0 ft');setEl('cs-val','15.0 ft');onSpacingChange();}
+function addDesign(){
+  if(designs.length>=5)return;
+  saveCurrentDesign();
+  const nd=makeDesign(designs[activeIdx]);
+  if(designs[activeIdx].boundaryLatLngs){
+    const poly=L.polygon(designs[activeIdx].boundaryLatLngs.map(ll=>L.latLng(ll.lat,ll.lng)),{color:D_COLORS[designs.length],weight:2,fillOpacity:0.08});
+    drawnItems.addLayer(poly);nd.boundaryLayer=poly;
+  }
+  designs.push(nd);activeIdx=designs.length-1;
+  renderDesignBar();loadDesign(activeIdx);
+}
+function deleteDesign(idx,e){
+  e.stopPropagation();
+  if(designs.length===1){alert('At least one design required.');return;}
+  const d=designs[idx];
+  map.removeLayer(d.tableGroup);
+  if(d.boundaryLayer)drawnItems.removeLayer(d.boundaryLayer);
+  designs.splice(idx,1);
+  activeIdx=Math.min(activeIdx,designs.length-1);
+  renderDesignBar();loadDesign(activeIdx);renderComparison();
+}
+function switchDesign(idx){saveCurrentDesign();activeIdx=idx;renderDesignBar();loadDesign(idx);}
+function saveCurrentDesign(){
+  const d=designs[activeIdx];
+  CFG_KEYS.forEach(k=>{const el=document.getElementById(k);if(el)d.config[k]=el.value;});
+  d.config.tableType=tableType;d.config.orientation=orientation;
+  d.config.alignment=alignment;d.config.maxStrings=maxStrings;d.config.fillDir=fillDir;
+}
+function loadDesign(idx){
+  const d=designs[idx];
+  CFG_KEYS.forEach(k=>{const el=document.getElementById(k);if(el&&d.config[k]!==undefined)el.value=d.config[k];});
+  setTypeUI(d.config.tableType||'SAT');
+  setOrientationUI(d.config.orientation||'portrait');
+  setAlignmentUI(d.config.alignment||'center');
+  setMaxStringsUI(d.config.maxStrings||4);
+  setFillDirUI(d.config.fillDir||'north');
+  setEl('az-val',gv('azimuth')+'°');
+  setEl('tilt-val',gv('tilt')+'°');
+  setEl('rot-val',gv('maxrot')+'°');
+  setEl('rs-val',parseFloat(gv('row-sp')).toFixed(1)+' '+uStr());
+  setEl('cs-val',parseFloat(gv('col-sp')).toFixed(1)+' '+uStr());
+  setEl('inv-val',parseFloat(gv('inv-eff')).toFixed(1)+'%');
+  setEl('soil-val',parseFloat(gv('soiling')).toFixed(1)+'%');
+  setEl('add-val',parseFloat(gv('add-loss')).toFixed(1)+'%');
+  setEl('bif-val',parseFloat(gv('bifaciality')||0.80).toFixed(2));
+  setEl('alb-val',parseFloat(gv('albedo')||0.2).toFixed(2));
+  setEl('mode-badge',tableType==='FT'?'Fixed Tilt':'Single-Axis Tracker');
+  refreshBifacialNote();
+  drawTablePreview();updateDimsLabel();
+  if(d.boundaryLatLngs)updateSiteLocationFrom(d.boundaryLatLngs);
+  else{siteLat=null;siteLng=null;document.getElementById('no-loc').style.display='';document.getElementById('loc-info').style.display='none';}
+  const badge=document.getElementById('energy-source-badge');
+  if(d.pvwatts){
+    badge.textContent='PVWatts v8';badge.style.background='#e8f5e9';badge.style.color='#2e7d32';
+    setEl('pv-ghi',d.pvwatts.solrad.toFixed(0));setEl('pv-cf',d.pvwatts.cf.toFixed(1)+'%');
+    document.getElementById('pvwatts-results').style.display='';
+  } else {
+    badge.textContent='Estimated';badge.style.background='#e3f2fd';badge.style.color='#1565c0';
+    setEl('pv-ghi','—');setEl('pv-cf','—');
+    document.getElementById('pvwatts-results').style.display='none';
+  }
+  if(d.stats)restoreStats(d.stats);else calcStats();
+  updateMapVisibility();updatePVWattsBtn();
+  // Update monthly chart and clipping summary for active design
+  if(d.pvwatts){renderMonthlyChart(d);}
+  else{document.getElementById('pvwatts-results').style.display='none';document.getElementById('clipping-summary').style.display='none';}
+  // Update export tab state
+  updateExportTab();
+  // If BESS drawer is open, refresh it for the new active design
+  if(document.getElementById('bess-modal').style.display==='flex'){
+    if(d.hourly8760) requestAnimationFrame(()=>runBESS());
+    else closeBESS();
+  }
+}
+function updateMapVisibility(){
+  designs.forEach((d,i)=>{
+    if(i===activeIdx){if(!map.hasLayer(d.tableGroup))d.tableGroup.addTo(map);}
+    else{if(map.hasLayer(d.tableGroup))map.removeLayer(d.tableGroup);}
+    if(d.boundaryLayer){
+      if(i===activeIdx){if(!drawnItems.hasLayer(d.boundaryLayer))drawnItems.addLayer(d.boundaryLayer);}
+      else{if(drawnItems.hasLayer(d.boundaryLayer))drawnItems.removeLayer(d.boundaryLayer);}
+    }
+  });
+}
+function renderDesignBar(){
+  const bar=document.getElementById('design-bar');
+  bar.querySelectorAll('.d-tab').forEach(t=>t.remove());
+  const addBtn=document.getElementById('btn-add-design');
+  designs.forEach((d,i)=>{
+    const t=document.createElement('div');
+    t.className='d-tab'+(i===activeIdx?' active':'');
+    t.style.background=i===activeIdx?D_COLORS[i]:'#fff';
+    t.style.borderColor=D_COLORS[i];t.style.color=i===activeIdx?'#fff':D_COLORS[i];
+    const label=document.createElement('span');label.textContent=D_NAMES[i];label.onclick=()=>switchDesign(i);t.appendChild(label);
+    if(designs.length>1){const x=document.createElement('span');x.className='del';x.textContent='✕';x.onclick=ev=>deleteDesign(i,ev);t.appendChild(x);}
+    bar.insertBefore(t,addBtn);
+  });
+  addBtn.disabled=designs.length>=5;
+}
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>{const ns=['setup','losses','site','summary','export'];t.classList.toggle('active',ns[i]===name);});
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active',c.id==='tab-'+name));
+  if(name==='summary'){renderComparison();updatePVWattsBtn();}
+  if(name==='export'){updateExportTab();}
+}
+
+// ── Unit handling ──────────────────────────────────────────
+function setUnits(u){
+  // Units locked to feet — function kept for compatibility
+  units='ft';
+  document.getElementById('row-sp').max='66';
+  document.getElementById('col-sp').max='33';
+  document.querySelectorAll('.u').forEach(el=>el.textContent='ft');
+  onDimChange();onSpacingChange();
+}
+
+// ── UI state setters ───────────────────────────────────────
+function setTypeUI(t){
+  tableType=t;
+  setEl('mode-badge',t==='FT'?'Fixed Tilt':'Single-Axis Tracker');
+  document.getElementById('btn-ftype-ft').classList.toggle('on',t==='FT');
+  document.getElementById('btn-ftype-sat').classList.toggle('on',t==='SAT');
+  document.getElementById('tilt-field').style.display=t==='FT'?'':'none';
+  document.getElementById('maxrot-field').style.display=t==='SAT'?'':'none';
+  setEl('az-label',t==='SAT'?'Tracker Axis Azimuth (° from N)':'Azimuth (° from N)');
+  document.getElementById('sec-alignment').style.display=(t==='FT'&&appMode==='map')?'':'none';
+  document.getElementById('sec-strings').style.display=(t==='SAT'&&appMode==='map')?'':'none';
+  updateOrientNote();
+}
+function setOrientationUI(o){orientation=o;document.getElementById('btn-port').classList.toggle('on',o==='portrait');document.getElementById('btn-land').classList.toggle('on',o==='landscape');updateOrientNote();}
+function setAlignmentUI(a){
+  alignment=a;
+  document.getElementById('btn-align-c').classList.toggle('on',a==='center');
+  document.getElementById('btn-align-l').classList.toggle('on',a==='left');
+  document.getElementById('btn-align-r').classList.toggle('on',a==='right');
+  const notes={center:'All rows share a common grid origin',left:'Each row pushed left against boundary',right:'Each row pushed right against boundary'};
+  setEl('align-note',notes[a]);
+}
+function setMaxStringsUI(n){
+  maxStrings=n;[1,2,3,4].forEach(i=>document.getElementById(`btn-str${i}`).classList.toggle('on',i===n));
+  const legend=document.getElementById('str-legend');legend.innerHTML='';
+  for(let i=n;i>=1;i--){const sp=document.createElement('span');sp.className='str-pill';sp.style.cssText=`background:${STR_COLORS[i].fill}55;color:${STR_COLORS[i].stroke};border:1px solid ${STR_COLORS[i].stroke}`;sp.textContent=i+'-string';legend.appendChild(sp);}
+}
+function setFillDirUI(d){
+  fillDir=d;
+  document.getElementById('btn-fill-n').classList.toggle('on',d==='north');
+  document.getElementById('btn-fill-c').classList.toggle('on',d==='center');
+  document.getElementById('btn-fill-s').classList.toggle('on',d==='south');
+  setEl('str-note',{north:'Fill from north boundary inward.',center:'Aligned grid across full site.',south:'Fill from south boundary inward.'}[d]);
+}
+function updateOrientNote(){
+  setEl('orient-note',tableType==='FT'?(orientation==='portrait'?'FT Portrait: long edge runs N/S':'FT Landscape: long edge runs E/W'):(orientation==='portrait'?'SAT Portrait: long edge across tracker (E/W)':'SAT Landscape: long edge along tracker (N/S)'));
+}
+function refreshBifacialNote(){
+  const bif=g('bifaciality'),alb=g('albedo'),vf=tableType==='SAT'?0.35:0.25;
+  setEl('bifacial-note',`Est. bifacial gain: ~${(bif*alb*vf*100).toFixed(1)}% (${tableType==='SAT'?'SAT':'FT'})`);
+}
+
+// Interactive setters
+function setType(t){
+  invalidatePVWatts();setTypeUI(t);
+  document.getElementById('add-loss').value=t==='SAT'?12:13;
+  if(t==='FT'){
+    document.getElementById('mods-x').value=12;
+    document.getElementById('mods-y').value=2;
+    document.getElementById('row-sp').value=10;
+    document.getElementById('col-sp').value=0.5;
+    setEl('rs-val','10.0 ft');setEl('cs-val','0.5 ft');
+  } else {
+    document.getElementById('mods-x').value=1;
+    document.getElementById('mods-y').value=24;
+    document.getElementById('row-sp').value=20;
+    document.getElementById('col-sp').value=15;
+    document.getElementById('maxrot').value=52;
+    setEl('rs-val','20.0 ft');setEl('cs-val','15.0 ft');setEl('rot-val','52°');
+    setAlignmentUI('center');
+  }
+  refreshBifacialNote();onLossChange();onDimChange();
+}
+function setOrientation(o){setOrientationUI(o);invalidatePVWatts();onDimChange();}
+function setAlignment(a){setAlignmentUI(a);if(designs[activeIdx].tableRects.length>0)generateLayout();}
+function setFillDir(d){setFillDirUI(d);if(designs[activeIdx].tableRects.length>0)generateLayout();}
+function setMaxStrings(n){setMaxStringsUI(n);if(designs[activeIdx].tableRects.length>0)generateLayout();}
+function applyModPreset(){
+  const val=document.getElementById('mod-preset').value;if(val==='custom')return;
+  const parts=val.split('|');
+  const wp=parts[0],w=parts[1],h=parts[2],bif=parts[3]||'0.80';
+  // Preset values stored in meters, always display in ft
+  document.getElementById('mod-w').value=(+w*FT).toFixed(3);
+  document.getElementById('mod-h').value=(+h*FT).toFixed(3);
+  document.getElementById('mod-wp').value=wp;
+  document.getElementById('bifaciality').value=bif;
+  setEl('bif-val',parseFloat(bif).toFixed(2));
+  refreshBifacialNote();
+  invalidatePVWatts();onDimChange();
+}
+function onModManualEdit(){document.getElementById('mod-preset').value='custom';invalidatePVWatts();onDimChange();}
+function onDimChange(){invalidatePVWatts();drawTablePreview();updateDimsLabel();calcStats();if(appMode==='map'&&designs[activeIdx].tableRects.length>0)generateLayout();if(appMode==='input')onInputModeChange();}
+function onAzChange(){setEl('az-val',g('azimuth')+'°');invalidatePVWatts();calcStats();if(designs[activeIdx].tableRects.length>0)generateLayout();}
+function onTiltChange(){setEl('tilt-val',g('tilt')+'°');invalidatePVWatts();calcStats();if(designs[activeIdx].tableRects.length>0)generateLayout();}
+function onMaxRotChange(){setEl('rot-val',g('maxrot')+'°');invalidatePVWatts();calcStats();}
+function onSpacingChange(){
+  setEl('rs-val',g('row-sp').toFixed(1)+' '+uStr());setEl('cs-val',g('col-sp').toFixed(1)+' '+uStr());
+  invalidatePVWatts();calcStats();
+  if(appMode==='map'&&designs[activeIdx].tableRects.length>0)generateLayout();
+  if(appMode==='input')onInputModeChange();
+}
+function onLossChange(){
+  setEl('inv-val',g('inv-eff').toFixed(1)+'%');setEl('soil-val',g('soiling').toFixed(1)+'%');setEl('add-val',g('add-loss').toFixed(1)+'%');
+  invalidatePVWatts();calcStats();
+}
+function onBifacialChange(){
+  setEl('bif-val',g('bifaciality').toFixed(2));setEl('alb-val',g('albedo').toFixed(2));
+  refreshBifacialNote();invalidatePVWatts();calcStats();
+}
+
+// ── Location ───────────────────────────────────────────────
+function updateSiteLocation(){const d=designs[activeIdx];if(d.boundaryLatLngs)updateSiteLocationFrom(d.boundaryLatLngs);}
+function updateSiteLocationFrom(lls){
+  siteLat=lls.reduce((a,b)=>a+b.lat,0)/lls.length;siteLng=lls.reduce((a,b)=>a+b.lng,0)/lls.length;
+  document.getElementById('no-loc').style.display='none';document.getElementById('loc-info').style.display='';
+  setEl('loc-lat',siteLat.toFixed(4)+'°');setEl('loc-lng',siteLng.toFixed(4)+'°');
+  const ghi=estimateGHI(siteLat,siteLng)*PVWATTS_CAL;
+  setEl('loc-ghi',Math.round(ghi));
+  document.getElementById('irr-bar').style.width=Math.min(100,Math.max(0,(ghi-700)/14))+'%';
+  calcStats();
+}
+
+// ── Obstructions ───────────────────────────────────────────
+function updateObsCount(){setEl('obs-count',obstructions.length>0?`${obstructions.length} obstruction${obstructions.length>1?'s':''} active`:'');}
+function startDrawObs(){
+  drawingObs=true;document.getElementById('btn-draw-obs').classList.add('drawing');
+  document.getElementById('btn-draw-obs').textContent='Drawing... (click map)';
+  setStatus('Draw obstruction polygon. Double-click to close.');
+  new L.Draw.Polygon(map,{shapeOptions:{color:'#c62828',weight:2,fillColor:'#ef5350',fillOpacity:0.35}}).enable();
+}
+function clearObstructions(){
+  obsGroup.clearLayers();obstructions=[];
+  document.getElementById('btn-clear-obs').style.display='none';updateObsCount();
+  if(designs[activeIdx].tableRects.length>0)generateLayout();
+}
+
+// ── Table dims ─────────────────────────────────────────────
+function getTableDimsM(){
+  const mwM=toM(g('mod-w')),mhM=toM(g('mod-h'));
+  const mx=Math.max(1,Math.round(g('mods-x'))),my=Math.max(1,Math.round(g('mods-y')));
+  const ms=Math.min(mwM,mhM),ml=Math.max(mwM,mhM);
+  let ew,ns;
+  if(tableType==='FT'){if(orientation==='portrait'){ew=ms*mx;ns=ml*my;}else{ew=ml*mx;ns=ms*my;}}
+  else{if(orientation==='portrait'){ew=ml*mx;ns=ms*my;}else{ew=ms*mx;ns=ml*my;}}
+  const nsMap=ns*Math.cos(tableType==='FT'?(g('tilt')*Math.PI/180):0);
+  return{ew,ns,nsMap,count:mx*my};
+}
+function drawTablePreview(){
+  const c=document.getElementById('tbl-canvas'),ctx=c.getContext('2d');
+  const{ew,ns}=getTableDimsM();
+  const mx=Math.max(1,Math.round(g('mods-x'))),my=Math.max(1,Math.round(g('mods-y')));
+  const PAD=3,MAX=80,asp=ew/ns;let cw,ch;
+  if(asp>=1){cw=MAX;ch=Math.max(6,Math.round(MAX/asp));}else{ch=MAX;cw=Math.max(6,Math.round(MAX*asp));}
+  c.width=cw;c.height=ch;ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#e3f2fd';ctx.fillRect(0,0,cw,ch);
+  const cW=(cw-PAD*2)/mx,cH=(ch-PAD*2)/my;
+  for(let r=0;r<my;r++)for(let cc=0;cc<mx;cc++){ctx.fillStyle='#1976d2';ctx.fillRect(PAD+cc*cW+1,PAD+r*cH+1,cW-2,cH-2);}
+}
+function updateDimsLabel(){const{ew,ns,count}=getTableDimsM();setEl('tbl-dims',`Table: ${fmtDim(ew)} (E/W) × ${fmtDim(ns)} (N/S) | ${count} modules`);}
+
+// ── Geo helpers ────────────────────────────────────────────
+const M_PER_LAT=111320;
+function mPerLng(lat){return 111320*Math.cos(lat*Math.PI/180);}
+function ll2xy(ll,o,lat0){return{x:(ll.lng-o.lng)*mPerLng(lat0),y:(ll.lat-o.lat)*M_PER_LAT};}
+function xy2ll(xy,o,lat0){return L.latLng(o.lat+xy.y/M_PER_LAT,o.lng+xy.x/mPerLng(lat0));}
+function rotPt(x,y,a){const c=Math.cos(a),s=Math.sin(a);return{x:c*x-s*y,y:s*x+c*y};}
+function clipEdge(poly,ax,ay,bx,by){
+  if(!poly.length)return[];const out=[];
+  for(let i=0;i<poly.length;i++){
+    const cur=poly[i],nxt=poly[(i+1)%poly.length];
+    const cI=((bx-ax)*(cur.y-ay)-(by-ay)*(cur.x-ax))>=0,nI=((bx-ax)*(nxt.y-ay)-(by-ay)*(nxt.x-ax))>=0;
+    if(cI)out.push(cur);
+    if(cI!==nI){const dx=nxt.x-cur.x,dy=nxt.y-cur.y,ex=bx-ax,ey=by-ay,t=((ax-cur.x)*ey-(ay-cur.y)*ex)/(dx*ey-dy*ex);out.push({x:cur.x+t*dx,y:cur.y+t*dy});}
+  }return out;
+}
+function clipPolys(sub,clip){let o=sub.slice();for(let i=0;i<clip.length;i++){if(!o.length)return[];const a=clip[i],b=clip[(i+1)%clip.length];o=clipEdge(o,a.x,a.y,b.x,b.y);}return o;}
+function polyArea(pts){let a=0;for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;a+=pts[i].x*pts[j].y-pts[j].x*pts[i].y;}return Math.abs(a)/2;}
+function ensureCCW(pts){let s=0;for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;s+=(pts[j].x-pts[i].x)*(pts[j].y+pts[i].y);}return s>0?pts.slice().reverse():pts;}
+function ptInPoly(px,py,poly){let ins=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i].x,yi=poly[i].y,xj=poly[j].x,yj=poly[j].y;if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+function tableOverlapsObs(wc,obsXY){if(!obsXY.length)return false;const cx=wc.reduce((s,p)=>s+p.x,0)/4,cy=wc.reduce((s,p)=>s+p.y,0)/4;for(const obs of obsXY){if(ptInPoly(cx,cy,obs))return true;for(const c of wc)if(ptInPoly(c.x,c.y,obs))return true;}return false;}
+function polySpansAtY(cy,poly){const xs=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];if((a.y<=cy&&b.y>cy)||(b.y<=cy&&a.y>cy)){const t=(cy-a.y)/(b.y-a.y);xs.push(a.x+t*(b.x-a.x));}}if(xs.length<2)return[];xs.sort((a,b)=>a-b);const sp=[];for(let i=0;i<xs.length-1;i+=2)sp.push({min:xs[i],max:xs[i+1]});return sp;}
+function colSpansAtX(cx,poly){const ys=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];if((a.x<=cx&&b.x>cx)||(b.x<=cx&&a.x>cx)){const t=(cx-a.x)/(b.x-a.x);ys.push(a.y+t*(b.y-a.y));}}if(ys.length<2)return[];ys.sort((a,b)=>a-b);const sp=[];for(let i=0;i<ys.length-1;i+=2)sp.push({min:ys[i],max:ys[i+1]});return sp;}
+
+// ── Layout ─────────────────────────────────────────────────
+function generateLayout(){
+  saveCurrentDesign();
+  const d=designs[activeIdx];
+  if(!d.boundaryLatLngs){alert('Draw a boundary polygon first.');return;}
+  d.tableGroup.clearLayers();d.tableRects=[];
+  const lls=d.boundaryLatLngs;
+  const lat0=lls.reduce((a,b)=>a+b.lat,0)/lls.length;
+  const origin={lat:lat0,lng:lls.reduce((a,b)=>a+b.lng,0)/lls.length};
+  const polyXY=lls.map(ll=>ll2xy(ll,origin,lat0));
+  const clipPoly=ensureCCW(polyXY);
+  const obsXY=obstructions.map(obs=>obs.getLatLngs()[0].map(ll=>ll2xy(ll,origin,lat0)));
+  const{ew,ns,nsMap}=getTableDimsM();
+  const rowSpM=toM(g('row-sp')),colSpM=toM(g('col-sp'));
+  const rr=-(g('azimuth')*Math.PI/180);
+  const stepX=ew+colSpM,stepY=ns+rowSpM,tH=nsMap;
+  const rotPoly=polyXY.map(p=>rotPt(p.x,p.y,rr));
+  const minX=Math.min(...rotPoly.map(p=>p.x)),maxX=Math.max(...rotPoly.map(p=>p.x));
+  const minY=Math.min(...rotPoly.map(p=>p.y)),maxY=Math.max(...rotPoly.map(p=>p.y));
+  const isSAT=tableType==='SAT';
+  const strCounts={1:0,2:0,3:0,4:0};
+
+  if(isSAT){
+    // Pre-compute shared slots for center/aligned fill (computed once across full site)
+    const sharedSlots=[];
+    if(fillDir==='center'){
+      let sy=minY;
+      while(sy<maxY){
+        sharedSlots.push(sy);
+        let ss=stepY;
+        for(let sc=Math.min(maxStrings,4);sc>=1;sc--){
+          const h=ns*sc;
+          if(sy+h<=maxY+0.001){ss=h+rowSpM;break;}
+        }
+        sy+=ss;
+      }
+    }
+    for(let rx=minX;rx<maxX;rx+=stepX){
+      const nsL=colSpansAtX(rx,rotPoly),nsR=colSpansAtX(rx+ew,rotPoly);
+      if(!nsL.length||!nsR.length)continue;
+      for(const sl of nsL)for(const sr of nsR){
+        const spanMin=Math.max(sl.min,sr.min),spanMax=Math.min(sl.max,sr.max);
+        if(spanMax-spanMin<ns)continue;
+        if(fillDir==='south'){
+          let cy=spanMax;
+          while(cy-ns>=spanMin-0.001){let pl=false;for(let sc=Math.min(maxStrings,4);sc>=1;sc--){const h=ns*sc;if(cy-h<spanMin-0.001)continue;const ry=cy-h;const w=[{x:rx,y:ry},{x:rx+ew,y:ry},{x:rx+ew,y:ry+h},{x:rx,y:ry+h}].map(c=>rotPt(c.x,c.y,-rr));if(tableOverlapsObs(w,obsXY)){cy-=ns+rowSpM;pl=true;break;}d.tableRects.push({ll:w.map(c=>xy2ll(c,origin,lat0)),sc});strCounts[sc]++;cy-=h+rowSpM;pl=true;break;}if(!pl)break;}
+        } else if(fillDir==='center'){
+          const fsip=sharedSlots.find(y=>y>=spanMin-0.001&&y+ns<=spanMax+0.001);
+          if(fsip!==undefined&&fsip>spanMin+ns-0.001){const gap=fsip-rowSpM-spanMin;for(let sc=Math.min(maxStrings,4);sc>=1;sc--){const h=ns*sc;if(h>gap+0.001)continue;const ry=fsip-rowSpM-h;if(ry<spanMin-0.001)continue;const w=[{x:rx,y:ry},{x:rx+ew,y:ry},{x:rx+ew,y:ry+h},{x:rx,y:ry+h}].map(c=>rotPt(c.x,c.y,-rr));if(!tableOverlapsObs(w,obsXY)){d.tableRects.push({ll:w.map(c=>xy2ll(c,origin,lat0)),sc});strCounts[sc]++;}break;}}
+          for(const gy of sharedSlots){if(gy<spanMin-0.001||gy+ns>spanMax+0.001)continue;const av=spanMax-gy;for(let sc=Math.min(maxStrings,4);sc>=1;sc--){const h=ns*sc;if(h>av+0.001)continue;const w=[{x:rx,y:gy},{x:rx+ew,y:gy},{x:rx+ew,y:gy+h},{x:rx,y:gy+h}].map(c=>rotPt(c.x,c.y,-rr));if(tableOverlapsObs(w,obsXY))break;d.tableRects.push({ll:w.map(c=>xy2ll(c,origin,lat0)),sc});strCounts[sc]++;break;}}
+        } else {
+          let cy=spanMin;
+          while(cy+ns<=spanMax+0.001){let pl=false;for(let sc=Math.min(maxStrings,4);sc>=1;sc--){const h=ns*sc;if(cy+h>spanMax+0.001)continue;const w=[{x:rx,y:cy},{x:rx+ew,y:cy},{x:rx+ew,y:cy+h},{x:rx,y:cy+h}].map(c=>rotPt(c.x,c.y,-rr));if(tableOverlapsObs(w,obsXY)){cy+=ns+rowSpM;pl=true;break;}d.tableRects.push({ll:w.map(c=>xy2ll(c,origin,lat0)),sc});strCounts[sc]++;cy+=h+rowSpM;pl=true;break;}if(!pl)break;}
+        }
+      }
+    }
+    d.tableGroup.clearLayers();
+    for(const t of d.tableRects){const col=STR_COLORS[t.sc];L.polygon(t.ll,{color:col.stroke,weight:1,fillColor:col.fill,fillOpacity:0.75}).addTo(d.tableGroup);}
+  } else {
+    for(let ry=minY;ry<maxY;ry+=stepY){
+      const sT=polySpansAtY(ry,rotPoly),sB=polySpansAtY(ry+tH,rotPoly);
+      if(!sT.length||!sB.length)continue;
+      const safe=[];for(const a of sT)for(const b of sB){const L2=Math.max(a.min,b.min),R=Math.min(a.max,b.max);if(R-L2>=ew)safe.push({L:L2,R});}
+      for(const{L:L2,R} of safe){
+        let sx;
+        if(alignment==='center')sx=Math.ceil((L2-minX)/stepX)*stepX+minX;
+        else if(alignment==='left')sx=L2;
+        else{const nf=Math.floor((R-L2+colSpM)/stepX);if(nf<=0)continue;sx=R-nf*stepX+colSpM;}
+        for(let rx=sx;rx+ew<=R+0.001;rx+=stepX){
+          if(rx<L2-0.001)continue;
+          const w=[{x:rx,y:ry},{x:rx+ew,y:ry},{x:rx+ew,y:ry+tH},{x:rx,y:ry+tH}].map(c=>rotPt(c.x,c.y,-rr));
+          if(tableOverlapsObs(w,obsXY))continue;
+          d.tableRects.push({ll:w.map(c=>xy2ll(c,origin,lat0)),sc:1});
+        }
+      }
+    }
+    d.tableGroup.clearLayers();
+    d.tableRects.forEach(t=>L.polygon(t.ll,{color:STR_COLORS[1].stroke,weight:1,fillColor:D_COLORS[activeIdx],fillOpacity:0.75}).addTo(d.tableGroup));
+  }
+  updateMapVisibility();calcStats();renderComparison();
+  setStatus(`${d.tableRects.length} tables placed (${D_NAMES[activeIdx]}).`);
+}
+
+// ── Stats ──────────────────────────────────────────────────
+function calcStats(){
+  const d=designs[activeIdx];
+  const{ew,ns,nsMap,count:mpt}=getTableDimsM();
+  const rowSpM=toM(g('row-sp')),colSpM=toM(g('col-sp'));
+  const wp=g('mod-wp'),isSAT=tableType==='SAT';
+  let totalMods=0;const strCounts={1:0,2:0,3:0,4:0};
+  for(const t of d.tableRects){const sc=t.sc||1;totalMods+=sc*mpt;strCounts[sc]++;}
+  const dcKwp=totalMods*wp/1000;
+  const acKwac=g('ac-size'),ilr=acKwac>0?dcKwp/acKwac:null,clipLoss=ilr?clippingLoss(ilr):0;
+  // ── Pitch & GCR — all in feet, no unit conversion ──────────
+  // For SAT, tilt=0 since trackers rotate dynamically
+  const tiltForPitch=isSAT?0:g('tilt');
+  const tiltRad=tiltForPitch*Math.PI/180;
+  const modWFt=g('mod-w'),modHFt=g('mod-h');
+  const modsX=Math.max(1,Math.round(g('mods-x'))),modsY=Math.max(1,Math.round(g('mods-y')));
+  const rowSpFt=g('row-sp'),colSpFt=g('col-sp');
+  const isPortrait=orientation==='portrait';
+  let tableEWft,tableNSft;
+  if(isSAT){tableEWft=isPortrait?(modHFt*modsX):(modWFt*modsX);}
+  else{tableNSft=isPortrait?(modHFt*modsY):(modWFt*modsY);}
+  let pitchFt;
+  if(isSAT){pitchFt=colSpFt+Math.cos(tiltRad)*tableEWft;}
+  else{pitchFt=rowSpFt+Math.cos(tiltRad)*tableNSft;}
+  // GCR = full table dimension / pitch
+  const gcr=isSAT?(tableEWft/pitchFt):(tableNSft/pitchFt);
+  // ── Losses & PR ─────────────────────────────────────────────
+  const invEff=g('inv-eff')/100,soilLoss=g('soiling')/100,addLoss=g('add-loss')/100;
+  const shadingLoss=gcrShadingLoss(gcr,siteLat||35,g('tilt'),isSAT);
+  const PR=invEff*(1-soilLoss)*(1-addLoss)*(1-shadingLoss)*(1-clipLoss);
+  setEl('gcr-loss-val',(shadingLoss*100).toFixed(1)+'%');
+  setEl('clip-loss-val',ilr?(clipLoss*100).toFixed(1)+'%':'—');
+  setEl('pr-val',(PR*100).toFixed(1)+'%');
+  setEl('s-tables',d.tableRects.length.toLocaleString());
+  setEl('s-mods',totalMods.toLocaleString());
+  // Total strings = total modules / modules per table (same logic for map and input mode)
+  const modsPerTable=Math.max(1,Math.round(g('mods-x'))*Math.round(g('mods-y')));
+  const totalStrings=modsPerTable>0?Math.floor(totalMods/modsPerTable):0;
+  setEl('s-strings',totalStrings.toLocaleString());
+  setEl('s-dc',dcKwp.toFixed(1));
+  setEl('s-ac',acKwac>0?acKwac.toLocaleString():'—');
+  setEl('s-gcr',(gcr*100).toFixed(1)+'%');
+  setEl('s-ilr',ilr?ilr.toFixed(2):'—');
+  // Pitch display
+  const pitchStr=pitchFt.toFixed(2)+' ft';
+  setEl('pitch-val',pitchFt.toFixed(2)+' ft');
+  const sPitch=document.getElementById('s-pitch');
+  if(sPitch)sPitch.textContent=pitchStr;
+  if(isSAT&&appMode==='map'){document.getElementById('str-breakdown').style.display='';[1,2,3,4].forEach(i=>setEl(`sb-${i}`,strCounts[i]||0));}
+  else document.getElementById('str-breakdown').style.display='none';
+  let mwh=0,sy=0;
+  if(siteLat!==null&&d.tableRects.length>0){
+    const ghi=estimateGHI(siteLat,siteLng),azF=azimuthFactor(g('azimuth'),siteLat);
+    const bg=bifacialGain(g('bifaciality'),g('albedo'),isSAT);
+    sy=isSAT?ghi*satGainFactor(siteLat)*maxRotFactor(g('maxrot'))*azF*PR*PVWATTS_CAL*bg
+            :ghi*tiltFactor(g('tilt'),siteLat)*azF*PR*PVWATTS_CAL*bg;
+    mwh=dcKwp*sy/1000;
+  }
+  if(!d.pvwatts){
+    setEl('s-energy',mwh>0?mwh.toFixed(0):'—');
+    setEl('s-spec',sy>0?Math.round(sy).toLocaleString():'—');
+  }
+  const note=siteLat&&d.tableRects.length>0?`GHI ~${Math.round(estimateGHI(siteLat,siteLng)*PVWATTS_CAL)} kWh/m²/yr | PR ${(PR*100).toFixed(1)}% | bifacial +${((bifacialGain(g('bifaciality'),g('albedo'),isSAT)-1)*100).toFixed(1)}%`:'Generate a layout to see estimates.';
+  setEl('energy-note',note);
+  d.stats={n:d.tableRects.length,totalMods,dcKwp,acKwac,gcr,ilr,mwh,sy,PR,isSAT,strCounts,pitchFt,totalStrings};
+  updatePVWattsBtn();
+}
+function restoreStats(s){
+  setEl('s-tables',s.n.toLocaleString());setEl('s-mods',s.totalMods.toLocaleString());
+  setEl('s-dc',s.dcKwp.toFixed(1));setEl('s-ac',s.acKwac>0?s.acKwac.toLocaleString():'—');
+  setEl('s-gcr',(s.gcr*100).toFixed(0)+'%');setEl('s-ilr',s.ilr?s.ilr.toFixed(2):'—');
+  if(s.pitchFt){setEl('s-pitch',s.pitchFt.toFixed(1)+' ft');setEl('pitch-val',s.pitchFt.toFixed(1)+' ft');}
+  if(s.totalStrings!=null)setEl('s-strings',s.totalStrings.toLocaleString());
+  const d=designs[activeIdx];
+  setEl('s-energy',d.pvwatts?d.pvwatts.annualAC.toFixed(0):s.mwh>0?s.mwh.toFixed(0):'—');
+  setEl('s-spec',d.pvwatts?Math.round(d.pvwatts.sy).toLocaleString():s.sy>0?Math.round(s.sy).toLocaleString():'—');
+  if(s.isSAT&&appMode==='map'){document.getElementById('str-breakdown').style.display='';[1,2,3,4].forEach(i=>setEl(`sb-${i}`,s.strCounts[i]||0));}
+  else document.getElementById('str-breakdown').style.display='none';
+}
+
+// ── Invalidate PVWatts ─────────────────────────────────────
+function markDirty(){
+  designDirty=true;
+  document.getElementById('export-stale-warn').style.display='';
+  document.getElementById('bess-stale-warn').style.display='';
+}
+function clearDirty(){
+  designDirty=false;
+  document.getElementById('export-stale-warn').style.display='none';
+  document.getElementById('bess-stale-warn').style.display='none';
+}
+function invalidatePVWatts(){
+  markDirty();
+  const d=designs[activeIdx];
+  if(!d||!d.pvwatts)return;
+  d.pvwatts=null;
+  document.getElementById('pvwatts-results').style.display='none';
+  setEl('pvwatts-status','');
+  const badge=document.getElementById('energy-source-badge');
+  badge.textContent='Estimated';badge.style.background='#e3f2fd';badge.style.color='#1565c0';
+  setEl('pv-ghi','—');setEl('pv-cf','—');
+}
+
+// ── PVWatts helpers ────────────────────────────────────────
+function updatePVWattsBtn(){
+  if(appMode==='input'){
+    const d=designs[activeIdx];
+    const hasModules=d&&d.imModules>0;
+    const hasLoc=d&&d.imLat!=null&&d.imLng!=null;
+    const btn=document.getElementById('btn-pvwatts');
+    if(btn){const ok=hasModules&&hasLoc;btn.disabled=!ok;btn.style.opacity=ok?'1':'0.4';btn.style.cursor=ok?'pointer':'not-allowed';}
+    return;
+  }
+  const d=designs[activeIdx];
+  const missing=[];
+  if(!document.getElementById('pvwatts-key').value.trim())missing.push('API key');
+  if(!d||!d.boundaryLatLngs)missing.push('site boundary');
+  if(!d||!d.stats||d.stats.dcKwp<=0)missing.push('generated layout');
+  if(!d||!d.stats||!d.stats.ilr)missing.push('AC capacity (for ILR)');
+  const btn=document.getElementById('btn-pvwatts');
+  setEl('pvwatts-missing',missing.length?'Needs: '+missing.join(', '):'');
+  btn.disabled=missing.length>0;btn.style.opacity=missing.length?'.4':'1';btn.style.cursor=missing.length?'not-allowed':'pointer';
+}
+function pvParams(apiKey,d,timeframe){
+  const s=d.stats,isSAT=d.config.tableType==='SAT';
+  const lat=siteLat||d.boundaryLatLngs.reduce((a,b)=>a+b.lat,0)/d.boundaryLatLngs.length;
+  const lng=siteLng||d.boundaryLatLngs.reduce((a,b)=>a+b.lng,0)/d.boundaryLatLngs.length;
+  const pvLosses=Math.min(99,(parseFloat(d.config['soiling'])||2)+(parseFloat(d.config['add-loss'])||(isSAT?12:13)));
+  return new URLSearchParams({
+    api_key:apiKey,lat:lat.toFixed(4),lon:lng.toFixed(4),
+    system_capacity:s.dcKwp.toFixed(2),module_type:1,
+    losses:pvLosses.toFixed(1),array_type:isSAT?2:1,
+    tilt:isSAT?0:parseFloat(d.config['tilt']||20),
+    azimuth:parseFloat(d.config['azimuth']||180),
+    dc_ac_ratio:(s.ilr||1.2).toFixed(3),
+    inv_eff:parseFloat(d.config['inv-eff']||97).toFixed(1),
+    bifaciality:(parseFloat(d.config['bifaciality'])||0.80).toFixed(2),
+    albedo:(parseFloat(d.config['albedo'])||0.2).toFixed(2),
+    timeframe
+  });
+}
+
+async function runPVWatts(){
+  const apiKey=document.getElementById('pvwatts-key').value.trim();
+  const d=designs[activeIdx];if(!d.stats)return;
+  saveCurrentDesign();
+  const btn=document.getElementById('btn-pvwatts'),st=document.getElementById('pvwatts-status');
+  btn.disabled=true;btn.style.opacity='.4';btn.textContent='Running...';setEl('pvwatts-status','Contacting NREL...');
+  try{
+    const resp=await fetch(`https://developer.nrel.gov/api/pvwatts/v8.json?${pvParams(apiKey,d,'monthly')}`);
+    const data=await resp.json();
+    if(data.errors&&data.errors.length){setEl('pvwatts-status','Error: '+data.errors.join(', '));return;}
+    const out=data.outputs;
+    const annualAC=out.ac_annual/1000,cf=out.capacity_factor||0,solrad=(out.solrad_annual||0)*365;
+    const monthly=out.ac_monthly.map(v=>v/1000),sy=d.stats.dcKwp>0?annualAC*1000/d.stats.dcKwp:0;
+    d.pvwatts={annualAC,cf,solrad,monthly,sy};
+    setEl('s-energy',annualAC.toFixed(0));setEl('s-spec',Math.round(sy).toLocaleString());
+    setEl('pv-ghi',solrad.toFixed(0));setEl('pv-cf',cf.toFixed(1)+'%');
+    const badge=document.getElementById('energy-source-badge');
+    badge.textContent='PVWatts v8';badge.style.background='#e8f5e9';badge.style.color='#2e7d32';
+    const isSAT=d.config.tableType==='SAT';
+    setEl('pvwatts-design-label',`— ${D_NAMES[activeIdx]} (${isSAT?'SAT':'FT'})`);
+    setEl('energy-note',`PVWatts: ${annualAC.toFixed(0)} MWh/yr | CF ${cf.toFixed(1)}% | TMY GHI ${solrad.toFixed(0)} kWh/m²/yr | ${isSAT?'1-axis tracker':'fixed tilt'} | bifaciality ${(parseFloat(d.config['bifaciality'])||0.80).toFixed(2)}`);
+    renderMonthlyChart(d);
+    document.getElementById('pvwatts-results').style.display='';
+    setEl('pvwatts-status',`Done — ${annualAC.toFixed(0)} MWh/yr | CF ${cf.toFixed(1)}%`);
+    d.stats.mwh=annualAC;d.stats.sy=sy;renderComparison();
+    // Auto-fetch hourly data after monthly succeeds
+    run8760();
+  }catch(err){setEl('pvwatts-status','Request failed: '+err.message);}
+  btn.disabled=false;btn.style.opacity='1';btn.textContent='Run PVWatts & Load Hourly Data';
+}
+
+function renderMonthlyChart(d){
+  if(!d||!d.pvwatts||!d.pvwatts.monthly) return;
+  const monthly=d.pvwatts.monthly;
+  const dIdx=designs.indexOf(d);
+  const color=D_COLORS[dIdx>=0?dIdx:activeIdx];
+  const maxV=Math.max(...monthly);
+  const isSAT=d.config.tableType==='SAT';
+  const chart=document.getElementById('pv-monthly-chart');
+  chart.innerHTML=monthly.map(v=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:8px;color:#666;margin-bottom:2px">${v.toFixed(0)}</div><div style="width:100%;height:${maxV>0?v/maxV*100:0}%;background:${color};border-radius:2px 2px 0 0;min-height:2px"></div></div>`).join('');
+  // Update summary labels
+  setEl('pvwatts-design-label',`— ${D_NAMES[dIdx>=0?dIdx:activeIdx]} (${isSAT?'SAT':'FT'})`);
+  setEl('energy-note',`PVWatts: ${d.pvwatts.annualAC.toFixed(0)} MWh/yr | CF ${d.pvwatts.cf.toFixed(1)}% | TMY GHI ${d.pvwatts.solrad.toFixed(0)} kWh/m²/yr | ${isSAT?'1-axis tracker':'fixed tilt'} | bifaciality ${(parseFloat(d.config['bifaciality'])||0.80).toFixed(2)}`);
+  // Update clipping summary
+  if(d.hourly8760&&d.hourly8760.acLimitW>0){
+    const tw=d.hourly8760.totalClippedWh;
+    const totalDCWh=d.hourly8760.dc.reduce((a,b)=>a+(b||0),0);
+    const invEff=d.hourly8760.invEff;
+    const clipPctDC=totalDCWh>0?(tw/(totalDCWh*(invEff/100))*100):0;
+    const daysInMonth=[31,28,31,30,31,30,31,31,30,31,30,31];
+    const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const ph=d.hourly8760.peakClipHour;
+    let cumDays=0,phMonth=0;
+    const phDay=Math.floor(ph/24),phH=ph%24;
+    for(let m=0;m<12;m++){if(phDay<cumDays+daysInMonth[m]){phMonth=m;break;}cumDays+=daysInMonth[m];}
+    document.getElementById('clipping-summary').style.display='';
+    setEl('clip-mwh',(tw/1e6).toFixed(2)+' MWh/yr');
+    setEl('clip-pct-dc',clipPctDC.toFixed(1)+'%');
+    setEl('clip-hours',d.hourly8760.totalClippedWh>0?(d.hourly8760.dc.filter((_,i)=>d.hourly8760.clip[i]>0).length.toLocaleString()+' hrs/yr'):'0 hrs/yr');
+    const peakProdKw=((d.hourly8760.pvAC[ph]||0)/1000).toFixed(0);
+    const peakClipKw=(d.hourly8760.clip[ph]/1000).toFixed(1);
+    setEl('clip-peak',monthNames[phMonth]+' '+(phDay-cumDays+1)+' '+String(phH).padStart(2,'0')+':00 — '+peakClipKw+' kW clipped ('+peakProdKw+' kW prod)');
+  } else {
+    document.getElementById('clipping-summary').style.display='none';
+  }
+}
+
+
+function exportCSV(){
+  const d=designs[activeIdx];
+  if(!d.hourly8760){setEl('8760-status','No hourly data — run PVWatts first.');return;}
+  const isSAT=d.config.tableType==='SAT';
+  const{dc,acLimitW,invEff,pvAC,ac,clip}=d.hourly8760;
+  const daysInMonth=[31,28,31,30,31,30,31,31,30,31,30,31];
+  const headers=['datetime','month','day','hour','dc_w','pv_ac_uncapped_w','ac_limit_w','clip_dc_coupled_ac_equiv_w','clipping_pct','ac_delivered_w'];
+  const rows=[headers.join(',')];
+  let hour=0;
+  for(let m=0;m<12;m++)for(let day=1;day<=daysInMonth[m];day++)for(let h=0;h<24;h++){
+    const mm=String(m+1).padStart(2,'0'),dd=String(day).padStart(2,'0'),hh=String(h).padStart(2,'0');
+    const dcW=dc[hour]||0,pvAcW=pvAC[hour]||0,clipW=clip[hour]||0,acDelW=ac[hour]||0;
+    const clipPct=pvAcW>0?(clipW/pvAcW*100):0;
+    rows.push(['2013-'+mm+'-'+dd+' '+hh+':00',m+1,day,h,dcW.toFixed(1),pvAcW.toFixed(1),acLimitW>0?acLimitW.toFixed(1):'',clipW.toFixed(1),clipPct.toFixed(2),acDelW.toFixed(1)].join(','));
+    hour++;
+  }
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='pvwatts_8760_'+D_NAMES[activeIdx]+'_'+(isSAT?'SAT':'FT')+'.csv';
+  a.click();URL.revokeObjectURL(url);
+  setEl('8760-status','Downloaded '+(rows.length-1)+' rows.');
+}
+
+function updateExportTab(){
+  const d=designs[activeIdx];
+  const hasData=!!(d&&d.hourly8760);
+  const noData=document.getElementById('export-no-data');
+  const dataReady=document.getElementById('export-data-ready');
+  if(noData)noData.style.display=hasData?'none':'';
+  if(dataReady)dataReady.style.display=hasData?'':'none';
+  const bessbtn=document.getElementById('btn-bess');
+  if(bessbtn&&hasData)bessbtn.style.display=d.hourly8760.acLimitW>0?'':'none';
+  else if(bessbtn)bessbtn.style.display='none';
+}
+
+async function run8760(){
+  const apiKey=document.getElementById('pvwatts-key').value.trim();
+  if(!apiKey){alert('Please enter your NREL API key.');return;}
+  const d=designs[activeIdx];if(!d.stats)return;
+  saveCurrentDesign();
+  const isSAT=d.config.tableType==='SAT';
+  const invEff=parseFloat(d.config['inv-eff'])||97;
+  const acLimitW=parseFloat(d.config['ac-size']||0)*1000;
+  const pvwattsBtn=document.getElementById('btn-pvwatts');
+  pvwattsBtn.disabled=true;pvwattsBtn.textContent='Fetching hourly data...';
+  setEl('pvwatts-status','Requesting hourly data from NREL...');
+  try{
+    const resp=await fetch('https://developer.nrel.gov/api/pvwatts/v8.json?'+pvParams(apiKey,d,'hourly'));
+    const data=await resp.json();
+    if(data.errors&&data.errors.length){setEl('pvwatts-status','Error: '+data.errors.join(', '));pvwattsBtn.disabled=false;pvwattsBtn.textContent='Run PVWatts & Load Hourly Data';return;}
+    const out=data.outputs;
+    const ac=out.ac,dc=out.dc;
+    const daysInMonth=[31,28,31,30,31,30,31,31,30,31,30,31];
+    const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let totalClippedWh=0,clippingHours=0,peakClipW=0,peakClipHour=0;
+    const pvACArr=new Array(8760),acCapped=new Array(8760),clipWArr=new Array(8760);
+    for(let i=0;i<8760;i++){
+      const dcW=dc[i]||0;
+      const dcAI=dcW*(invEff/100);           // AC-equivalent inverter output (uncapped)
+      pvACArr[i]=dcAI;
+      acCapped[i]=acLimitW>0?Math.min(dcAI,acLimitW):dcAI;
+      // DC-coupled: battery charges from raw DC before inverter.
+      // DC threshold = AC limit back-converted through inverter efficiency.
+      // Clip is DC excess × invEff to get AC-equivalent energy delivered on discharge.
+      if(acLimitW>0){
+        const dcThresholdW=acLimitW/(invEff/100); // DC level that saturates the AC limit
+        const clipDcW=Math.max(0,dcW-dcThresholdW); // raw DC available to battery
+        clipWArr[i]=clipDcW*(invEff/100);           // AC-equivalent after discharge through inverter
+      } else {
+        clipWArr[i]=0;
+      }
+      if(clipWArr[i]>0){totalClippedWh+=clipWArr[i];clippingHours++;if(clipWArr[i]>peakClipW){peakClipW=clipWArr[i];peakClipHour=i;}}
+    }
+    // Find worst clipping DAY (max total daily clipping kWh)
+    let peakClipDay=0,bestDayClip=0;
+    for(let d2=0;d2<365;d2++){
+      let dayClip=0;
+      for(let h=0;h<24;h++) dayClip+=clipWArr[d2*24+h]||0;
+      if(dayClip>bestDayClip){bestDayClip=dayClip;peakClipDay=d2;}
+    }
+    d.hourly8760={pvAC:pvACArr,ac:acCapped,clip:clipWArr,dc:[...dc],acLimitW,invEff,peakClipHour,peakClipDay,totalClippedWh,dcKwp:d.stats?d.stats.dcKwp:0};
+    // Update clipping summary in Site tab
+    const totalClippedMWh=totalClippedWh/1e6;
+    const totalDCWh=dc.reduce((a,b)=>a+(b||0),0);
+    const clipPctDC=totalDCWh>0?(totalClippedWh/(totalDCWh*(invEff/100))*100):0;
+    let cumDays=0,phMonth=0;
+    const phDay=Math.floor(peakClipHour/24),phH=peakClipHour%24;
+    for(let m=0;m<12;m++){if(phDay<cumDays+daysInMonth[m]){phMonth=m;break;}cumDays+=daysInMonth[m];}
+    document.getElementById('clipping-summary').style.display=acLimitW>0?'':'none';
+    if(acLimitW>0){
+      setEl('clip-mwh',totalClippedMWh.toFixed(2)+' MWh/yr');
+      setEl('clip-pct-dc',clipPctDC.toFixed(1)+'%');
+      setEl('clip-hours',clippingHours.toLocaleString()+' hrs/yr');
+      const peakProdKw8760=((pvACArr[peakClipHour]||0)/1000).toFixed(0);
+      setEl('clip-peak',monthNames[phMonth]+' '+(phDay-cumDays+1)+' '+String(phH).padStart(2,'0')+':00 — '+(peakClipW/1000).toFixed(1)+' kW clipped ('+peakProdKw8760+' kW prod)');
+    }
+    updateExportTab();
+    clearDirty();
+    const hint=document.getElementById('export-hint');
+    if(hint)hint.style.display='';
+    setEl('pvwatts-status','Hourly data ready. See Export tab for downloads and BESS analysis.');
+  }catch(err){setEl('pvwatts-status','Request failed: '+err.message);}
+  pvwattsBtn.disabled=false;pvwattsBtn.textContent='Run PVWatts & Load Hourly Data';
+}
+
+
+// ── BESS Engine ────────────────────────────────────────────
+let bessData=null; // cached simulation result for current slider position
+
+// Grid charging window: 10pm (22:00) to 6am (06:00)
+const GRID_CHARGE_START=22,GRID_CHARGE_END=6;
+function isGridChargeHour(h){return h>=GRID_CHARGE_START||h<GRID_CHARGE_END;}
+
+function simulateBESS(acArr,clipArr,acLimitW,dcKwpW,kwhCap,rte,carryover=false,gridCharge=false,importLimitW=null){
+  const capWh=kwhCap*1000;
+  const powerW=dcKwpW;
+  const importW=importLimitW>0?importLimitW:acLimitW||dcKwpW;
+  const rteSqrt=Math.sqrt(rte/100);
+
+  // Run clip-only simulation first (always same regardless of grid charging)
+  let clipSoc=0,totalClipRecoveredWh=0,dayDischClip=0,totalCyclesClip=0;
+  const hourlyExportClip=new Array(8760).fill(0);
+  const hourlySOCclip=new Array(8760).fill(0);
+
+  for(let idx=0;idx<8760;idx++){
+    const h=idx%24;
+    if(!carryover&&h===0){clipSoc=0;dayDischClip=0;}
+    else if(carryover&&h===0){dayDischClip=0;}
+    const clipW=clipArr[idx]||0;
+    const acW=acArr[idx]||0;
+    let discharge=0;
+    if(clipW>0){
+      const storageLeft=capWh-clipSoc;
+      const chargeW=Math.min(clipW,powerW,storageLeft/rteSqrt);
+      clipSoc=Math.min(capWh,clipSoc+chargeW*rteSqrt);
+    } else if(clipSoc>0&&acLimitW>0){
+      const headroom=Math.max(0,acLimitW-acW);
+      if(headroom>0){
+        const dischargeW=Math.min(clipSoc*rteSqrt,powerW,headroom);
+        clipSoc=Math.max(0,clipSoc-dischargeW/rteSqrt);
+        discharge=dischargeW;
+        totalClipRecoveredWh+=dischargeW;
+        dayDischClip+=dischargeW;
+      }
+    }
+    hourlyExportClip[idx]=acW+discharge;
+    hourlySOCclip[idx]=clipSoc/1000;
+    if(h===23&&capWh>0){totalCyclesClip+=dayDischClip/capWh;}
+  }
+
+  // If grid charging not enabled, return clip-only results
+  if(!gridCharge){
+    return{
+      hourlyExport:hourlyExportClip,
+      hourlySOC:hourlySOCclip,
+      hourlyGridCharge:new Array(8760).fill(0),
+      totalRecoveredWh:totalClipRecoveredWh,
+      totalClipRecoveredWh,
+      totalGridDispatchedWh:0,
+      totalGridChargedWh:0,
+      totalCycles:totalCyclesClip
+    };
+  }
+
+  // Run grid-only simulation on top (independent battery — additive model)
+  // Grid charges overnight, discharges during day into headroom not already used by clip
+  let gridSoc=0,totalGridChargedWh=0,totalGridDispatchedWh=0,dayDischGrid=0,totalCyclesGrid=0;
+  const hourlyGridCharge=new Array(8760).fill(0);
+  const hourlySOCgrid=new Array(8760).fill(0);
+  const hourlyExportGrid=new Array(8760).fill(0);
+
+  for(let idx=0;idx<8760;idx++){
+    const h=idx%24;
+    // Reset grid SOC at 10pm (start of charge window) not midnight
+    // This lets charging flow continuously from 10pm through 6am
+    if(h===GRID_CHARGE_START){gridSoc=0;dayDischGrid=0;}
+    const acW=acArr[idx]||0;
+    const clipDischargeThisHr=Math.max(0,hourlyExportClip[idx]-(acArr[idx]||0));
+    const remainHeadroom=Math.max(0,acLimitW-(acArr[idx]||0)-clipDischargeThisHr);
+    let discharge=0,gridChargeW=0;
+
+    if(isGridChargeHour(h)){
+      // Shared physical battery: grid can only use what clip sim hasn't used
+      // clipSoc at this hour (kWh→Wh). At overnight hours clip SOC is draining,
+      // so use the clip SOC from the *end of previous day* as the reservation.
+      // Simpler: total SOC (clip+grid) must not exceed capWh
+      const clipSocWh=(hourlySOCclip[idx]||0)*1000;
+      const totalSocWh=clipSocWh+gridSoc;
+      const availableForGrid=Math.max(0,capWh-totalSocWh);
+      if(availableForGrid>0){
+        const chargeW=Math.min(importW,availableForGrid/rteSqrt);
+        gridSoc=Math.min(capWh-clipSocWh,gridSoc+chargeW*rteSqrt);
+        gridChargeW=chargeW;
+        totalGridChargedWh+=chargeW;
+        hourlyGridCharge[idx]=chargeW/1000;
+      }
+    } else if(gridSoc>0&&remainHeadroom>0){
+      const dischargeW=Math.min(gridSoc*rteSqrt,powerW,remainHeadroom);
+      gridSoc=Math.max(0,gridSoc-dischargeW/rteSqrt);
+      discharge=dischargeW;
+      totalGridDispatchedWh+=dischargeW;
+      dayDischGrid+=dischargeW;
+    }
+
+    hourlyExportGrid[idx]=acW+discharge;
+    // Cap gridSoc so clip+grid never exceeds kwhCap
+    const clipSocKwh=hourlySOCclip[idx]||0;
+    gridSoc=Math.max(0,Math.min(gridSoc,capWh-clipSocKwh*1000));
+    hourlySOCgrid[idx]=Math.min(gridSoc/1000, Math.max(0,kwhCap-clipSocKwh));
+    // Cycle count at end of grid operating day (just before 10pm reset)
+    const gridEndHour=(GRID_CHARGE_START-1+24)%24;
+    if(h===gridEndHour&&capWh>0){totalCyclesGrid+=dayDischGrid/capWh;}
+  }
+
+  // Combine
+  const hourlyExportCombined=new Array(8760);
+  const hourlySOCcombined=new Array(8760);
+  for(let i=0;i<8760;i++){
+    const clipDischarge=Math.max(0,hourlyExportClip[i]-acArr[i]);
+    const gridDischarge=Math.max(0,hourlyExportGrid[i]-acArr[i]);
+    const totalDischarge=Math.min(clipDischarge+gridDischarge,Math.max(0,acLimitW-acArr[i]));
+    hourlyExportCombined[i]=acArr[i]+totalDischarge;
+    // Combined SOC hard capped at kwhCap
+    hourlySOCcombined[i]=Math.min(kwhCap,hourlySOCclip[i]+(hourlySOCgrid[i]||0));
+  }
+
+  return{
+    hourlyExport:hourlyExportCombined,
+    hourlySOC:hourlySOCcombined,
+    hourlySOCgrid,  // grid-sourced SOC for two-color chart
+    hourlyGridCharge,
+    totalRecoveredWh:totalClipRecoveredWh+totalGridDispatchedWh,
+    totalClipRecoveredWh,
+    totalGridDispatchedWh,
+    totalGridChargedWh,
+    totalCycles:totalCyclesClip+totalCyclesGrid
+  };
+}
+
+function runSizingCurve(acArr,clipArr,acLimitW,dcKwpW,rte,gridCharge=false,importLimitW=0){
+  const steps=16;
+  const maxH=4;
+  const dcKwp=dcKwpW/1000;
+  const totalClipWh=clipArr.reduce((a,v)=>a+(v||0),0);
+  const results=[];
+  for(let i=1;i<=steps;i++){
+    const h=(i/steps)*maxH;
+    const kwhCap=Math.max(0.1,Math.round(dcKwp*h*10)/10);
+    const simClip=simulateBESS(acArr,clipArr,acLimitW,dcKwpW,kwhCap,rte,false,false,0);
+    const simGrid=gridCharge?simulateBESS(acArr,clipArr,acLimitW,dcKwpW,kwhCap,rte,false,true,importLimitW):null;
+    const pct=totalClipWh>0?Math.min(100,simClip.totalClipRecoveredWh/totalClipWh*100):0;
+    results.push({h,kwhCap,
+      mwh:simClip.totalClipRecoveredWh/1e6,pct,
+      mwhGrid:simGrid?(simGrid.totalRecoveredWh/1e6):null});
+  }
+  return results;
+}
+
+function runBESS(){
+  const d=designs[activeIdx];
+  if(!d.hourly8760)return;
+  const{ac,clip,acLimitW,invEff,dcKwp}=d.hourly8760;
+  const dcKwpW=dcKwp*1000;
+  const rte=parseFloat(document.getElementById('bess-rte').value)||88;
+  const effAcLim=acLimitW;
+  const slider=document.getElementById('bess-kwh-slider');
+  // Update slider range for active design's DC kWp
+  const minKwh=Math.max(1,Math.round(dcKwp*0.25));
+  const maxKwh=Math.round(dcKwp*4);
+  if(parseFloat(slider.max)!==maxKwh){
+    slider.min=minKwh;slider.max=maxKwh;
+    slider.step=Math.max(1,Math.round(dcKwp*0.1));
+    slider.value=Math.round(dcKwp*1);
+  }
+  const kwhCap=parseFloat(slider.value);
+  document.getElementById('bess-kwh-val').textContent=kwhCap.toFixed(1)+' kWh';
+  // Always keep design label and AC limit current
+  setEl('bess-design-lbl',`${D_NAMES[activeIdx]} — ${dcKwp.toFixed(1)} kWp DC`);
+  setEl('bess-aclim-lbl',acLimitW>0?(acLimitW/1000).toFixed(0)+' kW':'Not set');
+
+  const pvAC=d.hourly8760.pvAC;
+  const gridCharge=document.getElementById('bess-grid-charge').checked;
+  const importLimitKw=parseFloat(document.getElementById('bess-import-limit').value)||0;
+  const importLimitW=importLimitKw>0?importLimitKw*1000:effAcLim; // default to AC limit
+  const sim=simulateBESS(ac,clip,effAcLim,dcKwpW,kwhCap,rte,false,gridCharge,importLimitW);
+  bessData={sim,ac,pvAC,clip,effAcLim,dcKwpW,rte,kwhCap,gridCharge};
+
+  // Update summary chips
+  const totalClipWh=clip.reduce((a,v)=>a+(v||0),0);
+  const pct=totalClipWh>0?Math.min(100,(sim.totalClipRecoveredWh/totalClipWh*100)):0;
+  setEl('bess-total-clip',(totalClipWh/1e6).toFixed(2)+' MWh/yr');
+  setEl('bess-recovered',(sim.totalClipRecoveredWh/1e6).toFixed(2)+' MWh/yr');
+  setEl('bess-pct',pct.toFixed(1)+'%');
+  setEl('bess-cycles',Math.round(sim.totalCycles)+'/yr');
+  if(gridCharge){
+    setEl('bess-grid-charged',(sim.totalGridChargedWh/1e6).toFixed(2)+' MWh/yr pulled from grid');
+    const totalDisp=(sim.totalClipRecoveredWh+sim.totalGridDispatchedWh)/1e6;
+    setEl('bess-total-dispatched',totalDisp.toFixed(2)+' MWh/yr');
+  }
+
+  drawDailyChart();
+  drawSizingChart(ac,clip,effAcLim,dcKwpW,rte,kwhCap,gridCharge,importLimitW);
+  runFinancial();
+}
+
+function onGridChargeToggle(){
+  const on=document.getElementById('bess-grid-charge').checked;
+  document.getElementById('bess-grid-rate-wrap').style.display=on?'flex':'none';
+  document.getElementById('bess-gc-legend').style.display=on?'':'none';
+  document.getElementById('bess-gc-sizing-legend').style.display=on?'':'none';
+  const socLegEl=document.getElementById('bess-gc-soc-legend');
+  if(socLegEl)socLegEl.style.display=on?'':'none';
+  document.getElementById('bess-grid-chip').style.display=on?'':'none';
+  document.getElementById('bess-total-chip').style.display=on?'':'none';
+  runBESS();
+}
+function onBESSSlider(){runBESS();}
+
+function dayIndexFromDate(dateStr){
+  if(!dateStr)return 0;
+  const[,m,d]=dateStr.split('-').map(Number);
+  const daysInMonth=[31,28,31,30,31,30,31,31,30,31,30,31];
+  let day=0;for(let i=0;i<m-1;i++)day+=daysInMonth[i];
+  return day+(d-1);
+}
+
+function dateFromDayIndex(idx){
+  const daysInMonth=[31,28,31,30,31,30,31,31,30,31,30,31];
+  let rem=idx,m=0;
+  while(m<12&&rem>=daysInMonth[m]){rem-=daysInMonth[m];m++;}
+  return `2013-${String(m+1).padStart(2,'0')}-${String(rem+1).padStart(2,'0')}`;
+}
+
+function jumpWorstDay(){
+  const d=designs[activeIdx];
+  if(!d.hourly8760)return;
+  // Use worst total daily clipping, not just the peak hour
+  const dayIdx=d.hourly8760.peakClipDay!==undefined
+    ?d.hourly8760.peakClipDay
+    :Math.floor(d.hourly8760.peakClipHour/24);
+  document.getElementById('bess-date').value=dateFromDayIndex(dayIdx);
+  drawDailyChart();
+}
+
+function nudgeDay(delta){
+  const cur=document.getElementById('bess-date').value;
+  const dayIdx=dayIndexFromDate(cur);
+  const newIdx=Math.max(0,Math.min(364,dayIdx+delta));
+  document.getElementById('bess-date').value=dateFromDayIndex(newIdx);
+  drawDailyChart();
+}
+
+function drawDailyChart(){
+  if(!bessData)return;
+  const{sim,ac,pvAC,effAcLim,kwhCap}=bessData;
+  const dateStr=document.getElementById('bess-date').value;
+  const centerDay=dayIndexFromDate(dateStr);
+  const WING=2,NDAYS=5,NHOURS=NDAYS*24;
+  const startDay=Math.max(0,Math.min(364-NDAYS+1,centerDay-WING));
+  const startHour=startDay*24;
+  const src=pvAC||ac;
+
+  const pvKw=[],exportKw=[],socKwh=[],gridChargeKw=[];
+  for(let i=0;i<NHOURS;i++){
+    const idx=startHour+i;
+    pvKw.push((src[idx]||0)/1000);
+    exportKw.push((sim.hourlyExport[idx]||0)/1000);
+    socKwh.push(sim.hourlySOC[idx]||0);
+    gridChargeKw.push(sim.hourlyGridCharge?(sim.hourlyGridCharge[idx]||0):0);
+  }
+  const hasGridCharge=bessData.gridCharge&&gridChargeKw.some(v=>v>0);
+  const limitKw=effAcLim/1000;
+
+  function setupCanvas(id,hpx){
+    const el=document.getElementById(id);
+    const W=Math.max(el.getBoundingClientRect().width||0,el.offsetWidth||0)||800;
+    el.width=W*window.devicePixelRatio;
+    el.height=hpx*window.devicePixelRatio;
+    el.style.height=hpx+'px';
+    const ctx=el.getContext('2d');
+    ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+    return{ctx,W,h:hpx};
+  }
+
+  // ── Production chart ──────────────────────────────────────
+  const{ctx,W,h}=setupCanvas('bess-daily-canvas',180);
+  const w=W;
+  const pad={l:58,r:16,t:24,b:24};
+  const cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  const maxPV=Math.max(...pvKw,limitKw,1);
+  const totalPts=NHOURS;
+  const xS=i=>pad.l+(i/(totalPts-1))*cw;
+  const yL=v=>pad.t+ch-(v/maxPV)*ch;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#fafafa';ctx.fillRect(0,0,w,h);
+
+  // Day backgrounds
+  for(let d=0;d<NDAYS;d++){
+    const x0=xS(d*24),x1=xS(Math.min((d+1)*24,totalPts-1));
+    if(d%2===1){ctx.fillStyle='rgba(0,0,0,0.03)';ctx.fillRect(x0,pad.t,x1-x0,ch);}
+    if(startDay+d===centerDay){ctx.fillStyle='rgba(25,118,210,0.06)';ctx.fillRect(x0,pad.t,x1-x0,ch);}
+  }
+  // Grid
+  ctx.strokeStyle='#e0e0e0';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pad.t+(i/4)*ch;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();}
+
+  // PV fill + line
+  ctx.beginPath();ctx.moveTo(xS(0),yL(pvKw[0]));
+  for(let i=0;i<totalPts;i++)ctx.lineTo(xS(i),yL(pvKw[i]));
+  ctx.lineTo(xS(totalPts-1),pad.t+ch);ctx.lineTo(xS(0),pad.t+ch);ctx.closePath();
+  ctx.fillStyle='rgba(249,168,37,0.15)';ctx.fill();
+  ctx.beginPath();ctx.moveTo(xS(0),yL(pvKw[0]));
+  for(let i=0;i<totalPts;i++)ctx.lineTo(xS(i),yL(pvKw[i]));
+  ctx.strokeStyle='#f9a825';ctx.lineWidth=2;ctx.stroke();
+
+  // Export fill + line
+  ctx.beginPath();ctx.moveTo(xS(0),yL(exportKw[0]));
+  for(let i=0;i<totalPts;i++)ctx.lineTo(xS(i),yL(exportKw[i]));
+  ctx.lineTo(xS(totalPts-1),pad.t+ch);ctx.lineTo(xS(0),pad.t+ch);ctx.closePath();
+  ctx.fillStyle='rgba(67,160,71,0.2)';ctx.fill();
+  ctx.beginPath();ctx.moveTo(xS(0),yL(exportKw[0]));
+  for(let i=0;i<totalPts;i++)ctx.lineTo(xS(i),yL(exportKw[i]));
+  ctx.strokeStyle='#43a047';ctx.lineWidth=2;ctx.stroke();
+
+  // Grid charge shown in SOC chart below as two-color stacked area
+
+  // Grid charge window shading + import line on production chart
+  if(hasGridCharge){
+    // Shade the 10pm-6am window with light purple background
+    for(let d=0;d<NDAYS;d++){
+      // 10pm = hour 22, 6am = hour 6 next day
+      // Evening portion: hour 22-23 of this day
+      const eve0=xS(d*24+22),eve1=xS(d*24+24);
+      ctx.fillStyle='rgba(123,31,162,0.07)';
+      ctx.fillRect(eve0,pad.t,eve1-eve0,ch);
+      // Morning portion: hour 0-6 of this day
+      const morn0=xS(d*24+0),morn1=xS(d*24+6);
+      ctx.fillStyle='rgba(123,31,162,0.07)';
+      ctx.fillRect(morn0,pad.t,morn1-morn0,ch);
+    }
+    // Grid import fill + line (same style as PV/export series)
+    ctx.beginPath();ctx.moveTo(xS(0),yL(gridChargeKw[0]));
+    for(let i=0;i<totalPts;i++)ctx.lineTo(xS(i),yL(gridChargeKw[i]));
+    ctx.lineTo(xS(totalPts-1),pad.t+ch);ctx.lineTo(xS(0),pad.t+ch);ctx.closePath();
+    ctx.fillStyle='rgba(123,31,162,0.15)';ctx.fill();
+    ctx.beginPath();ctx.moveTo(xS(0),yL(gridChargeKw[0]));
+    for(let i=0;i<totalPts;i++)ctx.lineTo(xS(i),yL(gridChargeKw[i]));
+    ctx.strokeStyle='#7b1fa2';ctx.lineWidth=2;ctx.stroke();
+  }
+
+  // IX limit
+  if(effAcLim>0){
+    const ly=yL(limitKw);
+    ctx.beginPath();ctx.moveTo(pad.l,ly);ctx.lineTo(pad.l+cw,ly);
+    ctx.strokeStyle='#e53935';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#e53935';ctx.font='10px sans-serif';ctx.textAlign='left';
+    ctx.fillText('IX '+limitKw.toFixed(0)+' kW',pad.l+4,ly-4);
+  }
+
+  // Day dividers + date labels
+  for(let d=0;d<NDAYS;d++){
+    if(d>0){ctx.beginPath();ctx.moveTo(xS(d*24),pad.t);ctx.lineTo(xS(d*24),pad.t+ch);ctx.strokeStyle='rgba(0,0,0,0.1)';ctx.lineWidth=1;ctx.stroke();}
+    const isCtr=startDay+d===centerDay;
+    ctx.fillStyle=isCtr?'#1976d2':'#999';
+    ctx.font=isCtr?'bold 9px sans-serif':'9px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(dateFromDayIndex(startDay+d).replace('2013-',''),xS(d*24+12),pad.t-6);
+  }
+
+  // Left axis
+  ctx.fillStyle='#555';ctx.font='11px sans-serif';ctx.textAlign='right';
+  for(let i=0;i<=4;i++)ctx.fillText((maxPV*(1-i/4)).toFixed(0),pad.l-6,pad.t+(i/4)*ch+4);
+  ctx.save();ctx.translate(14,pad.t+ch/2);ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center';ctx.fillStyle='#555';ctx.font='11px sans-serif';ctx.fillText('kW (AC)',0,0);ctx.restore();
+
+  // ── SOC chart — two-color stacked (clip=blue bottom, grid=purple top) ───────
+  const{ctx:sc,W:sw,h:sh}=setupCanvas('bess-soc-canvas',110);
+  const spad={l:58,r:16,t:10,b:22};
+  const scw=sw-spad.l-spad.r,sch=sh-spad.t-spad.b;
+
+  const hasGC=bessData.gridCharge&&sim.hourlySOCgrid;
+  const socClipKwh=[],socGridKwh=[];
+  for(let i=0;i<NHOURS;i++){
+    const idx=startHour+i;
+    const total=sim.hourlySOC[idx]||0;
+    const grid=hasGC?(sim.hourlySOCgrid[idx]||0):0;
+    socGridKwh.push(Math.min(grid,total));
+    socClipKwh.push(Math.max(0,total-Math.min(grid,total)));
+  }
+  const maxSOC=Math.max(...socClipKwh.map((v,i)=>v+socGridKwh[i]),kwhCap,1);
+  const sxS=i=>spad.l+(i/(totalPts-1))*scw;
+  const syS=v=>spad.t+sch-(v/maxSOC)*sch;
+
+  sc.clearRect(0,0,sw,sh);
+  sc.fillStyle='#fafafa';sc.fillRect(0,0,sw,sh);
+
+  // Day backgrounds
+  for(let d=0;d<NDAYS;d++){
+    const x0=sxS(d*24),x1=sxS(Math.min((d+1)*24,totalPts-1));
+    if(d%2===1){sc.fillStyle='rgba(0,0,0,0.03)';sc.fillRect(x0,spad.t,x1-x0,sch);}
+    if(startDay+d===centerDay){sc.fillStyle='rgba(25,118,210,0.06)';sc.fillRect(x0,spad.t,x1-x0,sch);}
+  }
+  sc.strokeStyle='#e0e0e0';sc.lineWidth=1;
+  for(let i=0;i<=2;i++){const y=spad.t+(i/2)*sch;sc.beginPath();sc.moveTo(spad.l,y);sc.lineTo(spad.l+scw,y);sc.stroke();}
+
+  if(hasGC){
+    // Draw total (clip+grid) as purple fill first
+    sc.beginPath();sc.moveTo(sxS(0),syS(socClipKwh[0]+socGridKwh[0]));
+    for(let i=0;i<totalPts;i++)sc.lineTo(sxS(i),syS(socClipKwh[i]+socGridKwh[i]));
+    sc.lineTo(sxS(totalPts-1),spad.t+sch);sc.lineTo(sxS(0),spad.t+sch);sc.closePath();
+    sc.fillStyle='rgba(123,31,162,0.2)';sc.fill();
+    // Draw clip portion as blue fill on top of purple
+    sc.beginPath();sc.moveTo(sxS(0),syS(socClipKwh[0]));
+    for(let i=0;i<totalPts;i++)sc.lineTo(sxS(i),syS(socClipKwh[i]));
+    sc.lineTo(sxS(totalPts-1),spad.t+sch);sc.lineTo(sxS(0),spad.t+sch);sc.closePath();
+    sc.fillStyle='rgba(25,118,210,0.45)';sc.fill();
+    // Outline total SOC in purple
+    sc.beginPath();sc.moveTo(sxS(0),syS(socClipKwh[0]+socGridKwh[0]));
+    for(let i=0;i<totalPts;i++)sc.lineTo(sxS(i),syS(socClipKwh[i]+socGridKwh[i]));
+    sc.strokeStyle='#7b1fa2';sc.lineWidth=1.5;sc.stroke();
+  } else {
+    // Clip only — blue
+    sc.beginPath();sc.moveTo(sxS(0),syS(socClipKwh[0]));
+    for(let i=0;i<totalPts;i++)sc.lineTo(sxS(i),syS(socClipKwh[i]));
+    sc.lineTo(sxS(totalPts-1),spad.t+sch);sc.lineTo(sxS(0),spad.t+sch);sc.closePath();
+    sc.fillStyle='rgba(25,118,210,0.15)';sc.fill();
+    sc.beginPath();sc.moveTo(sxS(0),syS(socClipKwh[0]));
+    for(let i=0;i<totalPts;i++)sc.lineTo(sxS(i),syS(socClipKwh[i]));
+    sc.strokeStyle='#1976d2';sc.lineWidth=2;sc.stroke();
+  }
+
+  // Capacity ceiling
+  sc.beginPath();sc.moveTo(spad.l,syS(kwhCap));sc.lineTo(spad.l+scw,syS(kwhCap));
+  sc.strokeStyle='rgba(0,0,0,0.15)';sc.lineWidth=1;sc.setLineDash([4,3]);sc.stroke();sc.setLineDash([]);
+  sc.fillStyle='#aaa';sc.font='9px sans-serif';sc.textAlign='left';
+  sc.fillText(kwhCap.toFixed(0)+' kWh cap',spad.l+4,syS(kwhCap)-3);
+
+  // Day dividers
+  for(let d=1;d<NDAYS;d++){
+    sc.beginPath();sc.moveTo(sxS(d*24),spad.t);sc.lineTo(sxS(d*24),spad.t+sch);
+    sc.strokeStyle='rgba(0,0,0,0.1)';sc.lineWidth=1;sc.stroke();
+  }
+
+  // Left axis
+  sc.fillStyle='#555';sc.font='11px sans-serif';sc.textAlign='right';
+  for(let i=0;i<=2;i++)sc.fillText((maxSOC*(1-i/2)).toFixed(0),spad.l-6,spad.t+(i/2)*sch+4);
+  sc.save();sc.translate(14,spad.t+sch/2);sc.rotate(-Math.PI/2);
+  sc.textAlign='center';sc.font='11px sans-serif';sc.fillStyle='#555';sc.fillText('SOC (kWh)',0,0);sc.restore();
+
+  sc.fillStyle='#aaa';sc.font='9px sans-serif';sc.textAlign='center';
+  for(let d=0;d<NDAYS;d++)sc.fillText('12:00',sxS(d*24+12),sh-5);
+}
+
+
+// computeCeiling removed — elbow detection used instead
+
+function findElbow(curve){
+  // Largest drop in marginal MWh gain per kWh added = point of diminishing returns
+  if(curve.length<3) return curve.length-1;
+  let bestIdx=1,bestDrop=0;
+  for(let i=1;i<curve.length-1;i++){
+    const slopeBefore=(curve[i].mwh-curve[i-1].mwh)/(curve[i].kwhCap-curve[i-1].kwhCap);
+    const slopeAfter=(curve[i+1].mwh-curve[i].mwh)/(curve[i+1].kwhCap-curve[i].kwhCap);
+    const drop=slopeBefore-slopeAfter;
+    if(drop>bestDrop){bestDrop=drop;bestIdx=i;}
+  }
+  return bestIdx;
+}
+
+function drawSizingChart(ac,clip,effAcLim,dcKwpW,rte,selectedKwh,gridCharge=false,importLimitW=0){
+  const curve=runSizingCurve(ac,clip,effAcLim,dcKwpW,rte,gridCharge,importLimitW);
+  const totalClipWh=clip.reduce((a,v)=>a+(v||0),0);
+  const elbowIdx=findElbow(curve);
+
+  // Exact selected point
+  const selSim=simulateBESS(ac,clip,effAcLim,dcKwpW,selectedKwh,rte,false,gridCharge,importLimitW);
+  const selMwh=selSim.totalClipRecoveredWh/1e6;
+  const selPct=totalClipWh>0?Math.min(100,selSim.totalClipRecoveredWh/totalClipWh*100):0;
+
+  const canvas=document.getElementById('bess-sizing-canvas');
+  const W=Math.max(canvas.getBoundingClientRect().width||0,canvas.offsetWidth||0)||800;
+  const H=Math.max(canvas.getBoundingClientRect().height||0,canvas.offsetHeight||0)||230;
+  canvas.width=W*window.devicePixelRatio;
+  canvas.height=H*window.devicePixelRatio;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+  const w=W,h=H;
+  const pad={l:62,r:62,t:20,b:36};
+  const cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#fafafa';ctx.fillRect(0,0,w,h);
+
+  const maxKwh=curve[curve.length-1].kwhCap;
+  const maxMwhGrid=gridCharge?Math.max(...curve.map(r=>r.mwhGrid||0)):0;
+  const maxMwh=Math.max(...curve.map(r=>r.mwh),maxMwhGrid,0.01)*1.15;
+  const n=curve.length;
+  const xK=kwh=>pad.l+(kwh/maxKwh)*cw;
+  const yL=v=>pad.t+ch-(v/maxMwh)*ch;
+  const yR=v=>pad.t+ch-(v/100)*ch;
+
+  // Grid
+  ctx.strokeStyle='#e0e0e0';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.t+(i/4)*ch;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
+  }
+
+  // MWh fill
+  ctx.beginPath();ctx.moveTo(xK(curve[0].kwhCap),yL(curve[0].mwh));
+  curve.forEach(r=>ctx.lineTo(xK(r.kwhCap),yL(r.mwh)));
+  ctx.lineTo(xK(curve[n-1].kwhCap),pad.t+ch);
+  ctx.lineTo(xK(curve[0].kwhCap),pad.t+ch);
+  ctx.closePath();
+  ctx.fillStyle='rgba(0,137,123,0.12)';ctx.fill();
+
+  // Draw grid curve first (behind clip-only so clip overlays)
+  if(gridCharge&&curve[0].mwhGrid!==null){
+    // Grid fill
+    ctx.beginPath();ctx.moveTo(xK(curve[0].kwhCap),yL(curve[0].mwhGrid));
+    curve.forEach(r=>ctx.lineTo(xK(r.kwhCap),yL(r.mwhGrid)));
+    ctx.lineTo(xK(curve[curve.length-1].kwhCap),pad.t+ch);
+    ctx.lineTo(xK(curve[0].kwhCap),pad.t+ch);ctx.closePath();
+    ctx.fillStyle='rgba(123,31,162,0.08)';ctx.fill();
+    // Grid line
+    ctx.beginPath();ctx.moveTo(xK(curve[0].kwhCap),yL(curve[0].mwhGrid));
+    curve.forEach(r=>ctx.lineTo(xK(r.kwhCap),yL(r.mwhGrid)));
+    ctx.strokeStyle='#7b1fa2';ctx.lineWidth=2.5;ctx.setLineDash([5,3]);ctx.stroke();ctx.setLineDash([]);
+  }
+
+  // MWh line — clip only (drawn on top)
+  ctx.beginPath();ctx.moveTo(xK(curve[0].kwhCap),yL(curve[0].mwh));
+  curve.forEach(r=>ctx.lineTo(xK(r.kwhCap),yL(r.mwh)));
+  ctx.strokeStyle='#00897b';ctx.lineWidth=2.5;ctx.stroke();
+
+  // % captured line
+  ctx.beginPath();ctx.moveTo(xK(curve[0].kwhCap),yR(curve[0].pct));
+  curve.forEach(r=>ctx.lineTo(xK(r.kwhCap),yR(r.pct)));
+  ctx.strokeStyle='#f9a825';ctx.lineWidth=1.5;ctx.setLineDash([4,2]);ctx.stroke();ctx.setLineDash([]);
+
+  // Elbow marker
+  const eb=curve[elbowIdx];
+  const ex=xK(eb.kwhCap),ey=yL(eb.mwh);
+  ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex,pad.t+ch);
+  ctx.strokeStyle='rgba(0,137,123,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);
+  ctx.save();ctx.translate(ex,ey);ctx.rotate(Math.PI/4);
+  ctx.fillStyle='#00897b';ctx.fillRect(-5,-5,10,10);ctx.restore();
+  ctx.fillStyle='#00897b';ctx.font='bold 10px sans-serif';
+  // Label left or right depending on position
+  const elbowLabelLeft = ex > pad.l+cw*0.6;
+  ctx.textAlign=elbowLabelLeft?'right':'left';
+  const lx=elbowLabelLeft?ex-10:ex+10;
+  ctx.fillText('Elbow',lx,ey-10);
+  ctx.font='10px sans-serif';
+  ctx.fillText(Math.round(eb.kwhCap)+' kWh | '+eb.pct.toFixed(1)+'%',lx,ey+3);
+
+  // Selected dot
+  const sx=xK(selectedKwh);
+  const syDot=yL(selMwh);
+  // Vertical drop line
+  ctx.beginPath();ctx.moveTo(sx,pad.t);ctx.lineTo(sx,pad.t+ch);
+  ctx.strokeStyle='rgba(229,57,53,0.25)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);
+  // Dot
+  ctx.beginPath();ctx.arc(sx,syDot,6,0,Math.PI*2);
+  ctx.fillStyle='#e53935';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  // Label
+  ctx.fillStyle='#e53935';ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+  const lblY=syDot-12;
+  ctx.fillText(selectedKwh.toFixed(0)+' kWh | '+selPct.toFixed(1)+'%',sx,lblY<pad.t+14?syDot+18:lblY);
+
+  // Left axis (MWh)
+  ctx.fillStyle='#00897b';ctx.font='11px sans-serif';ctx.textAlign='right';
+  for(let i=0;i<=4;i++)
+    ctx.fillText((maxMwh*(1-i/4)).toFixed(2),pad.l-6,pad.t+(i/4)*ch+4);
+  ctx.save();ctx.translate(14,pad.t+ch/2);ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center';ctx.fillStyle='#00897b';ctx.font='11px sans-serif';
+  ctx.fillText('MWh/yr Recovered',0,0);ctx.restore();
+
+  // Right axis (%)
+  ctx.fillStyle='#f9a825';ctx.font='11px sans-serif';ctx.textAlign='left';
+  for(let i=0;i<=4;i++)
+    ctx.fillText((100*(1-i/4)).toFixed(0)+'%',pad.l+cw+6,pad.t+(i/4)*ch+4);
+  ctx.save();ctx.translate(w-10,pad.t+ch/2);ctx.rotate(Math.PI/2);
+  ctx.textAlign='center';ctx.fillStyle='#f9a825';ctx.font='11px sans-serif';
+  ctx.fillText('% Clipping Captured',0,0);ctx.restore();
+
+  // X axis
+  ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.textAlign='center';
+  for(let i=0;i<=5;i++){
+    const kwh=(i/5)*maxKwh;
+    ctx.fillText(Math.round(kwh)+' kWh',xK(kwh),h-8);
+  }
+  ctx.fillStyle='#555';
+  ctx.fillText('Battery Capacity (kWh)',pad.l+cw/2,h-1);
+}
+
+
+
+// ── Financial Analysis ────────────────────────────────────
+// ── Financial Analysis ────────────────────────────────────
+function calcLifetimeRevenue(yr1Revenue, life, degradPct, escalPct){
+  const netFactor=(1-degradPct/100)*(1+escalPct/100);
+  let total=0,annual=yr1Revenue;
+  for(let y=0;y<life;y++){total+=annual;annual*=netFactor;}
+  return total;
+}
+
+function runFinancial(){
+  if(!bessData) return;
+  const{ac,clip,effAcLim,dcKwpW,rte,kwhCap}=bessData;
+  const rate=parseFloat(document.getElementById('fin-rate').value)||0.14;
+  const capexPerKwh=parseFloat(document.getElementById('fin-capex').value)||250;
+  const paybackTarget=parseFloat(document.getElementById('fin-payback').value)||10;
+  const battLife=parseFloat(document.getElementById('fin-life').value)||20;
+  const degradPct=parseFloat(document.getElementById('fin-deg').value)||1.5;
+  const escalPct=parseFloat(document.getElementById('fin-esc').value)||0;
+  const dcKwp=dcKwpW/1000;
+
+  // Build ~40 evenly spaced steps 0 to 4h of storage
+  const NSTEPS=40;
+  const maxKwh=Math.round(dcKwp*4);
+  const rawStep=maxKwh/NSTEPS;
+  const mag=Math.pow(10,Math.floor(Math.log10(rawStep)));
+  const stepKwh=Math.max(50,Math.round(rawStep/mag)*mag);
+  const steps=[];
+  for(let k=stepKwh;k<=maxKwh+stepKwh*0.5;k+=stepKwh) steps.push(Math.round(k));
+  const sliderSnap=Math.round(kwhCap/stepKwh)*stepKwh;
+  if(!steps.includes(sliderSnap)&&sliderSnap>0) steps.push(sliderSnap);
+  steps.sort((a,b)=>a-b);
+
+  // Run simulation for each step
+  const rows=[];
+  let prevRecaptureWh=0;
+  let optimalIdx=-1;
+
+  steps.forEach((kwh,i)=>{
+    const sim=simulateBESS(ac,clip,effAcLim,dcKwpW,kwh,rte,false);
+    const recaptureKwh=sim.totalRecoveredWh/1000;
+    const incrKwh=recaptureKwh-(prevRecaptureWh/1000);
+    const yr1Revenue=recaptureKwh*rate;
+    const batteryCost=kwh*capexPerKwh;
+    const simplePayback=yr1Revenue>0?batteryCost/yr1Revenue:Infinity;
+    const lifetimeRevenue=calcLifetimeRevenue(yr1Revenue,battLife,degradPct,escalPct);
+    const lifetimeNPV=lifetimeRevenue-batteryCost;
+    const duration=dcKwp>0?kwh/dcKwp:0; // hrs = kWh / kW DC
+    // Optimal = largest battery still within payback target
+    if(simplePayback<=paybackTarget) optimalIdx=i;
+    rows.push({kwh,duration,recaptureKwh,incrKwh,yr1Revenue,batteryCost,simplePayback,lifetimeRevenue,lifetimeNPV});
+    prevRecaptureWh=sim.totalRecoveredWh;
+  });
+
+  if(optimalIdx<0) optimalIdx=0;
+
+  const sliderKwh=Math.round(kwhCap);
+  const selectedIdx=rows.reduce((best,r,i)=>Math.abs(r.kwh-sliderKwh)<Math.abs(rows[best].kwh-sliderKwh)?i:best,0);
+  const optRow=rows[optimalIdx];
+  const fmt=(n,dec=0)=>n.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+  const fmtD=n=>'$'+fmt(Math.round(n));
+  const fmtPB=pb=>pb===Infinity?'N/A':pb.toFixed(1)+' yrs';
+
+  document.getElementById('fin-chips').innerHTML=
+    '<div class="fin-chip"><span>Optimal Size</span><strong>'+fmt(optRow.kwh)+' kWh</strong></div>'+
+    '<div class="fin-chip"><span>Optimal Duration</span><strong>'+optRow.duration.toFixed(2)+' hrs</strong></div>'+
+    '<div class="fin-chip"><span>Yr 1 Revenue</span><strong>'+fmtD(optRow.yr1Revenue)+'/yr</strong></div>'+
+    '<div class="fin-chip"><span>Battery Cost</span><strong>'+fmtD(optRow.batteryCost)+'</strong></div>'+
+    '<div class="fin-chip"><span>Simple Payback</span><strong>'+fmtPB(optRow.simplePayback)+'</strong></div>'+
+    '<div class="fin-chip"><span>Lifetime Revenue ('+battLife+' yr)</span><strong>'+fmtD(optRow.lifetimeRevenue)+'</strong></div>'+
+    '<div class="fin-chip"><span>Lifetime NPV</span><strong style="color:'+(optRow.lifetimeNPV>=0?'#00897b':'#e53935')+'">'+fmtD(optRow.lifetimeNPV)+'</strong></div>';
+
+  const tbody=document.getElementById('fin-tbody');
+  tbody.innerHTML=rows.map(function(r,i){
+    const isOptimal=i===optimalIdx;
+    const isSelected=i===selectedIdx&&!isOptimal;
+    const overPayback=r.simplePayback>paybackTarget;
+    const cls=isOptimal?'fin-optimal':isSelected?'fin-selected':'';
+    const rowStyle=overPayback&&!isOptimal?'color:#e53935':'';
+    const pbStyle=overPayback?'color:#e53935;font-weight:600':'';
+    const incrStr=r.incrKwh>0?fmt(Math.round(r.incrKwh))+' kWh':'--';
+    const durStyle=r.duration<1?'color:#f9a825':r.duration>=2?'color:#00897b':'';
+    return '<tr class="'+cls+'" style="'+rowStyle+'">'
+      +'<td>'+fmt(r.kwh)+' kWh</td>'
+      +'<td style="'+durStyle+'">'+r.duration.toFixed(2)+' hrs</td>'
+      +'<td>'+fmt(Math.round(r.recaptureKwh))+' kWh</td>'
+      +'<td>'+incrStr+'</td>'
+      +'<td>'+fmtD(r.yr1Revenue)+'</td>'
+      +'<td>'+fmtD(r.batteryCost)+'</td>'
+      +'<td style="'+pbStyle+'">'+fmtPB(r.simplePayback)+'</td>'
+      +'<td>'+fmtD(r.lifetimeRevenue)+'</td>'
+      +'<td style="color:'+(r.lifetimeNPV>=0?'#00897b':'#e53935')+'">'+fmtD(r.lifetimeNPV)+'</td>'
+      +'</tr>';
+  }).join('');
+
+  // No auto-scroll on slider update — user controls scroll position
+}
+
+function openBESS(){
+  const d=designs[activeIdx];
+  if(!d.hourly8760){alert('Run PVWatts in the Summary tab first.');return;}
+  const{dcKwp,acLimitW}=d.hourly8760;
+  // Init slider range based on DC kWp (0.25h to 4h)
+  const slider=document.getElementById('bess-kwh-slider');
+  const minKwh=Math.max(1,Math.round(dcKwp*0.25));
+  const maxKwh=Math.round(dcKwp*4);
+  slider.min=minKwh;slider.max=maxKwh;
+  slider.step=Math.max(1,Math.round(dcKwp*0.1));
+  slider.value=Math.round(dcKwp*1); // default 1h
+  // Show AC limit as read-only label and pre-fill import limit
+  setEl('bess-aclim-lbl', acLimitW>0?(acLimitW/1000).toFixed(0)+' kW':'Not set');
+  if(acLimitW>0){
+    const impEl=document.getElementById('bess-import-limit');
+    if(impEl&&!impEl.value) impEl.value=(acLimitW/1000).toFixed(0);
+  }
+  setEl('bess-design-lbl',`${D_NAMES[activeIdx]} — ${dcKwp.toFixed(1)} kWp DC`);
+  // Default to worst total daily clipping day
+  const dayIdx=d.hourly8760.peakClipDay!==undefined
+    ?d.hourly8760.peakClipDay
+    :Math.floor(d.hourly8760.peakClipHour/24);
+  document.getElementById('bess-date').value=dateFromDayIndex(dayIdx);
+  const modal=document.getElementById('bess-modal');
+  modal.style.display='flex';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>runBESS()));
+}
+
+function closeBESS(){
+  document.getElementById('bess-modal').style.display='none';
+}
+// Redraw charts on window resize
+window.addEventListener('resize',()=>{if(document.getElementById('bess-modal').style.display==='flex')runBESS();});
+
+// ── Drawer resize drag ────────────────────────────────────────
+(function(){
+  const handle=document.getElementById('bess-handle');
+  let dragging=false,startY=0,startH=0;
+  handle.style.cursor='ns-resize';
+  handle.addEventListener('mousedown',function(e){
+    const modal=document.getElementById('bess-modal');
+    dragging=true;
+    startY=e.clientY;
+    startH=modal.offsetHeight;
+    document.body.style.userSelect='none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!dragging)return;
+    const modal=document.getElementById('bess-modal');
+    const main=document.getElementById('main');
+    const mainH=main.offsetHeight;
+    const delta=startY-e.clientY; // dragging up increases height
+    const newH=Math.max(120,Math.min(mainH*0.8,startH+delta));
+    modal.style.height=newH+'px';
+  });
+  document.addEventListener('mouseup',function(){
+    if(dragging){
+      dragging=false;
+      document.body.style.userSelect='';
+      // Redraw charts after resize
+      if(document.getElementById('bess-modal').style.display==='flex') runBESS();
+    }
+  });
+})();
+
+// ── PDF Summary Export ─────────────────────────────────────
+function exportPDF(){
+  if(typeof window.jspdf==='undefined'){alert('jsPDF not loaded. Check your internet connection.');return;}
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'pt',format:'letter'});
+  const d=designs[activeIdx];
+  const name=D_NAMES[activeIdx]||'Design 1';
+  const isSAT=d.config&&d.config.tableType==='SAT';
+  const typeLabel=isSAT?'Single-Axis Tracker':'Fixed Tilt';
+  const W=612,H=792; // letter in pts
+  const ML=48,MR=48,MT=48;
+  let y=MT;
+
+  // ── Colors ──
+  const TEAL=[0,137,123];
+  const DARK=[30,30,30];
+  const MID=[90,90,90];
+  const LIGHT=[240,242,244];
+  const WHITE=[255,255,255];
+  const LINE=[220,220,220];
+
+  function setFont(size,style,color){
+    doc.setFontSize(size);
+    doc.setFont('helvetica',style||'normal');
+    doc.setTextColor(...(color||DARK));
+  }
+  function hline(yy,col){
+    doc.setDrawColor(...(col||LINE));
+    doc.setLineWidth(0.5);
+    doc.line(ML,yy,W-MR,yy);
+  }
+  function sectionHeader(title,yy){
+    doc.setFillColor(...TEAL);
+    doc.roundedRect(ML,yy,W-ML-MR,18,3,3,'F');
+    setFont(9,'bold',WHITE);
+    doc.text(title.toUpperCase(),ML+8,yy+12.5);
+    return yy+26;
+  }
+  function row2col(label,value,yy,shade){
+    if(shade){doc.setFillColor(...LIGHT);doc.rect(ML,yy,W-ML-MR,16,'F');}
+    setFont(8,'normal',MID);doc.text(label,ML+6,yy+11);
+    setFont(8,'bold',DARK);doc.text(String(value),W-MR-6,yy+11,{align:'right'});
+    return yy+16;
+  }
+  function checkPage(needed){
+    if(y+needed>H-60){doc.addPage();y=48;}
+  }
+
+  // ── Header ──
+  doc.setFillColor(...TEAL);
+  doc.rect(0,0,W,56,'F');
+  setFont(18,'bold',WHITE);
+  doc.text('Solar Layout Tool',ML,34);
+  setFont(9,'normal',[180,230,220]);
+  doc.text('Design Summary Report',ML,48);
+  setFont(9,'normal',[180,230,220]);
+  doc.text(new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),W-MR,34,{align:'right'});
+  doc.text(name+' — '+typeLabel,W-MR,48,{align:'right'});
+  y=72;
+
+  // ── System Overview chips ──
+  const stats=d.stats||{};
+  // Resolve values from correct field names
+  const acKw=stats.acKwac||0;
+  const annualMwh=d.pvwatts?d.pvwatts.annualAC:(stats.mwh||0);
+  const cf=d.pvwatts?d.pvwatts.cf:0;
+  const chips=[
+    {l:'DC Capacity',v:stats.dcKwp?(stats.dcKwp.toFixed(1)+' kWp'):'—'},
+    {l:'AC Capacity',v:acKw?acKw.toLocaleString()+' kW':'—'},
+    {l:'ILR',v:stats.ilr?stats.ilr.toFixed(2)+'x':'—'},
+    {l:'Tables',v:d.tableRects?(d.tableRects.length.toLocaleString()):'—'},
+    {l:'Annual Energy',v:annualMwh?(annualMwh.toFixed(1)+' MWh/yr'):'—'},
+    {l:'Capacity Factor',v:cf?(cf.toFixed(1)+'%'):'—'},
+  ];
+  const chipW=(W-ML-MR-10)/3,chipH=38,chipGap=5;
+  chips.forEach((chip,i)=>{
+    const cx=ML+(i%3)*(chipW+chipGap);
+    const cy=y+Math.floor(i/3)*(chipH+chipGap);
+    doc.setFillColor(...LIGHT);doc.roundedRect(cx,cy,chipW,chipH,4,4,'F');
+    doc.setDrawColor(...LINE);doc.setLineWidth(0.5);doc.roundedRect(cx,cy,chipW,chipH,4,4,'S');
+    setFont(7,'normal',MID);doc.text(chip.l,cx+chipW/2,cy+13,{align:'center'});
+    setFont(12,'bold',TEAL);doc.text(chip.v,cx+chipW/2,cy+28,{align:'center'});
+  });
+  y+=chipH*2+chipGap*2+12;
+  hline(y);y+=10;
+
+  // ── Table Configuration ──
+  y=sectionHeader('Table Configuration',y);
+  const cfg=d.config||{};
+  const modPreset=cfg['mod-preset']!=='custom'?(cfg['mod-preset']||'—'):'Custom';
+  const modLabel=modPreset!=='custom'&&modPreset!=='Custom'
+    ?(modPreset.split('|')[0]?'Custom':modPreset)
+    :'Custom';
+  // Get preset name from select options
+  let presetName='Custom';
+  const presetMap={'620|1.134|2.462':'Qcells Q.TRON XL-G2.3/BFG 620W','585|1.134|2.278':'Imperial Star ISN7-UHSB144-585W'};
+  if(cfg['mod-preset']&&presetMap[cfg['mod-preset']])presetName=presetMap[cfg['mod-preset']];
+  const rows0=[
+    ['Module',presetName],
+    ['Module Wp',(cfg['mod-wp']||'—')+' W'],
+    ['Module Size',(cfg['mod-w']||'—')+' x '+(cfg['mod-h']||'—')+' ft'],
+    ['Configuration',(cfg['mods-x']||'—')+' E/W x '+(cfg['mods-y']||'—')+' N/S'],
+    ['Table Type',typeLabel],
+    isSAT?['Max Rotation',(cfg['maxrot']||52)+'°']:['Tilt',(cfg['tilt']||'—')+'°'],
+    [isSAT?'Tracker Axis Azimuth':'Azimuth',(cfg['azimuth']||180)+'°'],
+    ['Row Spacing',(cfg['row-sp']||'—')+' ft'],
+    ['Col Spacing',(cfg['col-sp']||'—')+' ft'],
+  ];
+  rows0.forEach((r,i)=>{y=row2col(r[0],r[1],y,i%2===0);});
+  y+=10;checkPage(80);
+
+  // ── System Losses ──
+  y=sectionHeader('System Losses & Performance',y);
+  const lossRows=[
+    ['Inverter Efficiency',(cfg['inv-eff']||97)+'%'],
+    ['System Losses',(cfg['sys-loss']||14)+'%'],
+    ['Soiling Loss',(cfg['soiling']||2)+'%'],
+    ['Additional Losses',(cfg['add-loss']||12)+'%'],
+    ['Bifaciality',(cfg['bifaciality']||0.70)],
+    ['Albedo',(cfg['albedo']||0.20)],
+    ['Performance Ratio',stats.PR?((stats.PR*100).toFixed(1)+'%'):'—'],
+  ];
+  lossRows.forEach((r,i)=>{y=row2col(r[0],r[1],y,i%2===0);});
+  y+=10;checkPage(100);
+
+  // ── Site Information ──
+  y=sectionHeader('Site Information',y);
+  // Compute boundary area from lat/lng using Haversine
+  let areaAcres='—';
+  if(d.boundaryLatLngs&&d.boundaryLatLngs.length>2){
+    const lls=d.boundaryLatLngs;
+    let areaM2=0;
+    const R=6371000;
+    for(let i=0;i<lls.length;i++){
+      const j=(i+1)%lls.length;
+      const lat1=lls[i].lat*Math.PI/180,lat2=lls[j].lat*Math.PI/180;
+      const lng1=lls[i].lng*Math.PI/180,lng2=lls[j].lng*Math.PI/180;
+      areaM2+=lng2*Math.sin(lat1)-lng1*Math.sin(lat2);
+    }
+    areaM2=Math.abs(areaM2*R*R/2);
+    const areaAc=(areaM2/4046.86);
+    areaAcres=areaAc.toFixed(2)+' ac';
+  }
+  // Build string config from strCounts
+  let stringConfig='—';
+  if(stats.strCounts){
+    const parts=[];
+    [4,3,2,1].forEach(n=>{if(stats.strCounts[n])parts.push(stats.strCounts[n]+'×'+n+'S');});
+    if(parts.length)stringConfig=parts.join(', ');
+  }
+  const siteRows=[
+    ['Latitude',siteLat!=null?siteLat.toFixed(4)+'°':'Not set'],
+    ['Longitude',siteLng!=null?siteLng.toFixed(4)+'°':'Not set'],
+    ['Boundary Area',areaAcres],
+    ['GCR',stats.gcr?((stats.gcr*100).toFixed(1)+'%'):'—'],
+    ['String Config',stringConfig],
+  ];
+  siteRows.forEach((r,i)=>{y=row2col(r[0],r[1],y,i%2===0);});
+  y+=10;checkPage(120);
+
+  // ── Energy Results ──
+  y=sectionHeader('Energy Results (PVWatts v8)',y);
+  if(d.pvwatts&&d.pvwatts.monthly){
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const monthly=d.pvwatts.monthly;
+    // Ensure enough room for chart + rows + footer
+    checkPage(160);
+    // Mini bar chart
+    const barW=(W-ML-MR)/12,barMaxH=50,maxVal=Math.max(...monthly);
+    doc.setFillColor(...LIGHT);doc.rect(ML,y,W-ML-MR,barMaxH+20,'F');
+    monthly.forEach((v,i)=>{
+      const bh=maxVal>0?(v/maxVal)*barMaxH:0;
+      doc.setFillColor(...TEAL);
+      doc.rect(ML+i*barW+2,y+barMaxH-bh+4,barW-4,bh,'F');
+      setFont(6,'normal',MID);
+      doc.text(months[i],ML+i*barW+barW/2,y+barMaxH+14,{align:'center'});
+    });
+    y+=barMaxH+24;
+    const sy=d.pvwatts?d.pvwatts.sy:d.stats.sy;
+    const energyRows=[
+      ['Annual Production',(d.pvwatts?d.pvwatts.annualAC:d.stats.mwh)?(((d.pvwatts?d.pvwatts.annualAC:d.stats.mwh)).toFixed(1)+' MWh/yr'):'—'],
+      ['Capacity Factor',d.pvwatts?d.pvwatts.cf.toFixed(1)+'%':'—'],
+      ['Specific Yield',sy?Math.round(sy).toLocaleString()+' kWh/kWp':'—'],
+      ['TMY GHI',d.pvwatts?d.pvwatts.solrad.toFixed(0)+' kWh/m²/yr':'—'],
+    ];
+    energyRows.forEach((r,i)=>{y=row2col(r[0],r[1],y,i%2===0);});
+  } else {
+    setFont(9,'italic',MID);
+    doc.text('Run PVWatts in the Summary tab to include energy results.',ML+6,y+14);
+    y+=28;
+  }
+
+  // ── Clipping (if available) ──
+  if(d.hourly8760&&d.hourly8760.acLimitW>0){
+    y+=8;checkPage(80);
+    y=sectionHeader('Clipping Analysis',y);
+    const tw=d.hourly8760.totalClippedWh;
+    const totalDCWh=d.hourly8760.dc.reduce((a,b)=>a+(b||0),0);
+    const invEff=d.hourly8760.invEff;
+    const clipPct=totalDCWh>0?(tw/(totalDCWh*(invEff/100))*100):0;
+    const clipRows=[
+      ['AC Export Limit',(d.hourly8760.acLimitW/1000).toFixed(0)+' kW'],
+      ['Total Clipping',(tw/1e6).toFixed(2)+' MWh/yr'],
+      ['Clipping as % of Generation',clipPct.toFixed(1)+'%'],
+    ];
+    clipRows.forEach((r,i)=>{y=row2col(r[0],r[1],y,i%2===0);});
+  }
+
+  // ── Footer ──
+  const pageCount=doc.getNumberOfPages();
+  for(let p=1;p<=pageCount;p++){
+    doc.setPage(p);
+    doc.setFillColor(...TEAL);doc.rect(0,H-28,W,28,'F');
+    setFont(7,'normal',[180,230,220]);
+    doc.text('Solar Layout Tool — Generated '+new Date().toLocaleString(),ML,H-12);
+    doc.text('Page '+p+' of '+pageCount,W-MR,H-12,{align:'right'});
+  }
+
+  doc.save(name.replace(/\s+/g,'_')+'_summary.pdf');
+}
+
+async function exportKMZ(){
+  const d=designs[activeIdx];
+  if(!d.boundaryLatLngs&&(!d.tableRects||d.tableRects.length===0)){
+    alert('Nothing to export - draw a boundary or generate a layout first.');return;
+  }
+  if(typeof JSZip==='undefined'){alert('JSZip not loaded.');return;}
+  const name=D_NAMES[activeIdx]||'Design';
+  const isSAT=d.config&&d.config.tableType==='SAT';
+  const typeLabel=isSAT?'Single-Axis Tracker':'Fixed Tilt';
+  let placemarks='';
+
+  // Boundary
+  if(d.boundaryLatLngs&&d.boundaryLatLngs.length>0){
+    const first=d.boundaryLatLngs[0];
+    const coords=d.boundaryLatLngs.map(ll=>ll.lng+','+ll.lat+',0').join(' ')+' '+first.lng+','+first.lat+',0';
+    placemarks+='<Placemark><name>Site Boundary - '+name+'</name>'
+      +'<Style><LineStyle><color>ff2196F3</color><width>2</width></LineStyle>'
+      +'<PolyStyle><color>331976D2</color><fill>1</fill><outline>1</outline></PolyStyle></Style>'
+      +'<Polygon><altitudeMode>clampToGround</altitudeMode>'
+      +'<outerBoundaryIs><LinearRing><coordinates>'+coords+'</coordinates></LinearRing></outerBoundaryIs>'
+      +'</Polygon></Placemark>';
+  }
+
+  // Tables
+  const hexColors=['FFE91E63','FF9C27B0','FF2196F3','FF4CAF50','FFFF9800'];
+  const dIdx=designs.indexOf(d);
+  const kmlColor=hexColors[dIdx%hexColors.length];
+  const fillColor='44'+kmlColor.slice(2);
+  if(d.tableRects&&d.tableRects.length>0){
+    d.tableRects.forEach(function(tr,i){
+      const first=tr.ll[0];
+      const coords=tr.ll.map(ll=>ll.lng+','+ll.lat+',0').join(' ')+' '+first.lng+','+first.lat+',0';
+      placemarks+='<Placemark><name>Table '+(i+1)+' ('+tr.sc+'S)</name>'
+        +'<Style><LineStyle><color>'+kmlColor+'</color><width>1</width></LineStyle>'
+        +'<PolyStyle><color>'+fillColor+'</color><fill>1</fill><outline>1</outline></PolyStyle></Style>'
+        +'<Polygon><altitudeMode>clampToGround</altitudeMode>'
+        +'<outerBoundaryIs><LinearRing><coordinates>'+coords+'</coordinates></LinearRing></outerBoundaryIs>'
+        +'</Polygon></Placemark>';
+    });
+  }
+
+  // Obstacles
+  obstructions.forEach(function(obs,i){
+    const lls=obs.getLatLngs()[0];
+    const first=lls[0];
+    const coords=lls.map(function(ll){return ll.lng+','+ll.lat+',0';}).join(' ')+' '+first.lng+','+first.lat+',0';
+    placemarks+='<Placemark><name>Obstacle '+(i+1)+'</name>'
+      +'<Style><LineStyle><color>FFf44336</color><width>2</width></LineStyle>'
+      +'<PolyStyle><color>44f44336</color><fill>1</fill><outline>1</outline></PolyStyle></Style>'
+      +'<Polygon><altitudeMode>clampToGround</altitudeMode>'
+      +'<outerBoundaryIs><LinearRing><coordinates>'+coords+'</coordinates></LinearRing></outerBoundaryIs>'
+      +'</Polygon></Placemark>';
+  });
+
+  const tableCount=d.tableRects?d.tableRects.length:0;
+  const statsDesc=d.stats?'Tables: '+tableCount+' | DC: '+(d.stats.dcKwp||0).toFixed(1)+' kWp | AC: '+(d.stats.acKw||0).toFixed(1)+' kW':'';
+  const kml='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<kml xmlns="http://www.opengis.net/kml/2.2"><Document>'
+    +'<name>'+name+' - '+typeLabel+'</name>'
+    +'<description>'+statsDesc+'</description>'
+    +placemarks
+    +'</Document></kml>';
+
+  const zip=new JSZip();
+  zip.file('doc.kml',kml);
+  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=name.replace(/\s+/g,'_')+'_layout.kmz';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderComparison(){
+  const active=designs.filter(d=>d.stats&&d.tableRects.length>0);
+  const sec=document.getElementById('cmp-sec');
+  if(active.length<2){sec.style.display='none';return;}
+  sec.style.display='';
+  const rows=[
+    {l:'Type',f:d=>d.config.tableType||'FT'},
+    {l:'Tables',f:d=>d.stats.n.toLocaleString()},
+    {l:'Modules',f:d=>d.stats.totalMods.toLocaleString()},
+    {l:'DC kWp',f:d=>d.stats.dcKwp.toFixed(1)},
+    {l:'AC kWac',f:d=>d.stats.acKwac>0?d.stats.acKwac.toLocaleString():'—'},
+    {l:'GCR',f:d=>(d.stats.gcr*100).toFixed(0)+'%'},
+    {l:'ILR',f:d=>d.stats.ilr?d.stats.ilr.toFixed(2):'—'},
+    {l:'PR',f:d=>(d.stats.PR*100).toFixed(1)+'%'},
+    {l:'Ann. MWh',f:d=>{const v=d.pvwatts?d.pvwatts.annualAC:d.stats.mwh;return v>0?v.toFixed(0)+(d.pvwatts?'*':''):'—';}},
+    {l:'CF',f:d=>d.pvwatts?d.pvwatts.cf.toFixed(1)+'%':'—'},
+    {l:'Spec. Yield',f:d=>{const v=d.pvwatts?d.pvwatts.sy:d.stats.sy;return v>0?Math.round(v).toLocaleString():'—';}},
+  ];
+  let html=`<table class="cmp-table"><thead><tr><th>Metric</th>`;
+  active.forEach(d=>{const i=designs.indexOf(d);const src=d.pvwatts?'<span style="font-size:9px;color:#2e7d32"> PV</span>':'';html+=`<th><span class="d-dot" style="background:${D_COLORS[i]}"></span>${D_NAMES[i]}${src}</th>`;});
+  html+=`</tr></thead><tbody>`;
+  rows.forEach(row=>{html+=`<tr><td style="color:#555">${row.l}</td>`;active.forEach(d=>{html+=`<td>${row.f(d)}</td>`;});html+=`</tr>`;});
+  html+=`</tbody></table><p style="font-size:10px;color:#aaa;margin-top:4px">* PVWatts result</p>`;
+  document.getElementById('cmp-wrap').innerHTML=html;
+}
+
+// ── Clear ──────────────────────────────────────────────────
+function clearTables(){const d=designs[activeIdx];d.tableGroup.clearLayers();d.tableRects=[];d.stats=null;d.pvwatts=null;invalidatePVWatts();calcStats();renderComparison();setStatus('Tables cleared.');}
+function clearAll(){
+  const d=designs[activeIdx];
+  d.tableGroup.clearLayers();d.tableRects=[];d.stats=null;d.pvwatts=null;
+  if(d.boundaryLayer){drawnItems.removeLayer(d.boundaryLayer);d.boundaryLayer=null;}
+  d.boundaryLatLngs=null;siteLat=null;siteLng=null;
+  document.getElementById('no-loc').style.display='';document.getElementById('loc-info').style.display='none';
+  invalidatePVWatts();calcStats();renderComparison();setStatus('Draw a polygon to begin.');
+}
+
+// ── Init ───────────────────────────────────────────────────
+initDesigns();
+drawTablePreview();
+updateDimsLabel();
+updateOrientNote();
+onLossChange();
+setMaxStringsUI(4);
+refreshBifacialNote();
+
+// ── App Mode (Map / Input) ────────────────────────────────────
+
+function setAppMode(mode){
+  appMode=mode;
+  // Pill buttons
+  document.getElementById('pill-map').classList.toggle('active',mode==='map');
+  document.getElementById('pill-input').classList.toggle('active',mode==='input');
+  // Map visibility
+  document.getElementById('map').style.display=mode==='map'?'':'none';
+  const mapBtns=document.getElementById('map-layout-btns');
+  if(mapBtns)mapBtns.style.display=mode==='map'?'':'none';
+  // In input mode expand sidebar to full width since no map
+  const sidebar=document.getElementById('sidebar');
+  if(sidebar){
+    sidebar.style.width=mode==='input'?'420px':'310px';
+    sidebar.style.minWidth=mode==='input'?'420px':'280px';
+  }
+  document.getElementById('bess-modal').style.display='none'; // close drawer on switch
+  // Input mode panel
+
+  // Show/hide input-specific fields
+  const imModField=document.getElementById('im-modules-field');
+  if(imModField)imModField.style.display=mode==='input'?'':'none';
+  const imLatLng=document.getElementById('im-latlng-fields');
+  if(imLatLng)imLatLng.style.display=mode==='input'?'':'none';
+  // Hide map-only sections in input mode
+  const secAlign=document.getElementById('sec-alignment');
+  const secStr=document.getElementById('sec-strings');
+  if(mode==='input'){
+    if(secAlign)secAlign.style.display='none';
+    if(secStr)secStr.style.display='none';
+    document.getElementById('str-breakdown').style.display='none';
+  } else {
+    // Restore based on current table type
+    if(secAlign)secAlign.style.display=tableType==='FT'?'':'none';
+    if(secStr)secStr.style.display=tableType==='SAT'?'':'none';
+  }
+  // In input mode hide the map draw prompt, show nothing for location
+  if(mode==='input'){
+    document.getElementById('no-loc').style.display='none';
+  } else {
+    // Restore map mode location display
+    if(!siteLat){document.getElementById('no-loc').style.display='';document.getElementById('loc-info').style.display='none';}
+  }
+  // Status / generate button visibility
+  const statusEl=document.getElementById('status');
+  if(statusEl){
+    statusEl.textContent=mode==='input'
+      ?'Enter modules in Setup tab, lat/lng in Site tab'
+      :'Draw a polygon to begin';
+  }
+  // In input mode, hide map-specific tabs actions; show all tabs
+  if(mode==='input'){
+    // Populate input mode fields from current design if available
+    const d=designs[activeIdx];
+    if(d.imLat) document.getElementById('im-lat').value=d.imLat;
+    if(d.imLng) document.getElementById('im-lng').value=d.imLng;
+    if(d.imModules) document.getElementById('im-modules').value=d.imModules;
+    onInputModeChange();
+  } else {
+    // Restore map
+    setTimeout(()=>map.invalidateSize(),100);
+  }
+}
+
+function onInputModeChange(){
+  const d=designs[activeIdx];
+  const lat=parseFloat(document.getElementById('im-lat').value)||null;
+  const lng=parseFloat(document.getElementById('im-lng').value)||null;
+  const modules=parseInt(document.getElementById('im-modules').value)||0;
+  // Save to design
+  d.imLat=lat;d.imLng=lng;d.imModules=modules;
+  // Update site location for PVWatts
+  if(lat!==null&&lng!==null){
+    siteLat=lat;siteLng=lng;
+    document.getElementById('no-loc').style.display='none';
+    document.getElementById('loc-info').style.display='';
+    setEl('site-lat',lat.toFixed(4));setEl('site-lng',lng.toFixed(4));
+    updatePVWattsBtn();
+  }
+  // Compute derived values
+  const wp=parseFloat(document.getElementById('mod-wp').value)||620;
+  const acKw=g('ac-size');
+  const dcKwp=modules>0?(modules*wp/1000):0;
+  const ilr=acKw>0&&dcKwp>0?(dcKwp/acKw):null;
+  // Pitch & GCR (same formula as calcStats)
+  const isSAT=tableType==='SAT';
+  const tiltForPitch=isSAT?0:g('tilt');
+  const tiltRad=tiltForPitch*Math.PI/180;
+  const modWFt=g('mod-w'),modHFt=g('mod-h');
+  const modsX=Math.max(1,Math.round(g('mods-x'))),modsY=Math.max(1,Math.round(g('mods-y')));
+  const rowSpFt=g('row-sp'),colSpFt=g('col-sp');
+  const isPortrait=orientation==='portrait';
+  let tableEWft,tableNSft;
+  if(isSAT){tableEWft=isPortrait?(modHFt*modsX):(modWFt*modsX);}
+  else{tableNSft=isPortrait?(modHFt*modsY):(modWFt*modsY);}
+  let pitchFt;
+  if(isSAT){pitchFt=colSpFt+Math.cos(tiltRad)*tableEWft;}
+  else{pitchFt=rowSpFt+Math.cos(tiltRad)*tableNSft;}
+  const gcr=isSAT?(tableEWft/pitchFt):(tableNSft/pitchFt);
+  // Update stat chips
+  setEl('im-dc',dcKwp>0?dcKwp.toFixed(1)+' kWp':'—');
+  setEl('im-ac',acKw>0?acKw.toLocaleString()+' kW':'—');
+  setEl('im-ilr',ilr?ilr.toFixed(2)+'x':'—');
+  setEl('im-gcr',gcr?(gcr*100).toFixed(1)+'%':'—');
+  setEl('im-pitch',pitchFt?pitchFt.toFixed(2)+' ft':'—');
+  // Push into summary stats so PVWatts uses correct DC
+  if(modules>0){
+    const modsPerTable=Math.max(1,Math.round(g('mods-x'))*Math.round(g('mods-y')));
+    const totalTables=modsPerTable>0?Math.floor(modules/modsPerTable):0;
+    const totalStrings=totalTables; // input mode: one string per table
+    d.stats=d.stats||{};
+    d.stats.dcKwp=dcKwp;
+    d.stats.acKwac=acKw;
+    d.stats.ilr=ilr;
+    d.stats.gcr=gcr;
+    d.stats.pitchFt=pitchFt;
+    d.stats.n=modules;
+    d.stats.totalMods=modules;
+    d.stats.totalStrings=totalStrings;
+    setEl('s-dc',dcKwp.toFixed(1));
+    setEl('s-ac',acKw>0?acKw.toLocaleString():'—');
+    setEl('s-ilr',ilr?ilr.toFixed(2):'—');
+    setEl('s-gcr',(gcr*100).toFixed(1)+'%');
+    setEl('s-pitch',pitchFt.toFixed(2)+' ft');
+    setEl('s-mods',modules.toLocaleString());
+    setEl('s-strings',totalStrings.toLocaleString());
+    setEl('s-tables',totalTables.toLocaleString());
+    // Show divisibility note
+    const remainder=modules%modsPerTable;
+    const imModEl=document.getElementById('im-modules');
+    if(imModEl)imModEl.style.borderColor=remainder>0?'#e53935':'#ccc';
+    const noteEl=document.getElementById('im-mod-note');
+    if(noteEl)noteEl.innerHTML=remainder>0
+      ?'<span style="color:#e53935">⚠ '+modules+' ÷ '+modsPerTable+' = '+totalTables+' remainder '+remainder+'</span>'
+      :totalTables+' tables × '+modsPerTable+' modules';
+    updatePVWattsBtn();
+    markDirty();
+  }
+}
+
+// Input mode updatePVWattsBtn is handled inline in the main updatePVWattsBtn below
+
+</script>
