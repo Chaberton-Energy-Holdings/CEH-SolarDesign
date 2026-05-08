@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chaberton Energy — Tools</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a2744;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(245,196,0,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .container { position: relative; text-align: center; padding: 48px 40px; max-width: 640px; width: 100%; }
+    .logo-mark { width: 64px; height: 64px; margin: 0 auto 24px; }
+    .brand-name { font-size: 32px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+    .brand-sub { font-size: 13px; font-weight: 600; color: #f5c400; letter-spacing: 4px; text-transform: uppercase; }
+    .divider { width: 48px; height: 2px; background: #f5c400; margin: 28px auto; border-radius: 2px; }
+    .welcome-text { font-size: 15px; color: #c8d4f0; line-height: 1.7; margin-bottom: 48px; }
+    .tool-card {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 24px 32px; width: 100%; max-width: 440px;
+      display: flex; align-items: center; gap: 20px; text-decoration: none;
+      transition: all 0.2s; margin: 0 auto 16px;
+    }
+    .tool-card:hover { background: rgba(245,196,0,0.08); border-color: #f5c400; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+    .tool-icon { width: 48px; height: 48px; background: #f5c400; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .tool-info { text-align: left; }
+    .tool-name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .tool-desc { font-size: 12px; color: #8896b0; line-height: 1.5; }
+    .tool-arrow { margin-left: auto; color: #f5c400; font-size: 18px; flex-shrink: 0; transition: transform 0.2s; }
+    .tool-card:hover .tool-arrow { transform: translateX(4px); }
+    .coming-soon { font-size: 10px; background: rgba(255,255,255,0.1); color: #8896b0; padding: 2px 8px; border-radius: 10px; }
+    .footer { position: fixed; bottom: 24px; font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-mark">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="30" stroke="#f5c400" stroke-width="2" fill="none"/>
+        <path d="M32 14 L48 46 L16 46 Z" fill="none" stroke="#f5c400" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M32 22 L42 42 L22 42 Z" fill="#f5c400" opacity="0.2"/>
+        <circle cx="32" cy="32" r="3" fill="#f5c400"/>
+      </svg>
+    </div>
+    <div class="brand-name">chaberton</div>
+    <div class="brand-sub">Energy</div>
+    <div class="divider"></div>
+    <p class="welcome-text">Internal tools for solar project development, layout design, and energy analysis.</p>
+    <a class="tool-card" href="CEH-SolarDesign-Tool.html">
+      <div class="tool-icon">☀️</div>
+      <div class="tool-info">
+        <div class="tool-name">CEH SolarDesign</div>
+        <div class="tool-desc">Site layout, PVWatts energy modeling, BESS clipping analysis, and financial optimization.</div>
+      </div>
+      <div class="tool-arrow">→</div>
+    </a>
+    <div class="tool-card" style="opacity:0.5;cursor:default;pointer-events:none">
+      <div class="tool-icon" style="background:rgba(255,255,255,0.1)">📊</div>
+      <div class="tool-info">
+        <div class="tool-name">CEH ProForma <span class="coming-soon">Coming soon</span></div>
+        <div class="tool-desc">Project-level financial modeling, IRR, and revenue stack analysis.</div>
+      </div>
+      <div class="tool-arrow" style="color:#8896b0">→</div>
+    </div>
+  </div>
+  <div class="footer">© CHABERTON ENERGY</div>
+</body>
+</html>
