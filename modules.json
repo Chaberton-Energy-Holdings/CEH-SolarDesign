@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Qcells Q.TRON XL-G2.3/BFG — 620W",
+    "wp": 620,
+    "width_mm": 1134,
+    "height_mm": 2462,
+    "bifaciality": 0.80,
+    "notes": "N-type bifacial, 156 cells, 22.2% efficiency"
+  },
+  {
+    "name": "Qcells Q.PEAK DUO XL-G11S.3/BFG — 590W",
+    "wp": 590,
+    "width_mm": 1134,
+    "height_mm": 2462,
+    "bifaciality": 0.70,
+    "notes": "P-type bifacial, 156 cells, 21.1% efficiency"
+  },
+  {
+    "name": "Imperial Star ISN7-UHSB144-590/M — 590W",
+    "wp": 590,
+    "width_mm": 1134,
+    "height_mm": 2278,
+    "bifaciality": 0.80,
+    "notes": "N-type bifacial, 144 cells, 22.8% efficiency"
+  }
+]
