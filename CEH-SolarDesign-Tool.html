@@ -117,8 +117,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .btn-run:hover{background:#16a34a}
 .btn-rec{background:var(--purple);color:#fff;border:none}
 .btn-rec:hover{background:#7c3aed}
+.btn-edit{background:transparent;color:var(--accent);border:1px solid var(--accent);font-size:11px;padding:6px 14px}
 .btn-edit:hover{background:rgba(59,130,246,.1)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Field default/minimum indicators */
+.field-indicator{
+  display:none;margin-left:6px;font-size:13px;font-weight:700;cursor:help;
+  vertical-align:middle;line-height:1;padding:2px 6px;border-radius:10px;
+  color:#fff;
+}
+.field-indicator.info{background:#5b21b6}
+.field-indicator.warn{background:var(--amber);font-weight:500}
 
 /* Run step */
 .run-config-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 32px;font-size:12px;font-family:var(--mono)}
@@ -314,6 +324,103 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .dispatch-toggle:hover{border-color:var(--accent);color:var(--text2)}
 .dispatch-toggle-active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .dispatch-day-label{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto}
+/* Bug report / feature request */
+.bugreport-fab{
+  position:fixed;bottom:20px;right:20px;z-index:2000;
+  background:var(--bg2);border:1px solid var(--border2);color:var(--text2);
+  font-family:var(--mono);font-size:11px;padding:10px 16px;border-radius:24px;
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);transition:all .15s;
+}
+.bugreport-fab:hover{border-color:var(--accent);color:var(--text);background:var(--bg3)}
+.bugreport-overlay{
+  position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.6);
+  display:none;align-items:center;justify-content:center;
+}
+.bugreport-overlay.open{display:flex}
+.bugreport-modal{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:10px;
+  width:420px;max-width:90vw;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+.bugreport-modal h3{font-family:var(--mono);font-size:14px;color:var(--text);margin-bottom:4px}
+.bugreport-modal .sub{font-size:11px;color:var(--text3);margin-bottom:18px}
+.bugreport-field{margin-bottom:14px}
+.bugreport-field label{display:block;font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:5px}
+.bugreport-field input,.bugreport-field textarea,.bugreport-field select{
+  width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--sans);
+}
+.bugreport-field textarea{resize:vertical;min-height:90px;font-family:var(--sans)}
+.bugreport-type-row{display:flex;gap:8px}
+.bugreport-type-btn{
+  flex:1;padding:8px;border-radius:6px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text3);font-family:var(--mono);font-size:11px;
+  cursor:pointer;text-align:center;transition:all .15s;
+}
+.bugreport-type-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.bugreport-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.bugreport-status{font-family:var(--mono);font-size:11px;margin-top:10px;min-height:16px}
+.bugreport-status.ok{color:var(--green)}
+.bugreport-status.err{color:var(--red)}
+
+/* Help modal */
+.help-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--border2);color:var(--text3);
+  font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;
+  margin-left:8px;vertical-align:middle;flex-shrink:0;transition:all .15s;
+}
+.help-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.help-overlay{
+  position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.7);
+  display:none;align-items:center;justify-content:center;
+}
+.help-overlay.open{display:flex}
+.help-modal{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:10px;
+  width:920px;max-width:92vw;height:80vh;max-height:820px;
+  display:flex;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.help-nav{
+  width:210px;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--border);
+  overflow-y:auto;padding:12px 0;
+}
+.help-nav-header{
+  font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.06em;
+  text-transform:uppercase;padding:4px 16px 10px;
+}
+.help-nav-item{
+  padding:9px 16px;font-family:var(--mono);font-size:12px;color:var(--text2);
+  cursor:pointer;border-left:2px solid transparent;transition:all .15s;
+}
+.help-nav-item:hover{background:var(--bg4);color:var(--text)}
+.help-nav-item.active{background:var(--bg4);color:var(--accent);border-left-color:var(--accent);font-weight:500}
+.help-content-wrap{flex:1;display:flex;flex-direction:column;min-width:0}
+.help-content-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.help-content-header h2{font-family:var(--mono);font-size:16px;color:var(--text);font-weight:500}
+.help-close-btn{
+  background:none;border:1px solid var(--border2);color:var(--text3);
+  width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.help-close-btn:hover{border-color:var(--red);color:var(--red)}
+.help-content-body{flex:1;overflow-y:auto;padding:20px 24px;font-size:13px;line-height:1.7;color:var(--text2)}
+.help-content-body h3{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.04em;text-transform:uppercase;margin:20px 0 8px}
+.help-content-body h3:first-child{margin-top:0}
+.help-content-body p{margin-bottom:10px}
+.help-content-body ul{margin:0 0 12px 18px}
+.help-content-body li{margin-bottom:5px}
+.help-content-body code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:var(--mono);font-size:12px;color:var(--teal)}
+.help-content-body strong{color:var(--text)}
+.help-tip{
+  background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);
+  border-radius:6px;padding:10px 14px;margin:12px 0;font-size:12px;
+}
+.help-tip strong{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -327,9 +434,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 <input type="hidden" id="gcr" value="0.5">
 <input type="hidden" id="ilr" value="2.0">
 <!-- Hidden layout module inputs — synced from Step 2 via pv2SyncToLayout -->
-<input type="hidden" id="lay-mod-wp" value="620">
+<input type="hidden" id="lay-mod-wp" value="585">
 <input type="hidden" id="lay-mod-w" value="3.720">
-<input type="hidden" id="lay-mod-h" value="8.077">
+<input type="hidden" id="lay-mod-h" value="7.474">
 <input type="hidden" id="lay-bifaciality" value="0.80">
 
 <!-- ══════════════════════════════════════
@@ -394,12 +501,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- ── Step 1: API & Location ── -->
   <div class="step-card active" id="card-1">
-    <div class="step-card-title">Step 1 of 6 — API &amp; Location</div>
+    <div class="step-card-title">Step 1 of 6 — API &amp; Location<span class="help-btn" onclick="openHelp('location')">?</span></div>
     <div class="step-card-desc">Enter your project name, PVWatts API key, and pin your site location on the map.</div>
+
+    <div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:16px">
+      <span style="font-size:16px">📂</span>
+      <div style="flex:1">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text2)">Have a saved project?</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px">Restores location, PV system, site layout, and settings — you'll need to re-enter your API key and re-run the sweep.</div>
+      </div>
+      <button class="btn btn-edit" onclick="triggerLoadProject()" style="white-space:nowrap">Load Project</button>
+      <input type="file" id="project-load-input" accept=".json" style="display:none" onchange="handleProjectFileLoad(this.files[0])">
+    </div>
 
     <div class="field" style="margin-bottom:12px">
       <label>Project name</label>
-      <input id="project_name" type="text" placeholder="e.g. Sunridge Solar + Storage">
+      <input id="project_name" type="text">
     </div>
 
     <div class="field">
@@ -419,11 +536,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="coords-row" style="margin-top:12px">
         <div class="field">
           <label>Latitude</label>
-          <input id="lat" type="number" step="0.0001" placeholder="e.g. 38.9072" oninput="updateMapFromInputs()">
+          <input id="lat" type="number" step="0.0001" placeholder="e.g. 38.9072" oninput="updateMapFromInputs()" onblur="formatLatLonInputs()">
         </div>
         <div class="field">
           <label>Longitude</label>
-          <input id="lon" type="number" step="0.0001" placeholder="e.g. -77.0369" oninput="updateMapFromInputs()">
+          <input id="lon" type="number" step="0.0001" placeholder="e.g. -77.0369" oninput="updateMapFromInputs()" onblur="formatLatLonInputs()">
         </div>
       </div>
       <div id="location-label" style="font-family:var(--mono);font-size:11px;color:var(--teal);margin-top:6px;min-height:16px"></div>
@@ -451,21 +568,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- ── Step 2: PV System ── -->
   <div class="step-card" id="card-2">
-    <div class="step-card-title">Step 2 of 7 — PV System</div>
+    <div class="step-card-title">Step 2 of 7 — PV System<span class="help-btn" onclick="openHelp('pvsystem')">?</span></div>
     <div class="step-card-desc">Configure system parameters and module specs. Tilt and azimuth are set in the Site Layout step.</div>
 
     <div class="section-divider">System</div>
     <div class="field-grid">
       <div class="field"><label>AC size (kWac) — POI limit</label><input id="ac_size" type="number" value="2000"></div>
-      <div class="field"><label>System losses (%)</label><input id="losses" type="number" step="0.1" value="16"></div>
-      <div class="field"><label>Inverter efficiency (%)</label><input id="inv_eff" type="number" step="0.1" value="98"></div>
-      <div class="field"><label>Albedo</label><input id="albedo" type="number" step="0.01" value="0.2"><div class="hint">0.2 = grass, 0.25 = gravel, 0.35 = sand</div></div>
+      <div class="field"><label>System losses (%)<span class="field-indicator" id="losses-indicator"></span></label><input id="losses" type="number" step="0.1" value="16" oninput="layUpdateFieldIndicator('losses')"></div>
+      <div class="field"><label>Inverter efficiency (%)<span class="field-indicator" id="inv_eff-indicator"></span></label><input id="inv_eff" type="number" step="0.1" value="99.5" oninput="layUpdateFieldIndicator('inv_eff')"></div>
+      <div class="field"><label>Albedo<span class="field-indicator" id="albedo-indicator"></span></label><input id="albedo" type="number" step="0.01" value="0.2" oninput="layUpdateFieldIndicator('albedo')"><div class="hint">0.2 = grass, 0.25 = gravel, 0.35 = sand</div></div>
     </div>
 
     <div class="section-divider">Module — PVWatts model</div>
     <div class="field-grid">
-      <div class="field"><label>Module type (PVWatts)</label>
-        <select id="module_type">
+      <div class="field"><label>Module type (PVWatts)<span class="field-indicator" id="module_type-indicator"></span></label>
+        <select id="module_type" onchange="layUpdateFieldIndicator('module_type')">
           <option value="1">Premium</option>
           <option value="0">Standard</option>
           <option value="2">Thin film</option>
@@ -475,30 +592,27 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="field"><label>Array type (PVWatts)</label>
         <select id="array_type">
           <option value="3">1-Axis Backtracking (SAT)</option>
-          <option value="2">1-Axis Tracking (no backtrack)</option>
-          <option value="0">Fixed — Open Rack</option>
-          <option value="1">Fixed — Roof Mounted</option>
-          <option value="4">2-Axis Tracking</option>
+          <option value="0">Fixed Tilt (Open Rack)</option>
         </select>
       </div>
-      <div class="field"><label>Bifacial</label>
-        <select id="bifacial"><option value="1">Yes</option><option value="0">No</option></select>
+      <div class="field"><label>Bifacial<span class="field-indicator" id="bifacial-indicator"></span></label>
+        <select id="bifacial" onchange="layUpdateFieldIndicator('bifacial')"><option value="1">Yes</option><option value="0">No</option></select>
       </div>
     </div>
 
     <div class="section-divider">Module — Physical specs (for layout)</div>
     <div class="field-grid">
-      <div class="field"><label>Preset</label>
-        <select id="pv2-mod-preset" onchange="pv2ApplyPreset()">
+      <div class="field"><label>Preset<span class="field-indicator" id="pv2-mod-preset-indicator"></span></label>
+        <select id="pv2-mod-preset" onchange="pv2ApplyPreset();layUpdateFieldIndicator('pv2-mod-preset')">
           <option value="custom">Custom</option>
-          <option value="620|3.720|8.077|0.80" selected>Qcells Q.TRON 620W — 3.72×8.08 ft</option>
-          <option value="585|3.720|7.474|0.80">Imperial Star 585W — 3.72×7.47 ft</option>
+          <option value="620|3.720|8.077|0.80">Qcells Q.TRON 620W — 3.72×8.08 ft</option>
+          <option value="585|3.720|7.474|0.80" selected>Imperial Star 585W — 3.72×7.47 ft</option>
           <option value="700|3.938|8.858|0.80">Generic 700W — 3.94×8.86 ft</option>
         </select>
       </div>
-      <div class="field"><label>Module Wp</label><input type="number" id="pv2-mod-wp" value="620" step="5" oninput="pv2SyncToLayout()"></div>
+      <div class="field"><label>Module Wp</label><input type="number" id="pv2-mod-wp" value="585" step="5" oninput="pv2SyncToLayout()"></div>
       <div class="field"><label>Width (ft)</label><input type="number" id="pv2-mod-w" value="3.720" step="0.001" oninput="pv2SyncToLayout()"></div>
-      <div class="field"><label>Height (ft)</label><input type="number" id="pv2-mod-h" value="8.077" step="0.001" oninput="pv2SyncToLayout()"></div>
+      <div class="field"><label>Height (ft)</label><input type="number" id="pv2-mod-h" value="7.474" step="0.001" oninput="pv2SyncToLayout()"></div>
       <div class="field"><label>Bifaciality <span style="font-weight:400;color:var(--text3);font-size:10px">rear/front</span></label><input type="number" id="pv2-bifaciality" value="0.80" step="0.01" min="0" max="1" oninput="pv2SyncToLayout()"></div>
     </div>
 
@@ -511,7 +625,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <!-- ── Step 3: BESS ── -->
   <!-- ── Step 3: Site Layout ── -->
   <div class="step-card" id="card-3">
-    <div class="step-card-title">Step 3 of 7 — Site Layout</div>
+    <div class="step-card-title">Step 3 of 7 — Site Layout<span class="help-btn" onclick="openHelp('sitelayout')">?</span></div>
     <div class="step-card-desc">Draw your site boundary on the aerial map, configure table type and spacing, then Generate Layout. The GCR sweep will iterate pitch on this boundary automatically.</div>
 
     <div id="layout-sidebar">
@@ -526,17 +640,25 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <h4>Boundary &amp; Obstructions</h4>
           <div class="lay-trow">
             <button class="lay-tbtn" onclick="layStartDrawBoundary()">✏ Boundary</button>
-            <button class="lay-tbtn" onclick="layStartDrawObstruction()" style="color:var(--red);border-color:rgba(239,68,68,.4)">⛔ Obstruction</button>
           </div>
-          <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:5px">Obstructions (red) push tables past them instead of removing them — as long as they still fit.</div>
+          <div class="lay-trow" style="margin-top:6px">
+            <button class="lay-tbtn" onclick="layStartDrawObstruction('polygon')" style="color:var(--red);border-color:rgba(239,68,68,.4)">⛔ Obstruction (Area)</button>
+            <button class="lay-tbtn" onclick="layStartDrawObstruction('line')" style="color:var(--red);border-color:rgba(239,68,68,.4)">⛔ Obstruction (Line)</button>
+          </div>
+          <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:5px">Obstructions (red) push tables past them instead of removing them — as long as they still fit. Each can have its own setback distance, set below.</div>
           <div id="lay-obstruction-list" style="margin-top:6px"></div>
+          <div class="lay-field" style="margin-top:10px">
+            <label>Setback (ft) <span style="font-weight:400;color:var(--text3);font-size:9px">optional — stay off the property line</span></label>
+            <input type="number" id="lay-setback" value="0" min="0" step="1" oninput="laySetbackFt=parseFloat(this.value)||0;layAutoRegen()">
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px">0 = use the drawn boundary as-is. The buildable line (teal dashed) shows where tables can go.</div>
+          </div>
         </div>
 
         <div class="lay-sec">
           <h4>Table config</h4>
           <div class="lay-two-col">
-            <div class="lay-field"><label>Mods wide (E/W)</label><input type="number" id="lay-mods-x" value="1" min="1" max="6" step="1" oninput="layOnDimChange()"></div>
-            <div class="lay-field"><label>Mods tall (N/S)</label><input type="number" id="lay-mods-y" value="24" min="1" max="80" step="1" oninput="layOnDimChange()"></div>
+            <div class="lay-field"><label>Mods wide (E/W)<span class="field-indicator" id="lay-mods-x-indicator"></span></label><input type="number" id="lay-mods-x" value="1" min="1" max="6" step="1" oninput="layOnDimChange();layUpdateFieldIndicator('lay-mods-x')"></div>
+            <div class="lay-field"><label>Mods tall (N/S)<span class="field-indicator" id="lay-mods-y-indicator"></span></label><input type="number" id="lay-mods-y" value="26" min="1" max="80" step="1" oninput="layOnDimChange();layUpdateFieldIndicator('lay-mods-y')"></div>
           </div>
           <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px" id="lay-tbl-dims">—</div>
         </div>
@@ -556,12 +678,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="lay-sec">
           <h4>Spacing</h4>
           <div class="lay-field">
-            <label>Row spacing (ft) — <span style="color:var(--accent)" id="lay-rs-val">20.0</span></label>
-            <input type="range" id="lay-row-sp" min="0" max="66" value="20" step="0.5" oninput="layOnSpacingChange();layAutoRegen()">
+            <label>Row spacing (ft) — <span style="color:var(--accent)" id="lay-rs-val">20.0</span><span class="field-indicator" id="lay-row-sp-indicator"></span></label>
+            <input type="range" id="lay-row-sp" min="0" max="66" value="20" step="0.5" oninput="layOnSpacingChange();layAutoRegen();layUpdateFieldIndicator('lay-row-sp')">
           </div>
           <div class="lay-field">
-            <label>Col spacing (ft) — <span style="color:var(--accent)" id="lay-cs-val">15.0</span></label>
-            <input type="range" id="lay-col-sp" min="0" max="33" value="15" step="0.5" oninput="layOnSpacingChange();layAutoRegen()">
+            <label>Col spacing (ft) — <span style="color:var(--accent)" id="lay-cs-val">15.0</span><span class="field-indicator" id="lay-col-sp-indicator"></span></label>
+            <input type="range" id="lay-col-sp" min="0" max="33" value="15" step="0.5" oninput="layOnSpacingChange();layAutoRegen();layUpdateFieldIndicator('lay-col-sp')">
           </div>
           <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:4px">
             GCR: <span style="color:var(--accent);font-weight:500" id="lay-gcr-val">—</span>&nbsp;|&nbsp;Pitch: <span style="color:var(--accent);font-weight:500" id="lay-pitch-val">—</span>
@@ -571,16 +693,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="lay-sec">
           <h4>Azimuth &amp; tilt</h4>
           <div class="lay-field">
-            <label>Azimuth (°) — <span style="color:var(--accent)" id="lay-az-val">180°</span></label>
-            <input type="range" id="lay-azimuth" min="0" max="359" value="180" step="1" oninput="document.getElementById('lay-az-val').textContent=this.value+'°';layAutoRegen()">
+            <label>Azimuth (°) — <span style="color:var(--accent)" id="lay-az-val">180°</span><span class="field-indicator" id="lay-azimuth-indicator"></span></label>
+            <input type="range" id="lay-azimuth" min="0" max="359" value="180" step="1" oninput="document.getElementById('lay-az-val').textContent=this.value+'°';layAutoRegen();layUpdateFieldIndicator('lay-azimuth')">
           </div>
           <div class="lay-field" id="lay-tilt-field" style="display:none">
-            <label>Tilt (°) — <span style="color:var(--accent)" id="lay-tilt-val">20°</span></label>
-            <input type="range" id="lay-tilt" min="0" max="60" value="20" step="1" oninput="document.getElementById('lay-tilt-val').textContent=this.value+'°';layAutoRegen()">
+            <label>Tilt (°) — <span style="color:var(--accent)" id="lay-tilt-val">20°</span><span class="field-indicator" id="lay-tilt-indicator"></span></label>
+            <input type="range" id="lay-tilt" min="0" max="60" value="20" step="1" oninput="document.getElementById('lay-tilt-val').textContent=this.value+'°';layAutoRegen();layUpdateFieldIndicator('lay-tilt')">
           </div>
           <div class="lay-field" id="lay-maxrot-field">
-            <label>Max rotation (°) — <span style="color:var(--accent)" id="lay-rot-val">52°</span></label>
-            <input type="range" id="lay-maxrot" min="30" max="60" value="52" step="1" oninput="document.getElementById('lay-rot-val').textContent=this.value+'°'">
+            <label>Max rotation (°) — <span style="color:var(--accent)" id="lay-rot-val">60°</span><span class="field-indicator" id="lay-maxrot-indicator"></span></label>
+            <input type="range" id="lay-maxrot" min="30" max="60" value="60" step="1" oninput="document.getElementById('lay-rot-val').textContent=this.value+'°';layUpdateFieldIndicator('lay-maxrot')">
           </div>
         </div>
 
@@ -640,10 +762,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="gcr-sweep-wrap" id="gcr-sweep-wrap">
           <div class="gcr-sweep-title" style="margin-bottom:8px">Analysis GCR sweep range</div>
           <div class="gcr-range-row">
-            <div class="lay-field"><label>GCR min</label><input type="number" id="gcr-min" value="0.30" step="0.05" min="0.10" max="0.90"></div>
-            <div class="lay-field"><label>GCR max</label><input type="number" id="gcr-max" value="0.60" step="0.05" min="0.10" max="0.90"></div>
+            <div class="lay-field"><label>GCR min</label><input type="number" id="gcr-min" value="0.30" step="0.02" min="0.10" max="0.90"></div>
+            <div class="lay-field"><label>GCR max</label><input type="number" id="gcr-max" value="0.60" step="0.02" min="0.10" max="0.90"></div>
           </div>
-          <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;line-height:1.5">Iterated in 0.05 steps during analysis.<br>Adjust row spacing above to preview each GCR visually.</div>
+          <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;line-height:1.5">Iterated in 0.02 steps during analysis.<br>Adjust row spacing above to preview each GCR visually.</div>
         </div>
       </div>
 
@@ -655,7 +777,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- ── Step 4: BESS ── -->
   <div class="step-card" id="card-4">
-    <div class="step-card-title">Step 4 of 7 — BESS</div>
+    <div class="step-card-title">Step 4 of 7 — BESS<span class="help-btn" onclick="openHelp('bess')">?</span></div>
     <div style="display:flex;align-items:center;gap:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:6px;padding:10px 14px;margin-bottom:16px">
       <span style="font-size:18px">🚧</span>
       <div>
@@ -683,7 +805,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- ── Step 4: Financials ── -->
   <div class="step-card" id="card-5">
-    <div class="step-card-title">Step 5 of 7 — Financials</div>
+    <div class="step-card-title">Step 5 of 7 — Financials<span class="help-btn" onclick="openHelp('financials')">?</span></div>
     <div style="display:flex;align-items:center;gap:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:6px;padding:10px 14px;margin-bottom:16px">
       <span style="font-size:18px">🚧</span>
       <div>
@@ -723,7 +845,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- ── Step 6: Run ── -->
   <div class="step-card" id="card-6">
-    <div class="step-card-title">Step 6 of 6 — Review &amp; Run</div>
+    <div class="step-card-title">Step 6 of 6 — Review &amp; Run<span class="help-btn" onclick="openHelp('run')">?</span></div>
     <div class="step-card-desc">Confirm your configuration then run the sweep. Results will take over the screen.</div>
     <div class="run-config-grid" id="run-config-grid"></div>
     <div class="run-actions">
@@ -773,7 +895,7 @@ function syncLayoutTypeFromPV(){
       document.getElementById('lay-row-sp').value = 20;
       document.getElementById('lay-col-sp').value = 15;
       document.getElementById('lay-mods-x').value = 1;
-      document.getElementById('lay-mods-y').value = 24;
+      document.getElementById('lay-mods-y').value = 26;
     }
     document.getElementById('lay-rs-val').textContent = document.getElementById('lay-row-sp').value+'.0';
     document.getElementById('lay-cs-val').textContent = document.getElementById('lay-col-sp').value+'.0';
@@ -786,6 +908,7 @@ function syncLayoutTypeFromPV(){
   // Always show a badge in the sidebar so user knows what type is active
   const badge = document.getElementById('lay-type-badge');
   if(badge) badge.textContent = isFT ? 'Fixed Tilt' : '1-Axis Tracker (SAT)';
+  layCheckAllFieldIndicators();
 }
 
 // ── Step 2 module preset sync → layout engine ────────────
@@ -827,6 +950,7 @@ function layG(id){ const el=document.getElementById(id); return el?parseFloat(el
 let layMap = null;
 let layDrawnItems = null;         // editable FeatureGroup — boundary only (vertex edit + delete toolbar)
 let layObstructionGroup = null;   // separate, non-editable group — obstructions are drag-only
+let layObstructionPreviewGroup = null; // shows the actual buffered/dilated exclusion zone used for avoidance
 let layBoundaryLayer = null;      // reference to current boundary's Leaflet layer (for selective removal)
 let layObstructions = [];         // [{ latlngs:[{lat,lng},...], leafletLayer }]
 let _layDrawMode = 'boundary';    // 'boundary' | 'obstruction'
@@ -838,6 +962,8 @@ let layTableType = 'SAT';
 let layFillDir = 'center';
 let layMaxStrings = 4;
 let laySkewDeg = 0;         // row-alignment skew for SAT + Aligned fill (degrees)
+let laySetbackFt = 0;       // property-line setback distance (ft) — 0 = use drawn boundary as-is
+let layInsetPreviewLayer = null; // dashed preview of the setback-inset buildable line
 let layStartOffsetFt = 0;   // nudges the aligned grid start position (ft) — SAT: N/S, FT: E/W
 let layRowBandOffsetFt = 0; // FT only — nudges the N/S row-band start position (2nd axis)
 let layInited = false;
@@ -857,6 +983,7 @@ function initLayoutMap(){
     // Already inited — ensure draw layers still on map
     if(layDrawnItems && !layMap.hasLayer(layDrawnItems)) layDrawnItems.addTo(layMap);
     if(layObstructionGroup && !layMap.hasLayer(layObstructionGroup)) layObstructionGroup.addTo(layMap);
+    if(layObstructionPreviewGroup && !layMap.hasLayer(layObstructionPreviewGroup)) layObstructionPreviewGroup.addTo(layMap);
     if(layTableGroup && !layMap.hasLayer(layTableGroup)) layTableGroup.addTo(layMap);
     return;
   }
@@ -873,6 +1000,7 @@ function initLayoutMap(){
   //   Removal happens via the sidebar list, not the draw toolbar's trash tool.
   layDrawnItems = new L.FeatureGroup().addTo(layMap);
   layObstructionGroup = new L.FeatureGroup().addTo(layMap);
+  layObstructionPreviewGroup = new L.FeatureGroup().addTo(layMap);
   layTableGroup = L.layerGroup().addTo(layMap);
 
   if(!layDrawCtrl){
@@ -892,14 +1020,19 @@ function initLayoutMap(){
   layMap.on('draw:editstop',  () => { _layDrawing = false; });
 
   layMap.on(L.Draw.Event.CREATED, e => {
-    if(e.layerType !== 'polygon') return;
+    if(e.layerType !== 'polygon' && e.layerType !== 'polyline') return;
     _layDrawing = false;
-    const latlngs = e.layer.getLatLngs()[0].map(ll=>({lat:ll.lat,lng:ll.lng}));
 
     if(_layDrawMode === 'obstruction'){
-      e.layer.setStyle({color:'#ef4444',weight:2,fillColor:'#ef4444',fillOpacity:0.25,dashArray:'6 3'});
+      // Polygon obstructions: getLatLngs()[0] is the ring. Polyline: getLatLngs() is the flat path.
+      const latlngs = e.layerType === 'polygon'
+        ? e.layer.getLatLngs()[0].map(ll=>({lat:ll.lat,lng:ll.lng}))
+        : e.layer.getLatLngs().map(ll=>({lat:ll.lat,lng:ll.lng}));
+      const obsType = e.layerType === 'polygon' ? 'polygon' : 'line';
+
+      e.layer.setStyle({color:'#ef4444',weight: obsType==='line'?3:2, fillColor:'#ef4444', fillOpacity: obsType==='line'?0:0.25, dashArray:'6 3'});
       layObstructionGroup.addLayer(e.layer);
-      const obsEntry = {latlngs, leafletLayer:e.layer};
+      const obsEntry = {latlngs, leafletLayer:e.layer, type:obsType, setbackFt:0};
       e.layer._layObsRef = obsEntry; // direct back-reference — used by drag
       layObstructions.push(obsEntry);
       layMakeObstructionDraggable(e.layer);
@@ -907,6 +1040,8 @@ function initLayoutMap(){
       document.getElementById('lay-status').textContent = `Obstruction added (${layObstructions.length} total) — regenerating layout…`;
       layGenerateLayout();
     } else {
+      if(e.layerType !== 'polygon') return; // boundary must be a closed polygon
+      const latlngs = e.layer.getLatLngs()[0].map(ll=>({lat:ll.lat,lng:ll.lng}));
       // Remove only the OLD boundary layer — leave obstructions untouched
       if(layBoundaryLayer) layDrawnItems.removeLayer(layBoundaryLayer);
       e.layer.setStyle({color:'#3b82f6',weight:2,fillOpacity:0.08});
@@ -944,6 +1079,39 @@ function initLayoutMap(){
 
   layUpdateDims();
   syncLayoutTypeFromPV();
+  layRedrawFromState(); // in case a project was loaded before this map/layer setup existed
+}
+
+// Redraws boundary/obstructions from stored data onto the map — used after
+// loading a saved project (which may happen before Step 3's map layers exist).
+// Safe to call anytime; no-ops if the map/layers aren't ready yet.
+function layRedrawFromState(){
+  if(!layMap || !layDrawnItems || !layObstructionGroup) return;
+
+  if(layBoundaryLatLngs && layBoundaryLatLngs.length >= 3 && !layBoundaryLayer){
+    const latlngs = layBoundaryLatLngs.map(p => L.latLng(p.lat, p.lng));
+    const poly = L.polygon(latlngs, {color:'#3b82f6', weight:2, fillOpacity:0.08});
+    layDrawnItems.addLayer(poly);
+    layBoundaryLayer = poly;
+  }
+
+  layObstructions.forEach(obs => {
+    if(!obs.leafletLayer && obs.latlngs && obs.latlngs.length >= 3){
+      const latlngs = obs.latlngs.map(p => L.latLng(p.lat, p.lng));
+      const poly = L.polygon(latlngs, {color:'#ef4444', weight:2, fillColor:'#ef4444', fillOpacity:0.25, dashArray:'6 3'});
+      layObstructionGroup.addLayer(poly);
+      obs.leafletLayer = poly;
+      poly._layObsRef = obs;
+      layMakeObstructionDraggable(poly);
+    }
+  });
+  layRenderObstructionList();
+
+  if(layBoundaryLatLngs && layBoundaryLatLngs.length >= 3){
+    const bounds = L.latLngBounds(layBoundaryLatLngs.map(p=>[p.lat,p.lng]));
+    layMap.fitBounds(bounds, {padding:[40,40]});
+    layGenerateLayout();
+  }
 }
 
 function laySetType(t){
@@ -961,7 +1129,7 @@ function laySetType(t){
     document.getElementById('lay-row-sp').value = 20;
     document.getElementById('lay-col-sp').value = 15;
     document.getElementById('lay-mods-x').value = 1;
-    document.getElementById('lay-mods-y').value = 24;
+    document.getElementById('lay-mods-y').value = 26;
   } else {
     document.getElementById('lay-row-sp').value = 10;
     document.getElementById('lay-col-sp').value = 0.5;
@@ -983,6 +1151,7 @@ function laySetType(t){
 
 function layAutoRegen(){
   if(_layDrawing) return;
+  if(!layMap || !layTableGroup) return; // layout engine not initialized yet (e.g. project loaded before visiting Step 3)
   if(layBoundaryLatLngs && layBoundaryLatLngs.length > 2) layGenerateLayout();
 }
 
@@ -1010,6 +1179,75 @@ function laySetFill(d){
 }
 
 // Skew only applies to SAT + Aligned fill — hide otherwise
+// ── Default / minimum value indicators ────────────────────
+// Small ⓘ (blue, "changed from default") or ⚠ (amber, "below recommended
+// minimum") badges next to a field's label — purely informational, not
+// blocking. Row/col spacing and mods-x/y swap which rule applies depending
+// on whether SAT or FT is currently selected.
+const FIELD_DEFAULTS = {
+  'albedo': 0.2,
+  'losses': 16,
+  'inv_eff': 99.5,
+  'module_type': '1',                          // Premium
+  'bifacial': '1',                             // Yes
+  'pv2-mod-preset': '585|3.720|7.474|0.80',    // Imperial Star 585W
+  'lay-azimuth': 180,
+};
+
+function layGetFieldRule(id){
+  const isSAT = layTableType === 'SAT';
+  switch(id){
+    case 'lay-mods-x': return { type:'info', default: isSAT ? 1 : 12 };
+    case 'lay-mods-y': return { type:'info', default: isSAT ? 26 : 2 };
+    case 'lay-row-sp': return isSAT ? { type:'info', default:20 } : { type:'warn', min:8 };
+    case 'lay-col-sp': return isSAT ? { type:'warn', min:8 } : { type:'info', default:0.5 };
+    case 'lay-tilt':   return { type:'info', default:20 };
+    case 'lay-maxrot': return { type:'info', default:60 };
+    default: return null;
+  }
+}
+
+function layUpdateFieldIndicator(id){
+  const el = document.getElementById(id);
+  const ind = document.getElementById(id + '-indicator');
+  if(!el || !ind) return;
+
+  const rule = FIELD_DEFAULTS.hasOwnProperty(id) ? { type:'info', default: FIELD_DEFAULTS[id] } : layGetFieldRule(id);
+  if(!rule){ ind.style.display = 'none'; return; }
+
+  const isNumeric = el.type === 'number' || el.type === 'range';
+  const curVal = isNumeric ? parseFloat(el.value) : el.value;
+
+  if(rule.type === 'info'){
+    const differs = isNumeric ? Math.abs(curVal - rule.default) > 1e-6 : (curVal !== rule.default);
+    if(differs){
+      ind.style.display = 'inline-block';
+      ind.className = 'field-indicator info';
+      ind.textContent = 'ⓘ';
+      ind.title = `Changed from default (${rule.default})`;
+    } else {
+      ind.style.display = 'none';
+    }
+  } else { // 'warn'
+    if(isFinite(curVal) && curVal < rule.min){
+      ind.style.display = 'inline-block';
+      ind.className = 'field-indicator warn';
+      ind.textContent = '⚠\uFE0E';
+      ind.title = `Below recommended minimum (${rule.min} ft)`;
+    } else {
+      ind.style.display = 'none';
+    }
+  }
+}
+
+// Re-checks every tracked field — call after table type switches, project
+// loads, or on initial page load, since some rules depend on SAT vs FT.
+function layCheckAllFieldIndicators(){
+  const ids = Object.keys(FIELD_DEFAULTS)
+    .concat(['lay-mods-x','lay-mods-y','lay-row-sp','lay-col-sp','lay-tilt','lay-maxrot']);
+  ids.forEach(layUpdateFieldIndicator);
+}
+
 function layUpdateSkewVisibility(){
   const field = document.getElementById('lay-skew-field');
   if(!field) return;
@@ -1139,10 +1377,20 @@ function layColSpansAtX(cx,poly){ const ys=[]; for(let i=0;i<poly.length;i++){co
 function layMakeObstructionDraggable(layer){
   let dragging = false, startLatLng = null, origLatLngs = null;
 
+  // Polygons store latlngs nested one level ([0] = the ring); polylines are flat.
+  function getFlatLatLngs(){
+    const raw = layer.getLatLngs();
+    return Array.isArray(raw[0]) ? raw[0] : raw;
+  }
+  function setFlatLatLngs(latlngs){
+    const raw = layer.getLatLngs();
+    if(Array.isArray(raw[0])) layer.setLatLngs([latlngs]); else layer.setLatLngs(latlngs);
+  }
+
   layer.on('mousedown', function(e){
     dragging = true;
     startLatLng = e.latlng;
-    origLatLngs = layer.getLatLngs()[0].map(ll=>L.latLng(ll.lat, ll.lng));
+    origLatLngs = getFlatLatLngs().map(ll=>L.latLng(ll.lat, ll.lng));
     layMap.dragging.disable(); // prevent map panning while moving the shape
     L.DomEvent.stopPropagation(e.originalEvent);
   });
@@ -1151,7 +1399,7 @@ function layMakeObstructionDraggable(layer){
     if(!dragging) return;
     const dLat = e.latlng.lat - startLatLng.lat;
     const dLng = e.latlng.lng - startLatLng.lng;
-    layer.setLatLngs(origLatLngs.map(ll=>L.latLng(ll.lat+dLat, ll.lng+dLng)));
+    setFlatLatLngs(origLatLngs.map(ll=>L.latLng(ll.lat+dLat, ll.lng+dLng)));
   });
 
   layMap.on('mouseup', function(){
@@ -1159,7 +1407,7 @@ function layMakeObstructionDraggable(layer){
     dragging = false;
     layMap.dragging.enable();
     if(layer._layObsRef){
-      layer._layObsRef.latlngs = layer.getLatLngs()[0].map(ll=>({lat:ll.lat,lng:ll.lng}));
+      layer._layObsRef.latlngs = getFlatLatLngs().map(ll=>({lat:ll.lat,lng:ll.lng}));
       document.getElementById('lay-status').textContent = 'Obstruction moved — regenerating layout…';
       layGenerateLayout();
     }
@@ -1171,20 +1419,40 @@ function layStartDrawBoundary(){
   new L.Draw.Polygon(layMap, {shapeOptions:{color:'#3b82f6',weight:2,fillOpacity:0.1}}).enable();
 }
 
-function layStartDrawObstruction(){
+function layStartDrawObstruction(mode){
   _layDrawMode = 'obstruction';
-  new L.Draw.Polygon(layMap, {shapeOptions:{color:'#ef4444',weight:2,fillColor:'#ef4444',fillOpacity:0.25,dashArray:'6 3'}}).enable();
+  if(mode === 'line'){
+    new L.Draw.Polyline(layMap, {shapeOptions:{color:'#ef4444', weight:3, dashArray:'6 3'}}).enable();
+  } else {
+    new L.Draw.Polygon(layMap, {shapeOptions:{color:'#ef4444',weight:2,fillColor:'#ef4444',fillOpacity:0.25,dashArray:'6 3'}}).enable();
+  }
 }
 
 function layRenderObstructionList(){
   const el = document.getElementById('lay-obstruction-list');
   if(!el) return;
   if(!layObstructions.length){ el.innerHTML=''; return; }
-  el.innerHTML = layObstructions.map((o,i)=>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--bg3);border-radius:4px;margin-bottom:3px;font-family:var(--mono);font-size:10px">
-      <span style="color:var(--red)">⛔ Obstruction ${i+1}</span>
-      <button onclick="layRemoveObstruction(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:0 4px">✕</button>
-    </div>`).join('');
+  el.innerHTML = layObstructions.map((o,i)=>{
+    const icon = '⛔';
+    const label = o.type === 'line' ? 'Line' : 'Area';
+    return `<div style="padding:5px 8px;background:var(--bg3);border-radius:4px;margin-bottom:3px;font-family:var(--mono);font-size:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:var(--red)">${icon} Obstruction ${i+1} (${label})</span>
+        <button onclick="layRemoveObstruction(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:0 4px">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+        <label style="color:var(--text3);font-size:9px">Setback (ft)</label>
+        <input type="number" value="${o.setbackFt||0}" min="0" step="1" style="width:56px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:2px 5px;border-radius:3px;font-family:var(--mono);font-size:10px" onchange="laySetObstructionSetback(${i}, this.value)">
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function laySetObstructionSetback(idx, val){
+  const obs = layObstructions[idx];
+  if(!obs) return;
+  obs.setbackFt = parseFloat(val) || 0;
+  if(layBoundaryLatLngs && layBoundaryLatLngs.length > 2) layGenerateLayout();
 }
 
 function layRemoveObstruction(idx){
@@ -1200,6 +1468,76 @@ function layClearObstructions(){
   layObstructions = [];
   layRenderObstructionList();
   if(layBoundaryLatLngs && layBoundaryLatLngs.length>2) layGenerateLayout();
+}
+
+// ── Polygon inset (setback) ───────────────────────────────
+// Offsets every edge inward by `setback` (in the same XY units as pts,
+// meters here), then re-intersects adjacent offset edges to find the new
+// vertices. Works for convex and mildly concave polygons — handles the
+// vast majority of real property boundaries. Returns null if the setback
+// is too large for the shape (polygon would collapse or invert).
+function layPolygonSignedArea(pts){
+  let area = 0;
+  for(let i=0;i<pts.length;i++){
+    const j=(i+1)%pts.length;
+    area += pts[i].x*pts[j].y - pts[j].x*pts[i].y;
+  }
+  return area/2;
+}
+
+function layLineIntersect(p1,p2,p3,p4){
+  const d1x=p2.x-p1.x, d1y=p2.y-p1.y;
+  const d2x=p4.x-p3.x, d2y=p4.y-p3.y;
+  const denom = d1x*d2y - d1y*d2x;
+  if(Math.abs(denom) < 1e-9){
+    // Parallel/collinear edges — fall back to the shared offset endpoint
+    return {x:(p2.x+p3.x)/2, y:(p2.y+p3.y)/2};
+  }
+  const t = ((p3.x-p1.x)*d2y - (p3.y-p1.y)*d2x) / denom;
+  return {x: p1.x+t*d1x, y: p1.y+t*d1y};
+}
+
+function layInsetPolygon(pts, setback){
+  // Note: setback can be negative here on purpose — a negative value means
+  // "dilate outward" (used by area obstructions), positive means "erode
+  // inward" (used by the boundary setback). Only skip on exactly 0.
+  if(!setback || pts.length < 3) return pts;
+
+  // Normalize to CCW winding so "inward" is consistent
+  let poly = pts.slice();
+  if(layPolygonSignedArea(poly) < 0) poly = poly.slice().reverse();
+  const n = poly.length;
+
+  // Offset each edge inward by `setback`
+  const offsetLines = [];
+  for(let i=0;i<n;i++){
+    const a = poly[i], b = poly[(i+1)%n];
+    const dx = b.x-a.x, dy = b.y-a.y;
+    const len = Math.sqrt(dx*dx+dy*dy);
+    if(len < 1e-9){ offsetLines.push({a,b}); continue; }
+    // Inward normal for a CCW polygon: rotate edge direction -90°
+    const nx = -dy/len, ny = dx/len;
+    offsetLines.push({
+      a: {x:a.x+nx*setback, y:a.y+ny*setback},
+      b: {x:b.x+nx*setback, y:b.y+ny*setback},
+    });
+  }
+
+  // New vertex i = intersection of offset edge (i-1) and offset edge (i)
+  const newPts = [];
+  for(let i=0;i<n;i++){
+    const prev = offsetLines[(i-1+n)%n];
+    const curr = offsetLines[i];
+    newPts.push(layLineIntersect(prev.a, prev.b, curr.a, curr.b));
+  }
+
+  // Sanity check — if the setback is too large for this shape, the inset
+  // polygon collapses or flips; fall back rather than producing garbage.
+  const newArea = Math.abs(layPolygonSignedArea(newPts));
+  const origArea = Math.abs(layPolygonSignedArea(poly));
+  if(!isFinite(newArea) || newArea < origArea * 0.02) return null;
+
+  return newPts;
 }
 
 function layGenerateLayout(customColSp){
@@ -1223,7 +1561,29 @@ function layGenerateLayout(customColSp){
   const lat0 = origin.lat;
 
   const rawXY = lls.map(ll => layLL2XY(ll, origin, lat0));
-  const rotPoly = rawXY.map(p => layRotPt(p.x, p.y, rr));
+
+  // ── Setback: inset the boundary before tables are placed ──
+  // The drawn boundary line on the map stays as the true property line;
+  // only the layout ENGINE uses the inset polygon to decide where tables go.
+  let effectiveXY = rawXY;
+  let setbackApplied = false, setbackTooLarge = false;
+  if(laySetbackFt > 0){
+    const setbackM = layToM(laySetbackFt);
+    const inset = layInsetPolygon(rawXY, setbackM);
+    if(inset){ effectiveXY = inset; setbackApplied = true; }
+    else { setbackTooLarge = true; } // fall back to raw boundary, warn below
+  }
+
+  // Draw/update the buildable-line preview (teal dashed) on the map
+  if(layInsetPreviewLayer){ layMap.removeLayer(layInsetPreviewLayer); layInsetPreviewLayer = null; }
+  if(setbackApplied){
+    const previewLatLngs = effectiveXY.map(p => layXY2LL(p, origin, lat0));
+    layInsetPreviewLayer = L.polygon(previewLatLngs, {
+      color:'#14b8a6', weight:2, dashArray:'5 4', fill:false, interactive:false
+    }).addTo(layMap);
+  }
+
+  const rotPoly = effectiveXY.map(p => layRotPt(p.x, p.y, rr));
 
   const xs = rotPoly.map(p=>p.x), ys = rotPoly.map(p=>p.y);
   const minX = Math.min(...xs), maxX = Math.max(...xs);
@@ -1233,19 +1593,68 @@ function layGenerateLayout(customColSp){
   const stepY = isSAT ? (ns * maxSC + rowSpM) : (nsMap + rowSpM);
 
   // ── Obstructions: transform into same rotated frame as boundary ──
-  // Keep the actual polygon (not just its bounding box) so avoidance follows
-  // the true shape — a bbox lets a thin diagonal obstruction wipe out entire
-  // rows/columns far from where it actually sits.
-  const obsRotPolys = layObstructions.map(o => o.latlngs.map(ll => {
-    const xy = layLL2XY(ll, origin, lat0);
-    return layRotPt(xy.x, xy.y, rr);
-  }));
-  // Cheap bbox per obstruction — used only as a fast pre-check to skip
-  // obstructions that clearly can't overlap a given column/row at all.
+  // Keep the actual shape (not just a bbox) so avoidance follows the true
+  // geometry. Two obstruction types, each with its own individual setback:
+  //   'polygon' — dilated outward by setbackFt (reuses the boundary inset
+  //               algorithm with a negated distance = expansion instead
+  //               of erosion).
+  //   'line'    — buffered into a corridor: each segment becomes its own
+  //               thin rectangle, half-width = setbackFt (min 1ft so a
+  //               zero-setback line still has a physical presence).
+  const obsRotPolys = [];
+  for(const o of layObstructions){
+    const setbackM = layToM(o.setbackFt || 0);
+    const xyPts = o.latlngs.map(ll => layLL2XY(ll, origin, lat0));
+
+    if(o.type === 'line'){
+      const halfW = setbackM > 0 ? setbackM : layToM(1); // nominal 1ft each side if no setback set
+      for(let i=0;i<xyPts.length-1;i++){
+        const a=xyPts[i], b=xyPts[i+1];
+        const dx=b.x-a.x, dy=b.y-a.y;
+        const len=Math.sqrt(dx*dx+dy*dy);
+        if(len<1e-6) continue;
+        const nx=-dy/len, ny=dx/len; // perpendicular unit normal
+        const rectXY=[
+          {x:a.x+nx*halfW, y:a.y+ny*halfW},
+          {x:b.x+nx*halfW, y:b.y+ny*halfW},
+          {x:b.x-nx*halfW, y:b.y-ny*halfW},
+          {x:a.x-nx*halfW, y:a.y-ny*halfW},
+        ];
+        obsRotPolys.push(rectXY.map(p=>layRotPt(p.x,p.y,rr)));
+      }
+    } else {
+      let finalXY = xyPts;
+      if(setbackM > 0){
+        const dilated = layInsetPolygon(xyPts, -setbackM); // negative = expand outward
+        if(dilated) finalXY = dilated;
+      }
+      obsRotPolys.push(finalXY.map(p=>layRotPt(p.x,p.y,rr)));
+    }
+  }
+  // Cheap bbox per obstruction shape — used only as a fast pre-check to skip
+  // shapes that clearly can't overlap a given column/row at all.
   const obsBoxes = obsRotPolys.map(pts => {
     const oxs = pts.map(p=>p.x), oys = pts.map(p=>p.y);
     return { minX: Math.min(...oxs), maxX: Math.max(...oxs), minY: Math.min(...oys), maxY: Math.max(...oys) };
   });
+
+  // ── Visual preview of the ACTUAL exclusion zone used above ──
+  // Draws every obsRotPoly (post line-buffer / post-dilation) back onto the
+  // map so the true extent of each obstruction's setback is visible, not
+  // just the originally-drawn line/polygon.
+  if(layObstructionPreviewGroup){
+    layObstructionPreviewGroup.clearLayers();
+    obsRotPolys.forEach(pts => {
+      const latlngs = pts.map(p => {
+        const unrot = layRotPt(p.x, p.y, -rr);
+        return layXY2LL(unrot, origin, lat0);
+      });
+      L.polygon(latlngs, {
+        color:'#f59e0b', weight:1.5, dashArray:'3 3',
+        fillColor:'#f59e0b', fillOpacity:0.12, interactive:false
+      }).addTo(layObstructionPreviewGroup);
+    });
+  }
 
   // Blocked Y-ranges for a given column [rx, rx+colWidth] (used by SAT).
   // Samples several x-positions across the column width and unions the
@@ -1352,22 +1761,12 @@ function layGenerateLayout(customColSp){
 
       // Fill logic for a single safe segment [segMin, segMax] — obstruction-aware:
       // callers pass in sub-spans already excluding any obstructed Y-ranges.
+      // Note: +y = north in this coordinate frame (see layLL2XY), so "push
+      // north" must start at spanMax (the north edge) and fill southward —
+      // that's what makes tables sit flush against the north boundary.
       function fillSpan(spanMin, spanMax){
         if(layFillDir === 'north'){
-          let cy = spanMin;
-          while(cy + ns <= spanMax + 0.001){
-            let placed = false;
-            for(let sc = maxSC; sc >= 1; sc--){
-              const h = ns * sc;
-              if(cy + h > spanMax + 0.001) continue;
-              tryPlace(rx, cy, sc, origin, rr);
-              cy += h + rowSpM;
-              placed = true; break;
-            }
-            if(!placed) break;
-          }
-
-        } else if(layFillDir === 'south'){
+          // Flush against the north edge — start at spanMax, fill toward spanMin
           let cy = spanMax;
           while(cy - ns >= spanMin - 0.001){
             let placed = false;
@@ -1376,6 +1775,21 @@ function layGenerateLayout(customColSp){
               if(cy - h < spanMin - 0.001) continue;
               tryPlace(rx, cy - h, sc, origin, rr);
               cy -= h + rowSpM;
+              placed = true; break;
+            }
+            if(!placed) break;
+          }
+
+        } else if(layFillDir === 'south'){
+          // Flush against the south edge — start at spanMin, fill toward spanMax
+          let cy = spanMin;
+          while(cy + ns <= spanMax + 0.001){
+            let placed = false;
+            for(let sc = maxSC; sc >= 1; sc--){
+              const h = ns * sc;
+              if(cy + h > spanMax + 0.001) continue;
+              tryPlace(rx, cy, sc, origin, rr);
+              cy += h + rowSpM;
               placed = true; break;
             }
             if(!placed) break;
@@ -1509,6 +1923,11 @@ function layGenerateLayout(customColSp){
   });
 
   layUpdateStats(mpt, colSpM);
+
+  if(setbackTooLarge){
+    const statusEl = document.getElementById('lay-status');
+    if(statusEl) statusEl.textContent += ` · ⚠ ${laySetbackFt}ft setback too large for this boundary — using full boundary instead`;
+  }
 }
 
 function layUpdateStats(mpt, colSpM){
@@ -1590,6 +2009,8 @@ function layColSpFromGCR(gcr){
 
 function layClearTables(){
   layTableGroup.clearLayers(); layTableRects = []; layoutState = null;
+  if(layInsetPreviewLayer){ layMap.removeLayer(layInsetPreviewLayer); layInsetPreviewLayer = null; }
+  if(layObstructionPreviewGroup) layObstructionPreviewGroup.clearLayers();
   document.getElementById('lay-stats').style.display = 'none';
   document.getElementById('lay-status').textContent = 'Tables cleared.';
 }
@@ -1598,6 +2019,7 @@ function layClearAll(){
   layClearTables();
   layDrawnItems.clearLayers();       // boundary
   layObstructionGroup.clearLayers(); // obstructions
+  if(layObstructionPreviewGroup) layObstructionPreviewGroup.clearLayers();
   layBoundaryLatLngs = null;
   layBoundaryLayer = null;
   layObstructions = [];
@@ -1827,7 +2249,7 @@ function initMap(){
   _map._pinIcon = pinIcon;
 }
 
-function placePin(lat, lon, panTo=true){
+function placePin(lat, lon, panTo=true, updateInputs=true){
   lat = Math.round(lat * 10000) / 10000;
   lon = Math.round(lon * 10000) / 10000;
 
@@ -1841,26 +2263,43 @@ function placePin(lat, lon, panTo=true){
 
     _marker.on('dragend', function(e){
       const pos = e.target.getLatLng();
-      placePin(pos.lat, pos.lng, false);
+      placePin(pos.lat, pos.lng, false, true); // dragging should still sync the fields
     });
   }
 
   if(panTo) _map.setView([lat, lon], Math.max(_map.getZoom(), 17));
 
-  // Update inputs
-  document.getElementById('lat').value = lat.toFixed(4);
-  document.getElementById('lon').value = lon.toFixed(4);
+  // Only overwrite the input fields when explicitly requested — typing in
+  // lat/lon shouldn't have its own value stomped mid-keystroke.
+  if(updateInputs){
+    document.getElementById('lat').value = lat.toFixed(4);
+    document.getElementById('lon').value = lon.toFixed(4);
+  }
 
   // Reverse geocode for label
   reverseGeocode(lat, lon);
 }
 
+let _latLonDebounceTimer = null;
 function updateMapFromInputs(){
-  const lat = parseFloat(document.getElementById('lat').value);
-  const lon = parseFloat(document.getElementById('lon').value);
-  if(lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180){
-    if(_map) placePin(lat, lon, true);
-  }
+  // Debounce so the pin/geocode only update after the user pauses typing,
+  // and never rewrite the fields while they're still mid-entry.
+  clearTimeout(_latLonDebounceTimer);
+  _latLonDebounceTimer = setTimeout(() => {
+    const lat = parseFloat(document.getElementById('lat').value);
+    const lon = parseFloat(document.getElementById('lon').value);
+    if(lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180){
+      if(_map) placePin(lat, lon, true, false);
+    }
+  }, 500);
+}
+
+function formatLatLonInputs(){
+  // Normalize displayed precision once the user leaves the field
+  const latEl = document.getElementById('lat'), lonEl = document.getElementById('lon');
+  const lat = parseFloat(latEl.value), lon = parseFloat(lonEl.value);
+  if(!isNaN(lat)) latEl.value = lat.toFixed(4);
+  if(!isNaN(lon)) lonEl.value = lon.toFixed(4);
 }
 
 async function searchLocation(){
@@ -1900,6 +2339,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initMapIfNeeded();
   initTrayDrag();
+  layCheckAllFieldIndicators();
 });
 
 async function reverseGeocode(lat, lon){
@@ -1954,7 +2394,7 @@ const stepSummaries = {
   4: () => `RTE ${v('rte')}% · DoD ${v('dod')}% · Discharge ${v('dis_start')}–${v('dis_end')}h · Overbuild ${v('bess_overbuild')}% · Durations: ${s('bess_durations')}hr`,
   5: () => `PV $${v('pv_capex')}/W · BESS $${v('bess_capex')}/kWh · $${v('price')}/MWh · ITC ${v('itc')}% · BonusDep ${v('bonus_dep')}% · Tax ${v('tax_rate')}% · Disc ${v('disc_rate')}%`,
 
-  5: () => { const mn=document.getElementById('gcr-min')?.value||'0.30'; const mx=document.getElementById('gcr-max')?.value||'0.60'; return `GCR ${mn}–${mx} (0.05 steps) · Durations: ${s('bess_durations')}hr`; },
+  5: () => { const mn=document.getElementById('gcr-min')?.value||'0.30'; const mx=document.getElementById('gcr-max')?.value||'0.60'; return `GCR ${mn}–${mx} (0.02 steps) · Durations: ${s('bess_durations')}hr`; },
 };
 
 function updateProgress(step){
@@ -2092,7 +2532,7 @@ function populateRunConfig(){
     ['Bifacial', s('bifacial')==='1'?'Yes':'No'],
     ['Albedo / Inv eff', `${v('albedo')} / ${v('inv_eff')}%`],
     ['Module', `${document.getElementById('pv2-mod-wp')?.value||'?'}Wp · ${document.getElementById('pv2-mod-w')?.value||'?'}×${document.getElementById('pv2-mod-h')?.value||'?'} ft`],
-    ['GCR sweep', `${document.getElementById('gcr-min')?.value||'0.30'} → ${document.getElementById('gcr-max')?.value||'0.60'} (0.05 steps)`],
+    ['GCR sweep', `${document.getElementById('gcr-min')?.value||'0.30'} → ${document.getElementById('gcr-max')?.value||'0.60'} (0.02 steps)`],
   ];
   document.getElementById('run-config-grid').innerHTML = rows.map(r=>
     `<div class="run-config-key">${r[0]}</div><div class="run-config-val">${r[1]}</div>`).join('');
@@ -2392,7 +2832,7 @@ function clearSweepStale(){
 async function runSiteSweep(){
   const gcrMin=parseFloat(document.getElementById('gcr-min')?.value)||0.30;
   const gcrMax=parseFloat(document.getElementById('gcr-max')?.value)||0.60;
-  const gcrStep=0.05;
+  const gcrStep=0.02;
   const gcrs=[];
   for(let g=gcrMin;g<=gcrMax+0.0001;g+=gcrStep) gcrs.push(+g.toFixed(4));
   if(!gcrs.length){setStatus('✗ No valid GCR range','err');return;}
@@ -3061,6 +3501,157 @@ function export8760(){
   URL.revokeObjectURL(url);
 }
 
+// ── Save / Load project (JSON) ────────────────────────────
+// Captures every wizard input, the drawn boundary/obstructions, and layout
+// settings so a session can be resumed later. Deliberately excludes the
+// PVWatts API key — that gets re-entered each time. Does NOT save sweep
+// results; the user re-runs the sweep after loading.
+function exportProjectJSON(){
+  const proj = document.getElementById('project_name')?.value || 'project';
+
+  const data = {
+    _meta: { tool: 'PV + BESS Optimizer', version: 1, exportedAt: new Date().toISOString() },
+    project: { name: proj },
+    location: { lat: v('lat'), lon: v('lon') },
+    pvSystem: {
+      ac_size: v('ac_size'), losses: v('losses'), inv_eff: v('inv_eff'), albedo: v('albedo'),
+      module_type: s('module_type'), array_type: s('array_type'), bifacial: s('bifacial'),
+      mod_preset: s('pv2-mod-preset'), mod_wp: v('pv2-mod-wp'), mod_w: v('pv2-mod-w'), mod_h: v('pv2-mod-h'),
+      bifaciality: v('pv2-bifaciality'),
+    },
+    siteLayout: {
+      boundary: layBoundaryLatLngs || null,
+      obstructions: layObstructions.map(o => o.latlngs),
+      setbackFt: laySetbackFt,
+      tableType: layTableType,
+      fillDir: layFillDir,
+      maxStrings: layMaxStrings,
+      skewDeg: laySkewDeg,
+      startOffsetFt: layStartOffsetFt,
+      rowBandOffsetFt: layRowBandOffsetFt,
+      rowSpacingFt: layG('lay-row-sp'), colSpacingFt: layG('lay-col-sp'),
+      azimuth: layG('lay-azimuth'), tilt: layG('lay-tilt'), maxRotation: layG('lay-maxrot'),
+      modsX: layG('lay-mods-x'), modsY: layG('lay-mods-y'),
+      gcrMin: parseFloat(document.getElementById('gcr-min')?.value) || 0.30,
+      gcrMax: parseFloat(document.getElementById('gcr-max')?.value) || 0.60,
+    },
+    bess: {
+      rte: v('rte'), dod: v('dod'), disStart: v('dis_start'), disEnd: v('dis_end'),
+      degradation: v('bess_deg'), overbuild: v('bess_overbuild'), durations: s('bess_durations'),
+    },
+    financials: {
+      pvCapex: v('pv_capex'), bessCapex: v('bess_capex'), om: v('om'), price: v('price'),
+      itc: v('itc'), bonusDep: v('bonus_dep'), taxRate: v('tax_rate'), stateTaxRate: v('state_tax_rate'),
+      discRate: v('disc_rate'), projLife: v('proj_life'), pvDeg: v('pv_deg'),
+    },
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${proj.replace(/\s+/g,'_')}_project.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function triggerLoadProject(){
+  document.getElementById('project-load-input').click();
+}
+
+async function handleProjectFileLoad(file){
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    applyProjectData(data);
+    alert('Project loaded — location, PV system, and site layout have been restored.\nRe-enter your API key and re-run the sweep to see results.');
+  }catch(err){
+    alert('Could not load project file: ' + err.message);
+  }
+  // Reset the input so the same file can be re-selected later if needed
+  document.getElementById('project-load-input').value = '';
+}
+
+function applyProjectData(data){
+  const setVal = (id, val) => { const el=document.getElementById(id); if(el && val!=null) el.value = val; };
+
+  if(data.project?.name) document.getElementById('project_name').value = data.project.name;
+
+  if(data.location){
+    setVal('lat', data.location.lat?.toFixed?.(4) ?? data.location.lat);
+    setVal('lon', data.location.lon?.toFixed?.(4) ?? data.location.lon);
+    if(_map && data.location.lat != null && data.location.lon != null){
+      placePin(data.location.lat, data.location.lon, true, true);
+    }
+  }
+
+  if(data.pvSystem){
+    const p = data.pvSystem;
+    setVal('ac_size', p.ac_size); setVal('losses', p.losses); setVal('inv_eff', p.inv_eff); setVal('albedo', p.albedo);
+    setVal('module_type', p.module_type); setVal('array_type', p.array_type); setVal('bifacial', p.bifacial);
+    setVal('pv2-mod-preset', p.mod_preset); setVal('pv2-mod-wp', p.mod_wp); setVal('pv2-mod-w', p.mod_w); setVal('pv2-mod-h', p.mod_h);
+    setVal('pv2-bifaciality', p.bifaciality);
+    pv2SyncToLayout(); // push module specs into the hidden layout-engine inputs
+  }
+
+  if(data.siteLayout){
+    const sl = data.siteLayout;
+    layBoundaryLatLngs = sl.boundary || null;
+    layBoundaryLayer = null; // force a fresh redraw
+    layObstructions = (sl.obstructions || []).map(latlngs => ({latlngs, leafletLayer:null}));
+    laySetbackFt = sl.setbackFt || 0;
+    setVal('lay-setback', laySetbackFt);
+    layFillDir = sl.fillDir || 'center';
+    layMaxStrings = sl.maxStrings || 4;
+    laySkewDeg = sl.skewDeg || 0;
+    layStartOffsetFt = sl.startOffsetFt || 0;
+    layRowBandOffsetFt = sl.rowBandOffsetFt || 0;
+
+    setVal('lay-row-sp', sl.rowSpacingFt); setVal('lay-col-sp', sl.colSpacingFt);
+    setVal('lay-azimuth', sl.azimuth); setVal('lay-tilt', sl.tilt); setVal('lay-maxrot', sl.maxRotation);
+    setVal('lay-mods-x', sl.modsX); setVal('lay-mods-y', sl.modsY);
+    setVal('gcr-min', sl.gcrMin); setVal('gcr-max', sl.gcrMax);
+    setVal('lay-skew', laySkewDeg); setVal('lay-startoffset', layStartOffsetFt); setVal('lay-rowband-offset', layRowBandOffsetFt);
+
+    // Sync slider value-display labels to match restored values
+    const rs=document.getElementById('lay-rs-val'); if(rs) rs.textContent = parseFloat(layG('lay-row-sp')).toFixed(1);
+    const cs=document.getElementById('lay-cs-val'); if(cs) cs.textContent = parseFloat(layG('lay-col-sp')).toFixed(1);
+    const az=document.getElementById('lay-az-val'); if(az) az.textContent = layG('lay-azimuth')+'°';
+    const tl=document.getElementById('lay-tilt-val'); if(tl) tl.textContent = layG('lay-tilt')+'°';
+    const rt=document.getElementById('lay-rot-val'); if(rt) rt.textContent = layG('lay-maxrot')+'°';
+    const sk=document.getElementById('lay-skew-val'); if(sk) sk.textContent = laySkewDeg+'°';
+    const so=document.getElementById('lay-startoffset-val'); if(so) so.textContent = layStartOffsetFt+' ft';
+    const rb=document.getElementById('lay-rowband-offset-val'); if(rb) rb.textContent = layRowBandOffsetFt+' ft';
+
+    // Update button states to match (safe even if map isn't ready — layAutoRegen no-ops until then)
+    laySetMaxStrings(layMaxStrings);
+    layUpdateFillButtons();
+    layUpdateSkewVisibility();
+    layUpdateStartOffsetVisibility();
+
+    // Draw boundary/obstructions now if the map's already initialized (e.g.
+    // loading a project after already visiting Step 3); otherwise this runs
+    // automatically the first time Step 3 initializes (see initLayoutMap).
+    layRedrawFromState();
+  }
+
+  if(data.bess){
+    const b = data.bess;
+    setVal('rte', b.rte); setVal('dod', b.dod); setVal('dis_start', b.disStart); setVal('dis_end', b.disEnd);
+    setVal('bess_deg', b.degradation); setVal('bess_overbuild', b.overbuild); setVal('bess_durations', b.durations);
+  }
+
+  if(data.financials){
+    const f = data.financials;
+    setVal('pv_capex', f.pvCapex); setVal('bess_capex', f.bessCapex); setVal('om', f.om); setVal('price', f.price);
+    setVal('itc', f.itc); setVal('bonus_dep', f.bonusDep); setVal('tax_rate', f.taxRate); setVal('state_tax_rate', f.stateTaxRate);
+    setVal('disc_rate', f.discRate); setVal('proj_life', f.projLife); setVal('pv_deg', f.pvDeg);
+  }
+
+  layCheckAllFieldIndicators();
+}
+
 // ── KMZ export ───────────────────────────────────────────
 async function exportKMZ(){
   if(selectedPVIdx===null){alert('Select a PV scenario first.');return;}
@@ -3278,6 +3869,249 @@ async function exportPDF(){
   }
   doc.save((proj+'_GCR'+scen.gcr.toFixed(2)).replace(/\s+/g,'_')+'_summary.pdf');
 }
+
+// ── Bug report / feature request ──────────────────────────
+// Uses a mailto: link — this file is opened as a local file (file://), and
+// third-party form/email services (FormSubmit, EmailJS, etc.) require a real
+// web origin to validate requests, so they don't work here. mailto: has no
+// such restriction — it just hands off to the user's own email client.
+const BUGREPORT_EMAIL = 'michael.bender@chaberton.com';
+let _bugReportType = 'Bug';
+
+function setBugReportType(type){
+  _bugReportType = type;
+  document.getElementById('bugreport-type-bug').classList.toggle('active', type==='Bug');
+  document.getElementById('bugreport-type-feature').classList.toggle('active', type==='Feature Request');
+}
+
+function openBugReportModal(){
+  document.getElementById('bugreport-overlay').classList.add('open');
+  document.getElementById('bugreport-status').textContent = '';
+  document.getElementById('bugreport-status').className = 'bugreport-status';
+}
+
+function closeBugReportModal(){
+  document.getElementById('bugreport-overlay').classList.remove('open');
+}
+
+function submitBugReport(){
+  const message = document.getElementById('bugreport-message').value.trim();
+  const name = document.getElementById('bugreport-name').value.trim() || 'Anonymous';
+  const statusEl = document.getElementById('bugreport-status');
+
+  if(!message){
+    statusEl.textContent = 'Please enter a description first.';
+    statusEl.className = 'bugreport-status err';
+    return;
+  }
+
+  const subject = `[PV+BESS Optimizer] ${_bugReportType}: ${name}`;
+
+  // Auto-included context — helps a lot when triaging reports
+  const stepNames = {1:'Location',2:'PV System',3:'Site Layout',4:'BESS',5:'Financials',6:'Run'};
+  const context = [
+    'Type: ' + _bugReportType,
+    'Name: ' + name,
+    'Timestamp: ' + new Date().toString(),
+    'Current wizard step: ' + (stepNames[currentStep] || currentStep) + ' (step ' + currentStep + ' of 6)',
+    'Project name: ' + (document.getElementById('project_name')?.value || '—'),
+    'Selected GCR: ' + (selectedPVIdx !== null && siteScenarios[selectedPVIdx] ? siteScenarios[selectedPVIdx].gcr.toFixed(2) : '—'),
+  ].join('\n');
+
+  const body = `${message}\n\n---\n${context}`;
+  const mailtoUrl = `mailto:${BUGREPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  window.location.href = mailtoUrl;
+
+  statusEl.textContent = '✓ Opening your email client — click Send there to submit.';
+  statusEl.className = 'bugreport-status ok';
+  setTimeout(closeBugReportModal, 2500);
+}
+
+// ── Help system ────────────────────────────────────────────
+const HELP_SECTIONS = {
+  location: {
+    title: 'Location',
+    body: `
+      <h3>API Key</h3>
+      <p>Get a free PVWatts API key at <code>developer.nlr.gov/signup</code>. This is used to fetch hourly solar production data for every scenario in the sweep — it's never saved to a project file or included in any export.</p>
+
+      <h3>Pinning the site</h3>
+      <p>Click anywhere on the map to drop a pin, or drag an existing pin to fine-tune the location. You can also type a lat/lon directly, or use the search box to find an address or city.</p>
+
+      <h3>Reference layer (KMZ/KML upload)</h3>
+      <p>Upload a KMZ or KML file to overlay reference geometry (parcel lines, existing site plans, etc.) on the map in amber, purely for visual reference while you draw your own boundary in Step 3.</p>
+
+      <h3>Save / Load Project</h3>
+      <p>Since there's no server or account system, "saving your work" means exporting a file. <strong>Load Project</strong> (button at the top of this step) restores a previously saved <code>.json</code> project file — location, PV system settings, the drawn boundary, every obstruction, setback distances, spacing/skew/offset sliders, table config, and GCR range.</p>
+      <p>Two things it deliberately does <strong>not</strong> restore: your <strong>API key</strong> (never saved to the file at all, for safety) and any <strong>sweep results</strong> — you'll re-run the sweep yourself after loading. To create a project file in the first place, use <strong>Save Project (JSON)</strong> in the Export tab after configuring a site.</p>
+
+      <div class="help-tip"><strong>Tip:</strong> Zoom in tight before drawing your boundary in Step 3 — satellite imagery detail helps a lot when tracing property lines.</div>
+    `
+  },
+  pvsystem: {
+    title: 'PV System',
+    body: `
+      <h3>System parameters</h3>
+      <p><strong>AC size</strong> is your POI/interconnection limit — the inverter's fixed output ceiling. This is what clipping is measured against.</p>
+      <p><strong>Losses</strong> and <strong>inverter efficiency</strong> feed directly into the PVWatts model.</p>
+
+      <h3>Module — two separate roles</h3>
+      <p>Module settings are split into two groups because they serve different purposes:</p>
+      <ul>
+        <li><strong>PVWatts model</strong> (module type, array type, bifacial) — determines the cell efficiency curve PVWatts uses for the energy simulation.</li>
+        <li><strong>Physical specs</strong> (preset, Wp, dimensions) — feeds the actual layout engine in Step 3, which counts real modules and computes real DC capacity from your drawn site.</li>
+      </ul>
+
+      <h3>Array type</h3>
+      <p>Only two options are offered: <strong>1-Axis Backtracking (SAT)</strong> and <strong>Fixed Tilt (Open Rack)</strong>. This choice automatically drives which layout mode (SAT or FT) is active in Step 3 — tilt and azimuth are set there, not here.</p>
+    `
+  },
+  sitelayout: {
+    title: 'Site Layout',
+    body: `
+      <h3>Drawing the boundary</h3>
+      <p>Click <strong>✏ Boundary</strong> then trace your site's property line on the map. This is the one boundary used for every GCR scenario in the sweep — you can reshape it anytime using the map's built-in Edit tool (pencil icon), or delete it with the trash icon.</p>
+
+      <h3>Obstructions</h3>
+      <p>Two types, both drawn in red:</p>
+      <ul>
+        <li><strong>Area</strong> — a closed polygon (buildings, ponds, wetlands). Tables are pushed around it, not deleted, as long as they still fit somewhere in the row/column.</li>
+        <li><strong>Line</strong> — an open path (fence lines, ditches, easements). Gets buffered into a corridor based on its setback distance.</li>
+      </ul>
+      <p>Each obstruction has its own individual <strong>setback</strong> distance in the sidebar list — 0 means use the drawn shape as-is (lines still get a nominal 1ft buffer so they have some physical presence). An amber dashed preview shows the actual exclusion zone being used, which may be larger than what you drew.</p>
+      <p>Click and drag any obstruction directly on the map to reposition it.</p>
+
+      <h3>Setback (property line)</h3>
+      <p>Separate from obstruction setbacks — this insets the whole boundary inward by a fixed distance, so you can stay off the property line without redrawing. A teal dashed line shows the resulting buildable area. 0 = use the boundary as drawn.</p>
+
+      <h3>Table config &amp; spacing</h3>
+      <p><strong>Mods wide/tall</strong> sets each table's module grid. <strong>Max strings</strong> (SAT only) controls how many single-string table heights can stack — smaller counts get used automatically to fill gaps near boundary edges or obstructions.</p>
+      <p><strong>Row/column spacing</strong> sliders directly set the pitch between tables.</p>
+
+      <h3>Azimuth, tilt, skew, offsets</h3>
+      <ul>
+        <li><strong>Azimuth</strong> — row axis orientation, sent to PVWatts.</li>
+        <li><strong>Tilt</strong> — Fixed Tilt only.</li>
+        <li><strong>Max rotation</strong> — SAT only, tracker's physical rotation limit.</li>
+        <li><strong>Skew</strong> — SAT + Aligned only. Shifts row alignment diagonally across columns without rotating the tables themselves — useful for following a diagonal property line.</li>
+        <li><strong>Row/column start offset</strong> — nudges the aligned grid's starting position without changing spacing. Wraps around cleanly so you never lose coverage on one side, no matter how far you push it.</li>
+      </ul>
+
+      <h3>Fill direction</h3>
+      <p><strong>Aligned</strong> snaps tables to a shared grid across the whole site. <strong>Push N/S</strong> (SAT) or <strong>Push E/W</strong> (FT) hug tables flush against one edge, leaving any leftover gap on the opposite side.</p>
+
+      <h3>GCR sweep range</h3>
+      <p>Sets the min/max ground coverage ratio the analysis will iterate through in 0.02 steps — this is what actually runs in Step 6, not just the single spacing shown on the map right now.</p>
+
+      <h3>How GCR and DC capacity are actually calculated</h3>
+      <p>Nothing here is estimated from area/acreage — DC capacity comes directly from the real geometry drawn on the map:</p>
+      <ul>
+        <li><strong>Module count</strong> — the layout engine physically packs table rectangles into your boundary (minus setback and obstructions) and counts them.</li>
+        <li><strong>DC capacity</strong> — <code>moduleCount × moduleWp / 1000</code> (kWdc).</li>
+        <li><strong>GCR (SAT)</strong> — <code>tableWidth<sub>E/W</sub> / pitch</code>, where pitch = column spacing + table width.</li>
+        <li><strong>GCR (FT)</strong> — <code>tableLength × cos(tilt) / pitch</code>, where pitch = row spacing + that horizontal projection. The <code>cos(tilt)</code> term matters: a tilted panel's footprint on the ground is shorter than its physical slant length.</li>
+      </ul>
+      <p>When the sweep iterates GCR, it back-solves for the spacing (col spacing for SAT, row spacing for FT) needed to hit each target GCR on your actual drawn boundary, then re-runs the packing algorithm at that spacing — so every GCR scenario reflects real module counts, not a formula estimate.</p>
+
+      <h3>Setback &amp; obstruction geometry method</h3>
+      <p>Both the property-line setback and area-obstruction setbacks use the same edge-offset algorithm: every edge of the polygon is moved by the setback distance (inward for the boundary, outward for obstructions), then adjacent offset edges are re-intersected to find the new corners. This handles convex and mildly concave shapes correctly. If a setback is too large for a given shape — the inset would collapse or invert — the tool automatically falls back to the original, unmodified boundary rather than producing invalid geometry, and shows a warning.</p>
+      <p>Line obstructions use a different method: each segment is buffered into its own rectangle (half-width = setback distance on each side), rather than a true offset-and-intersect corridor. This is a close approximation, not exact at sharp corners between segments, but the error is on the order of a few feet — well within the tolerance needed for table placement.</p>
+    `
+  },
+  bess: {
+    title: 'BESS',
+    body: `
+      <h3>Coming soon</h3>
+      <p>Battery sizing, dispatch modeling, and clipping-capture analysis are being rebuilt from the ground up and are temporarily disabled. PV-only analysis — layout, energy yield, clipping, and site sweep — is fully available now.</p>
+    `
+  },
+  financials: {
+    title: 'Financials',
+    body: `
+      <h3>Coming soon</h3>
+      <p>IRR, NPV, and cash flow modeling are in development and temporarily disabled. The inputs on this step are saved to your project file for when this feature returns.</p>
+    `
+  },
+  run: {
+    title: 'Run',
+    body: `
+      <h3>Review</h3>
+      <p>This table summarizes every input from the wizard before you commit to a sweep — location, PV system, layout, and GCR range. Nothing here is editable directly; jump back to the relevant step to change something.</p>
+
+      <h3>Running the sweep</h3>
+      <p>Click <strong>⊙ Sweep Site</strong> to fetch PVWatts data for every GCR step in your specified range, using your drawn boundary, obstructions, and setback to compute real module counts and DC capacity at each step.</p>
+
+      <div class="help-tip"><strong>Note:</strong> if you change anything in Site Layout after running a sweep, a warning banner appears at the top of the results tray reminding you to re-run it — results won't update automatically.</div>
+    `
+  },
+  sitesweep: {
+    title: 'Site Sweep (Results)',
+    body: `
+      <h3>Site Sweep tab</h3>
+      <p>Every GCR scenario from the sweep, one row each — DC, AC, ILR, module count, pitch, annual PV, capacity factor, and specific yield. Click any row to select it; the map redraws that exact layout using whatever fill direction, azimuth, skew, and obstructions you configured.</p>
+
+      <h3>Capacity factor &amp; specific yield</h3>
+      <ul>
+        <li><strong>Capacity factor</strong> — <code>annualAC_kWh / (AC_kW × 8760) × 100</code>. The percentage of theoretical maximum output (running at full nameplate AC, all year) actually achieved.</li>
+        <li><strong>Specific yield</strong> — <code>annualAC_kWh / DC_kW</code>, in kWh/kWp. A DC-normalized productivity metric, useful for comparing GCR scenarios independent of system size.</li>
+      </ul>
+
+      <h3>How clipping is calculated from the 8760 data</h3>
+      <p>PVWatts' own hourly AC array is already capped at your AC/POI limit internally, so clipping can't be found by comparing AC output to the limit — it would never exceed it. Instead, for every hour:</p>
+      <ul>
+        <li><strong>DC threshold</strong> — the DC input level that exactly saturates the inverter: <code>dcThreshold = ACLimit / inverterEfficiency</code>.</li>
+        <li><strong>Clipped DC</strong> — <code>max(0, hourlyDC − dcThreshold)</code>, using PVWatts' separate pre-inverter DC array.</li>
+        <li><strong>Clipped AC-equivalent</strong> — <code>clippedDC × inverterEfficiency</code>. This is the energy that would have reached the grid if the inverter had no ceiling — the number shown as "Total clipping" everywhere in the tool.</li>
+      </ul>
+      <div class="help-tip"><strong>Why divide by efficiency, not multiply:</strong> the threshold is asking "how much DC input is needed to produce exactly the AC limit," and since some power is always lost in conversion, more DC than the AC limit itself is required to get there — hence dividing by a number less than 1, which increases the threshold.</div>
+
+      <h3>Summary tab</h3>
+      <p>Populates only once you've selected a row in Site Sweep. Shows PV system details, energy yield (including total clipping), and layout stats for that specific scenario, plus a monthly generation chart.</p>
+
+      <h3>Dispatch tab</h3>
+      <p>A line chart of PV production vs. the AC limit, showing exactly where and when clipping occurs (amber area rising above the red dashed line). Toggle between <strong>Average day</strong>, <strong>Peak clipping day</strong>, and <strong>Lowest PV day</strong>, or pick any date directly — non-average views show a 5-day window with ± day navigation.</p>
+
+      <h3>Export tab</h3>
+      <ul>
+        <li><strong>Save Project (JSON)</strong> — every wizard input, boundary, obstructions, and settings in one file. Available anytime, no sweep required. API key is never included.</li>
+        <li><strong>KMZ</strong> — the selected layout's boundary and table polygons, colored by string count, for Google Earth or GIS tools.</li>
+        <li><strong>PDF Summary</strong> — a formatted report of the selected scenario.</li>
+        <li><strong>8760 CSV</strong> — full hourly data (PV AC, DC potential, clipping) for the selected scenario.</li>
+      </ul>
+      <p>To reload a saved project, use the <strong>Load Project</strong> button at the top of Step 1 — it restores everything except the API key and any past sweep results, which you'll re-run yourself.</p>
+    `
+  },
+};
+
+let _helpCurrentSection = 'location';
+
+function layRenderHelpNav(){
+  const nav = document.getElementById('help-nav');
+  if(!nav) return;
+  nav.innerHTML = `<div class="help-nav-header">Help Topics</div>` +
+    Object.keys(HELP_SECTIONS).map(id =>
+      `<div class="help-nav-item${id===_helpCurrentSection?' active':''}" onclick="selectHelpSection('${id}')">${HELP_SECTIONS[id].title}</div>`
+    ).join('');
+}
+
+function selectHelpSection(id){
+  if(!HELP_SECTIONS[id]) return;
+  _helpCurrentSection = id;
+  document.getElementById('help-content-title').textContent = HELP_SECTIONS[id].title;
+  document.getElementById('help-content-body').innerHTML = HELP_SECTIONS[id].body;
+  document.getElementById('help-content-body').scrollTop = 0;
+  layRenderHelpNav();
+}
+
+function openHelp(sectionId){
+  selectHelpSection(sectionId || _helpCurrentSection);
+  document.getElementById('help-overlay').classList.add('open');
+}
+
+function closeHelp(){
+  document.getElementById('help-overlay').classList.remove('open');
+}
 </script>
 </div><!-- /wizard-panel -->
 <div id="map-panel">
@@ -3296,8 +4130,7 @@ async function exportPDF(){
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <div class="status-msg" id="status2" style="margin:0;font-size:11px"></div>
-          
-
+          <span class="help-btn" onclick="openHelp('sitesweep')" style="margin-left:0">?</span>
           <button id="tray-toggle-btn" onclick="trayToggle()" style="background:none;border:1px solid var(--border2);color:var(--text3);border-radius:4px;padding:4px 10px;cursor:pointer;font-family:var(--mono);font-size:11px">▲</button>
         </div>
       </div>
@@ -3391,6 +4224,15 @@ async function exportPDF(){
 
         <!-- Export -->
         <div class="tab-content" id="tab-export">
+          <div class="card">
+            <div class="card-title">Save project</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:16px">Save all your inputs to a file so you can reload this exact setup later. Available anytime — no sweep required.</div>
+            <button class="btn btn-run" onclick="exportProjectJSON()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
+              💾&nbsp; Export Project (JSON)
+              <br><span style="font-size:10px;opacity:.8;font-weight:400">Location, PV system, site layout, obstructions, settings — no API key included</span>
+            </button>
+          </div>
+
           <div class="card" id="export-no-selection" style="display:none">
             <div class="empty-hint">Select a PV scenario from the Site Sweep tab before exporting.</div>
           </div>
@@ -3413,11 +4255,6 @@ async function exportPDF(){
                 </button>
               </div>
             </div>
-            <div class="card" style="font-size:11px;color:var(--text3);font-family:var(--mono);line-height:1.8">
-              <div class="card-title">What's included</div>
-              <strong style="color:var(--text2)">KMZ:</strong> Site boundary polygon · Table polygons (coloured navy→blue by string count) · Placemark labels with table number and string count<br><br>
-              <strong style="color:var(--text2)">PDF:</strong> Project header · System overview chips · Site summary bar (GCR, DC, ILR, tables, modules, array type) · Table configuration · Site information · Energy results · Clipping analysis (if BESS selected)
-            </div>
           </div>
         </div>
 
@@ -3426,5 +4263,54 @@ async function exportPDF(){
   </div>
 </div>
 </div><!-- /app-shell -->
+<!-- Bug report / feature request -->
+<button class="bugreport-fab" onclick="openBugReportModal()">🐛 Report Bug / Request Feature</button>
+
+<div class="bugreport-overlay" id="bugreport-overlay">
+  <div class="bugreport-modal">
+    <h3>Report a Bug or Request a Feature</h3>
+    <div class="sub">Opens your email client with a pre-filled draft — just hit Send.</div>
+
+    <div class="bugreport-field">
+      <label>Type</label>
+      <div class="bugreport-type-row">
+        <div class="bugreport-type-btn active" id="bugreport-type-bug" onclick="setBugReportType('Bug')">🐛 Bug</div>
+        <div class="bugreport-type-btn" id="bugreport-type-feature" onclick="setBugReportType('Feature Request')">✨ Feature Request</div>
+      </div>
+    </div>
+
+    <div class="bugreport-field">
+      <label>Your name (optional)</label>
+      <input type="text" id="bugreport-name" placeholder="e.g. Mike">
+    </div>
+
+    <div class="bugreport-field">
+      <label>Description</label>
+      <textarea id="bugreport-message" placeholder="Describe the bug or feature you'd like to see…"></textarea>
+    </div>
+
+    <div class="bugreport-status" id="bugreport-status"></div>
+
+    <div class="bugreport-actions">
+      <button class="btn btn-back" onclick="closeBugReportModal()">Cancel</button>
+      <button class="btn btn-next" id="bugreport-submit-btn" onclick="submitBugReport()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Help modal -->
+<div class="help-overlay" id="help-overlay">
+  <div class="help-modal">
+    <div class="help-nav" id="help-nav"></div>
+    <div class="help-content-wrap">
+      <div class="help-content-header">
+        <h2 id="help-content-title">Help</h2>
+        <button class="help-close-btn" onclick="closeHelp()">✕</button>
+      </div>
+      <div class="help-content-body" id="help-content-body"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
