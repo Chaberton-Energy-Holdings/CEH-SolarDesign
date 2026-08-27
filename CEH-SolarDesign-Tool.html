@@ -14,9 +14,9 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#0d0f12; --bg2:#13161b; --bg3:#1a1e26; --bg4:#20242f;
-  --border:#2a2f3a; --border2:#363d4d;
-  --text:#e8eaf0; --text2:#8890a4; --text3:#555f75;
+  --bg:#0e1220; --bg2:#141a2e; --bg3:#1b2338; --bg4:#232c47;
+  --border:#2c3552; --border2:#3a4568;
+  --text:#f4f6fb; --text2:#c4cbe0; --text3:#a3aac4;
   --accent:#3b82f6; --accent2:#1d4ed8;
   --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --teal:#14b8a6; --purple:#a78bfa;
   --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
@@ -42,11 +42,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 /* Progress — compact bubbles that fit 480px panel */
 .progress-wrap{
   display:flex;align-items:flex-start;justify-content:space-between;
-  margin-bottom:24px;position:relative;
+  margin:0 -28px 24px;padding:14px 28px 12px;position:sticky;top:0;z-index:20;
+  background:var(--bg);
 }
-/* Connecting line behind bubbles */
+/* Connecting line behind bubbles — centered through the circle midpoint,
+   which sits 14px (progress-wrap's top padding) + 16px (half circle height)
+   down from the top of the sticky container */
 .progress-wrap::before{
-  content:'';position:absolute;top:16px;left:16px;right:16px;
+  content:'';position:absolute;top:30px;left:16px;right:16px;
   height:2px;background:var(--border);z-index:0;
 }
 .step-node{
@@ -72,6 +75,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 }
 .step-label.active{color:var(--accent);font-weight:500}
 .step-label.done{color:var(--green)}
+.step-node.locked{cursor:not-allowed}
+.step-circle.locked{background:var(--bg3);border:1px solid var(--border2);color:var(--text3);font-size:11px}
+.step-label.locked{color:var(--text3)}
 /* Green line for completed segments */
 .step-node.done-line::after{
   content:'';position:absolute;top:16px;left:50%;right:-50%;
@@ -100,14 +106,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:.03em}
 .field input,.field select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--mono);width:100%;transition:border-color .15s}
-.field input:focus,.field select:focus{outline:none;border-color:var(--accent)}
+.field input:focus,.field select:focus{border-color:var(--accent)}
 .field input::placeholder{color:var(--text3)}
 .field .hint{font-size:10px;color:var(--text3);margin-top:2px}
 
 .section-divider{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin:20px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 
 /* Nav buttons */
-.step-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
+.step-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  margin:24px -28px -28px;padding:14px 28px;position:sticky;bottom:0;z-index:10;
+  background:var(--bg2);border-top:1px solid var(--border);
+  border-radius:0 0 var(--radius) var(--radius);
+}
 .btn{padding:9px 20px;border-radius:6px;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.05em;cursor:pointer;border:none;transition:all .15s}
 .btn-back{background:transparent;color:var(--text3);border:1px solid var(--border)}
 .btn-back:hover{border-color:var(--border2);color:var(--text2)}
@@ -115,11 +126,37 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .btn-next:hover{background:var(--accent2)}
 .btn-run{background:var(--green);color:#000;font-weight:500}
 .btn-run:hover{background:#16a34a}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.btn-secondary:hover{background:var(--bg4);border-color:var(--accent);color:var(--text)}
 .btn-rec{background:var(--purple);color:#fff;border:none}
 .btn-rec:hover{background:#7c3aed}
 .btn-edit{background:transparent;color:var(--accent);border:1px solid var(--accent);font-size:11px;padding:6px 14px}
 .btn-edit:hover{background:rgba(59,130,246,.1)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Consistent keyboard-focus visibility across all interactive elements.
+   Uses :focus-visible (not :focus) so the ring only appears for keyboard
+   navigation — mouse clicks don't trigger it, avoiding a "flash" on every
+   click while still fixing real accessibility for keyboard users. */
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible,
+a:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+input[type=range]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+/* Div-based pseudo-buttons throughout the app (tabs, table-type toggles,
+   step pills, help nav items) get the same ring if they ever receive
+   focus, for visual consistency with real <button> elements. */
+.lay-tbtn:focus-visible, .tab:focus-visible, .step-pill:focus-visible,
+.dispatch-toggle:focus-visible, .help-nav-item:focus-visible,
+.step-node:focus-visible, .bugreport-type-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 /* Field default/minimum indicators */
 .field-indicator{
@@ -273,7 +310,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .lay-field:last-child{margin-bottom:0}
 .lay-field label{font-size:10px;color:var(--text3);font-family:var(--mono)}
 .lay-field input,.lay-field select{padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:var(--mono);background:var(--bg3);color:var(--text);width:100%}
-.lay-field input:focus,.lay-field select:focus{outline:none;border-color:var(--accent)}
+.lay-field input:focus,.lay-field select:focus{border-color:var(--accent)}
 .lay-range-row{display:flex;align-items:center;gap:8px}
 .lay-range-row input[type=range]{flex:1;accent-color:var(--accent)}
 .lay-rval{font-size:11px;font-weight:500;color:var(--accent);font-family:var(--mono);min-width:44px;text-align:right}
@@ -308,12 +345,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #location-map{height:320px;border-radius:6px;border:1px solid var(--border);margin:16px 0;background:var(--bg3)}
 .location-search-wrap{position:relative;margin-bottom:12px}
 .location-search-wrap input{width:100%;padding:8px 40px 8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:13px}
-.location-search-wrap input:focus{outline:none;border-color:var(--accent)}
+.location-search-wrap input:focus{border-color:var(--accent)}
 .location-search-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px 4px}
 .location-search-btn:hover{color:var(--accent)}
 .coords-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
 .location-hint{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:6px}
-.leaflet-container{background:#1a1e26 !important}
+.leaflet-container{background:#1b2338 !important}
 
 /* Dispatch toggle */
 .tab-wip{opacity:.5;font-style:italic}
@@ -421,6 +458,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   border-radius:6px;padding:10px 14px;margin:12px 0;font-size:12px;
 }
 .help-tip strong{color:var(--accent)}
+
+/* Inline status/validation banners — replace blocking alert() dialogs */
+.inline-status{
+  display:flex;align-items:flex-start;gap:8px;padding:9px 12px;
+  border-radius:6px;font-family:var(--mono);font-size:11px;line-height:1.5;
+}
+.inline-status.err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.inline-status.ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.inline-status.info{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);color:var(--accent)}
+.step-error{
+  display:flex;align-items:flex-start;gap:8px;
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);
+  border-radius:6px;padding:10px 14px;margin-top:14px;
+  font-family:var(--mono);font-size:12px;color:var(--red);line-height:1.5;
+}
 </style>
 </head>
 <body>
@@ -462,13 +514,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="step-circle" id="sc-3">3</div>
       <div class="step-label" id="sl-3">Site Layout</div>
     </div>
-    <div class="step-node" id="sn-4" onclick="jumpTo(4)">
-      <div class="step-circle" id="sc-4">4</div>
-      <div class="step-label" id="sl-4">BESS</div>
+    <div class="step-node locked" id="sn-4">
+      <div class="step-circle locked" id="sc-4">🔒</div>
+      <div class="step-label locked" id="sl-4">BESS</div>
     </div>
-    <div class="step-node" id="sn-5" onclick="jumpTo(5)">
-      <div class="step-circle" id="sc-5">5</div>
-      <div class="step-label" id="sl-5">Financials</div>
+    <div class="step-node locked" id="sn-5">
+      <div class="step-circle locked" id="sc-5">🔒</div>
+      <div class="step-label locked" id="sl-5">Financials</div>
     </div>
     <div class="step-node" id="sn-6" onclick="jumpTo(6)">
       <div class="step-circle" id="sc-6">6</div>
@@ -489,14 +541,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="step-summary-header"><span class="step-summary-title">Site Layout</span><span class="step-summary-edit">Edit ›</span></div>
     <div class="step-summary-values" id="sum-3-val"></div>
   </div>
-  <div id="sum-4" class="step-summary" onclick="jumpTo(4)">
-    <div class="step-summary-header"><span class="step-summary-title">BESS</span><span class="step-summary-edit">Edit ›</span></div>
-    <div class="step-summary-values" id="sum-4-val"></div>
-  </div>
-  <div id="sum-5" class="step-summary" onclick="jumpTo(5)">
-    <div class="step-summary-header"><span class="step-summary-title">Financials</span><span class="step-summary-edit">Edit ›</span></div>
-    <div class="step-summary-values" id="sum-5-val"></div>
-  </div>
 
 
   <!-- ── Step 1: API & Location ── -->
@@ -509,6 +553,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div style="flex:1">
         <div style="font-family:var(--mono);font-size:12px;color:var(--text2)">Have a saved project?</div>
         <div style="font-size:10px;color:var(--text3);margin-top:1px">Restores location, PV system, site layout, and settings — you'll need to re-enter your API key and re-run the sweep.</div>
+        <div id="load-project-status" class="inline-status" style="display:none;margin-top:6px"></div>
       </div>
       <button class="btn btn-edit" onclick="triggerLoadProject()" style="white-space:nowrap">Load Project</button>
       <input type="file" id="project-load-input" accept=".json" style="display:none" onchange="handleProjectFileLoad(this.files[0])">
@@ -546,22 +591,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="location-label" style="font-family:var(--mono);font-size:11px;color:var(--teal);margin-top:6px;min-height:16px"></div>
     </div>
 
-    <div class="section-divider" style="margin-top:18px">Reference layer (optional)</div>
+    <div class="section-divider" style="margin-top:18px">Reference layers (optional)</div>
     <div class="kmz-upload-wrap" id="kmz-drop-zone"
          ondragover="event.preventDefault();this.classList.add('drag-over')"
          ondragleave="this.classList.remove('drag-over')"
          ondrop="kmzHandleDrop(event)">
-      <input type="file" id="kmz-file-input" accept=".kmz,.kml" onchange="kmzHandleFile(this.files[0])">
+      <input type="file" id="kmz-file-input" accept=".kmz,.kml" multiple onchange="Array.from(this.files).forEach(f=>kmzHandleFile(f))">
       <div class="kmz-upload-label">
-        <strong>Upload KMZ / KML</strong> or drag &amp; drop<br>
+        <strong>Upload KMZ / KML</strong> or drag &amp; drop — multiple files supported<br>
         Draws reference polygons on the map · User still draws own layout polygon
       </div>
       <div class="kmz-ref-status" id="kmz-status"></div>
     </div>
-    <div style="display:none;margin-top:6px;font-family:var(--mono);font-size:11px;align-items:center" id="kmz-loaded-bar">
-      <span id="kmz-loaded-label" style="color:var(--teal)"></span>
-      <button class="kmz-clear-btn" onclick="kmzClear()">✕ Clear</button>
-    </div>
+    <div id="kmz-loaded-list" style="display:none;margin-top:6px"></div>
 
     <div class="step-nav"><div></div><button class="btn btn-next" onclick="next(1)">Next →</button></div>
   </div>
@@ -1032,7 +1074,7 @@ function initLayoutMap(){
 
       e.layer.setStyle({color:'#ef4444',weight: obsType==='line'?3:2, fillColor:'#ef4444', fillOpacity: obsType==='line'?0:0.25, dashArray:'6 3'});
       layObstructionGroup.addLayer(e.layer);
-      const obsEntry = {latlngs, leafletLayer:e.layer, type:obsType, setbackFt:0};
+      const obsEntry = {latlngs, leafletLayer:e.layer, type:obsType, setbackFt:0, name:`Obstruction ${layObstructions.length + 1}`};
       e.layer._layObsRef = obsEntry; // direct back-reference — used by drag
       layObstructions.push(obsEntry);
       layMakeObstructionDraggable(e.layer);
@@ -1096,14 +1138,20 @@ function layRedrawFromState(){
   }
 
   layObstructions.forEach(obs => {
-    if(!obs.leafletLayer && obs.latlngs && obs.latlngs.length >= 3){
-      const latlngs = obs.latlngs.map(p => L.latLng(p.lat, p.lng));
-      const poly = L.polygon(latlngs, {color:'#ef4444', weight:2, fillColor:'#ef4444', fillOpacity:0.25, dashArray:'6 3'});
-      layObstructionGroup.addLayer(poly);
-      obs.leafletLayer = poly;
-      poly._layObsRef = obs;
-      layMakeObstructionDraggable(poly);
-    }
+    if(obs.leafletLayer || !obs.latlngs) return;
+    const isLine = obs.type === 'line';
+    const minPts = isLine ? 2 : 3;
+    if(obs.latlngs.length < minPts) return;
+
+    const latlngs = obs.latlngs.map(p => L.latLng(p.lat, p.lng));
+    const layer = isLine
+      ? L.polyline(latlngs, {color:'#ef4444', weight:3, dashArray:'6 3'})
+      : L.polygon(latlngs, {color:'#ef4444', weight:2, fillColor:'#ef4444', fillOpacity:0.25, dashArray:'6 3'});
+
+    layObstructionGroup.addLayer(layer);
+    obs.leafletLayer = layer;
+    layer._layObsRef = obs;
+    layMakeObstructionDraggable(layer);
   });
   layRenderObstructionList();
 
@@ -1435,10 +1483,13 @@ function layRenderObstructionList(){
   el.innerHTML = layObstructions.map((o,i)=>{
     const icon = '⛔';
     const label = o.type === 'line' ? 'Line' : 'Area';
+    const name = o.name || `Obstruction ${i+1}`;
     return `<div style="padding:5px 8px;background:var(--bg3);border-radius:4px;margin-bottom:3px;font-family:var(--mono);font-size:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="color:var(--red)">${icon} Obstruction ${i+1} (${label})</span>
-        <button onclick="layRemoveObstruction(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:0 4px">✕</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+        <span style="color:var(--red);flex-shrink:0">${icon}</span>
+        <input type="text" value="${name.replace(/"/g,'&quot;')}" style="flex:1;min-width:0;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:2px 5px;border-radius:3px;font-family:var(--mono);font-size:10px" onchange="laySetObstructionName(${i}, this.value)">
+        <span style="color:var(--text3);flex-shrink:0">(${label})</span>
+        <button onclick="layRemoveObstruction(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:0 4px;flex-shrink:0">✕</button>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
         <label style="color:var(--text3);font-size:9px">Setback (ft)</label>
@@ -1446,6 +1497,12 @@ function layRenderObstructionList(){
       </div>
     </div>`;
   }).join('');
+}
+
+function laySetObstructionName(idx, val){
+  const obs = layObstructions[idx];
+  if(!obs) return;
+  obs.name = (val || '').trim() || `Obstruction ${idx+1}`;
 }
 
 function laySetObstructionSetback(idx, val){
@@ -2029,21 +2086,24 @@ function layClearAll(){
 
 // ── Layout engine ─────────────────────────────────────────
 
-// ── KMZ / KML reference layer ─────────────────────────────
-let _kmzRefLayer = null;   // Leaflet layer group for reference polygons
+// ── KMZ / KML reference layer(s) ──────────────────────────
+// Supports multiple files loaded simultaneously (e.g. a site boundary KMZ
+// plus a separate environmental/wetlands KMZ) — each tracked independently
+// with its own Leaflet layer group so they can be removed one at a time.
+let _kmzRefFiles = [];   // [{fileName, layerGroup, summary}]
 
 function kmzHandleDrop(e){
   e.preventDefault();
   document.getElementById('kmz-drop-zone').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if(file) kmzHandleFile(file);
+  const files = Array.from(e.dataTransfer.files || []);
+  files.forEach(f => kmzHandleFile(f));
 }
 
 async function kmzHandleFile(file){
   if(!file) return;
   const status = document.getElementById('kmz-status');
   status.className = 'kmz-ref-status';
-  status.textContent = 'Reading file…';
+  status.textContent = `Reading ${file.name}…`;
 
   try{
     let kmlText;
@@ -2062,7 +2122,7 @@ async function kmzHandleFile(file){
         f.name.toLowerCase().endsWith('.kml') && !f.dir);
       if(!kmlFile){
         status.className = 'kmz-ref-status err';
-        status.textContent = '✗ No KML found inside KMZ';
+        status.textContent = `✗ No KML found inside ${file.name}`;
         return;
       }
       kmlText = await kmlFile.async('text');
@@ -2077,7 +2137,7 @@ async function kmzHandleFile(file){
     kmzRenderKML(kmlText, file.name);
   } catch(err){
     document.getElementById('kmz-status').className = 'kmz-ref-status err';
-    document.getElementById('kmz-status').textContent = '✗ Error reading file: ' + err.message;
+    document.getElementById('kmz-status').textContent = `✗ Error reading ${file.name}: ` + err.message;
   }
 }
 
@@ -2089,18 +2149,18 @@ function kmzRenderKML(kmlText, fileName){
   const kmlDoc = parser.parseFromString(kmlText, 'text/xml');
   if(kmlDoc.querySelector('parsererror')){
     status.className = 'kmz-ref-status err';
-    status.textContent = '✗ Invalid KML format';
+    status.textContent = `✗ Invalid KML format in ${fileName}`;
     return;
   }
 
   // Ensure map is ready
   if(!_map) initMap();
 
-  // Clear existing reference layer
-  kmzClearLayer();
-  _kmzRefLayer = L.layerGroup().addTo(_map);
+  // New layer group for THIS file — does NOT clear previously loaded files,
+  // so multiple KMZs (e.g. boundary + environmental data) can coexist.
+  const layerGroup = L.layerGroup().addTo(_map);
 
-  const allLatLngs = [];
+  const fileLatLngs = [];
   let polyCount = 0, lineCount = 0, pointCount = 0;
 
   // ── Extract Polygons ──
@@ -2115,8 +2175,8 @@ function kmzRenderKML(kmlText, fileName){
         fillColor: '#f59e0b',
         fillOpacity: 0.08,
         dashArray: '6 4',
-      }).addTo(_kmzRefLayer);
-      lls.forEach(ll => allLatLngs.push(ll));
+      }).addTo(layerGroup);
+      lls.forEach(ll => fileLatLngs.push(ll));
       polyCount++;
     });
   });
@@ -2125,8 +2185,8 @@ function kmzRenderKML(kmlText, fileName){
   kmlDoc.querySelectorAll('LineString coordinates').forEach(coordNode => {
     const lls = kmzParseCoords(coordNode.textContent);
     if(lls.length < 2) return;
-    L.polyline(lls, {color:'#f59e0b', weight:2, dashArray:'6 4'}).addTo(_kmzRefLayer);
-    lls.forEach(ll => allLatLngs.push(ll));
+    L.polyline(lls, {color:'#f59e0b', weight:2, dashArray:'6 4'}).addTo(layerGroup);
+    lls.forEach(ll => fileLatLngs.push(ll));
     lineCount++;
   });
 
@@ -2136,22 +2196,17 @@ function kmzRenderKML(kmlText, fileName){
     if(!lls.length) return;
     L.circleMarker(lls[0], {
       radius: 5, color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.7, weight: 1
-    }).addTo(_kmzRefLayer);
-    allLatLngs.push(lls[0]);
+    }).addTo(layerGroup);
+    fileLatLngs.push(lls[0]);
     pointCount++;
   });
 
   const total = polyCount + lineCount + pointCount;
   if(total === 0){
+    _map.removeLayer(layerGroup);
     status.className = 'kmz-ref-status err';
-    status.textContent = '✗ No geometry found in file';
+    status.textContent = `✗ No geometry found in ${fileName}`;
     return;
-  }
-
-  // Zoom to fit all geometry
-  if(allLatLngs.length > 0){
-    const bounds = L.latLngBounds(allLatLngs);
-    _map.fitBounds(bounds, {padding: [32, 32], maxZoom: 18});
   }
 
   // Summary
@@ -2161,16 +2216,30 @@ function kmzRenderKML(kmlText, fileName){
   if(pointCount) parts.push(pointCount + ' point' + (pointCount>1?'s':''));
   const summary = parts.join(', ');
 
+  _kmzRefFiles.push({ fileName, layerGroup, summary });
+
   status.className = 'kmz-ref-status ok';
   status.textContent = '';
 
-  // Show loaded bar
-  const bar = document.getElementById('kmz-loaded-bar');
-  const lbl = document.getElementById('kmz-loaded-label');
-  if(bar && lbl){
-    bar.style.display = 'flex';
-    lbl.textContent = '✓ ' + fileName + ' — ' + summary;
+  // Fit map to the union of ALL loaded reference files so far, not just
+  // this one — keeps everything visible when multiple files are loaded.
+  const unionLatLngs = [];
+  _kmzRefFiles.forEach(f => {
+    f.layerGroup.eachLayer(l => {
+      if(l.getLatLngs){
+        const raw = l.getLatLngs();
+        const flat = Array.isArray(raw[0]) ? raw[0] : raw;
+        flat.forEach(p => unionLatLngs.push(p));
+      } else if(l.getLatLng){
+        unionLatLngs.push(l.getLatLng());
+      }
+    });
+  });
+  if(unionLatLngs.length){
+    _map.fitBounds(L.latLngBounds(unionLatLngs), {padding:[32,32], maxZoom:18});
   }
+
+  kmzRenderFileList();
 }
 
 function kmzParseCoords(coordText){
@@ -2180,16 +2249,32 @@ function kmzParseCoords(coordText){
     .filter(Boolean);
 }
 
-function kmzClearLayer(){
-  if(_kmzRefLayer){ _kmzRefLayer.clearLayers(); _map.removeLayer(_kmzRefLayer); _kmzRefLayer = null; }
+function kmzRenderFileList(){
+  const container = document.getElementById('kmz-loaded-list');
+  if(!container) return;
+  if(!_kmzRefFiles.length){ container.innerHTML=''; container.style.display='none'; return; }
+  container.style.display = 'block';
+  container.innerHTML = _kmzRefFiles.map((f,i) =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 8px;background:var(--bg3);border-radius:4px;margin-bottom:3px;font-family:var(--mono);font-size:10px">
+      <span style="color:var(--teal);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">✓ ${f.fileName} — ${f.summary}</span>
+      <button onclick="kmzRemoveFile(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:0 4px;flex-shrink:0">✕</button>
+    </div>`
+  ).join('') + (_kmzRefFiles.length > 1 ? `<button class="kmz-clear-btn" onclick="kmzClear()" style="margin-top:2px">✕ Clear all</button>` : '');
+}
+
+function kmzRemoveFile(idx){
+  const f = _kmzRefFiles[idx];
+  if(f && f.layerGroup && _map) _map.removeLayer(f.layerGroup);
+  _kmzRefFiles.splice(idx, 1);
+  kmzRenderFileList();
 }
 
 function kmzClear(){
-  kmzClearLayer();
+  _kmzRefFiles.forEach(f => { if(f.layerGroup && _map) _map.removeLayer(f.layerGroup); });
+  _kmzRefFiles = [];
   document.getElementById('kmz-status').textContent = '';
   document.getElementById('kmz-status').className = 'kmz-ref-status';
-  document.getElementById('kmz-loaded-bar').style.display = 'none';
-  document.getElementById('kmz-loaded-label').textContent = '';
+  kmzRenderFileList();
   // Reset file input
   const inp = document.getElementById('kmz-file-input');
   if(inp) inp.value = '';
@@ -2399,6 +2484,7 @@ const stepSummaries = {
 
 function updateProgress(step){
   for(let i=1;i<=TOTAL_STEPS;i++){
+    if(i===4 || i===5) continue; // BESS/Financials — permanently locked, styled once in HTML
     const circle = document.getElementById('sc-'+i);
     const label  = document.getElementById('sl-'+i);
     if(!circle) continue;
@@ -2468,6 +2554,7 @@ function showStep(step){
 
   // Always show all completed step summaries so user can jump to any step anytime
   for(let i=1;i<TOTAL_STEPS;i++){
+    if(i===4 || i===5) continue; // BESS/Financials — locked, skipped, never shown as a summary chip
     const sum = document.getElementById('sum-'+i);
     if(!sum) continue;
     if(i < step){
@@ -2492,23 +2579,52 @@ function showStep(step){
 }
 
 function next(step){
+  clearStepError();
   if(!validateStep(step)) return;
-  showStep(step+1);
+  const target = step===3 ? 6 : step+1; // BESS/Financials locked — Site Layout jumps straight to Run
+  showStep(target);
 }
-function back(step){ showStep(step-1); }
-function jumpTo(step){ if(step<=currentStep) showStep(step); }
+function back(step){
+  clearStepError();
+  const target = step===6 ? 3 : step-1; // same skip in reverse
+  showStep(target);
+}
+function jumpTo(step){
+  clearStepError();
+  if(step===4 || step===5) return; // locked — not reachable
+  if(step<=currentStep) showStep(step);
+}
+
+// Inline validation banner — replaces alert() for wizard step checks.
+// Inserted into the currently active step card, right before its nav buttons.
+function showStepError(msg){
+  clearStepError();
+  const activeCard = document.querySelector('.step-card.active');
+  if(!activeCard) return;
+  const nav = activeCard.querySelector('.step-nav');
+  const err = document.createElement('div');
+  err.className = 'step-error';
+  err.id = 'step-error-banner';
+  err.innerHTML = `<span>⚠</span><span>${msg}</span>`;
+  if(nav) activeCard.insertBefore(err, nav);
+  else activeCard.appendChild(err);
+}
+function clearStepError(){
+  const existing = document.getElementById('step-error-banner');
+  if(existing) existing.remove();
+}
 
 function validateStep(step){
   if(step===1){
-    if(!s('apikey')){ alert('Please enter your PVWatts API key.'); return false; }
-    if(!v('lat')||!v('lon')){ alert('Please enter latitude and longitude.'); return false; }
+    if(!s('apikey')){ showStepError('Please enter your PVWatts API key.'); return false; }
+    if(!v('lat')||!v('lon')){ showStepError('Please enter latitude and longitude.'); return false; }
   }
   if(step===2){
-    if(!v('ac_size')||v('ac_size')<=0){ alert('AC size must be greater than 0.'); return false; }
+    if(!v('ac_size')||v('ac_size')<=0){ showStepError('AC size must be greater than 0.'); return false; }
   }
   if(step===3){
     if(!layoutState || !layoutState.dcKW || layoutState.dcKW <= 0){
-      alert('Please draw a site boundary and generate a layout before continuing.');
+      showStepError('Please draw a site boundary and generate a layout before continuing.');
       return false;
     }
   }
@@ -2613,8 +2729,8 @@ const chartDefaults = {
   responsive:true, maintainAspectRatio:false,
   plugins:{legend:{display:false}},
   scales:{
-    x:{grid:{color:'#1a1e26'},ticks:{color:'#555f75',font:{family:'IBM Plex Mono',size:10}}},
-    y:{grid:{color:'#1a1e26'},ticks:{color:'#555f75',font:{family:'IBM Plex Mono',size:10}}}
+    x:{grid:{color:'#2c3552'},ticks:{color:'#a3aac4',font:{family:'IBM Plex Mono',size:10}}},
+    y:{grid:{color:'#2c3552'},ticks:{color:'#a3aac4',font:{family:'IBM Plex Mono',size:10}}}
   }
 };
 
@@ -3179,7 +3295,7 @@ function renderMonthly(acHourlyW, bess){
   charts['month']=new Chart(document.getElementById('monthChart'),{type:'bar',data:{labels,datasets:[
     {label:'PV AC (MWh)',data:pvM.map(x=>+(x/1000).toFixed(1)),backgroundColor:'#f59e0b',borderRadius:2},
     {label:'Clipping (MWh)',data:clipM.map(x=>+(x/1000).toFixed(1)),backgroundColor:'#a78bfa',borderRadius:2}
-  ]},options:{...chartDefaults,plugins:{legend:{display:true,labels:{color:'#8890a4',font:{family:'IBM Plex Mono',size:10},boxWidth:10}}},scales:{...chartDefaults.scales,x:{...chartDefaults.scales.x,ticks:{...chartDefaults.scales.x.ticks,autoSkip:false}}}}});
+  ]},options:{...chartDefaults,plugins:{legend:{display:true,labels:{color:'#c4cbe0',font:{family:'IBM Plex Mono',size:10},boxWidth:10}}},scales:{...chartDefaults.scales,x:{...chartDefaults.scales.x,ticks:{...chartDefaults.scales.x.ticks,autoSkip:false}}}}});
 }
 
 function renderCashflow(fin){
@@ -3407,7 +3523,7 @@ function drawDispatchChart(labels, pv, clip, acLimitkW){
     options:{
       ...chartDefaults,
       plugins:{legend:{display:true,labels:{
-        color:'#8890a4',font:{family:'IBM Plex Mono',size:10},
+        color:'#c4cbe0',font:{family:'IBM Plex Mono',size:10},
         boxWidth:12,usePointStyle:true,
       }}},
       scales:{
@@ -3458,11 +3574,26 @@ function updateExportTab(){
   }
 }
 
+// Inline status helper for the Export tab — replaces alert() for guard
+// clauses (missing library, no scenario selected, etc.)
+function showExportStatus(msg, type){
+  const el = document.getElementById('export-status');
+  if(!el) return;
+  el.style.display = 'flex';
+  el.className = 'inline-status ' + (type||'err');
+  el.innerHTML = `<span>${type==='ok'?'✓':'⚠'}</span><span>${msg}</span>`;
+}
+function clearExportStatus(){
+  const el = document.getElementById('export-status');
+  if(el){ el.style.display='none'; el.innerHTML=''; }
+}
+
 // ── 8760 CSV export ──────────────────────────────────────
 function export8760(){
-  if(selectedPVIdx===null){alert('Select a PV scenario from Site Sweep first.');return;}
+  clearExportStatus();
+  if(selectedPVIdx===null){ showExportStatus('Select a PV scenario from Site Sweep first.'); return; }
   const scen=siteScenarios[selectedPVIdx];
-  if(!scen||!scen.acHourlyW){alert('No hourly data for selected scenario.');return;}
+  if(!scen||!scen.acHourlyW){ showExportStatus('No hourly data for selected scenario.'); return; }
   const proj=(document.getElementById('project_name')?.value||'project').replace(/\s+/g,'_');
   const acKW=v('ac_size');
   const invEff=v('inv_eff')/100;
@@ -3521,7 +3652,7 @@ function exportProjectJSON(){
     },
     siteLayout: {
       boundary: layBoundaryLatLngs || null,
-      obstructions: layObstructions.map(o => o.latlngs),
+      obstructions: layObstructions.map(o => ({ latlngs:o.latlngs, type:o.type, setbackFt:o.setbackFt, name:o.name })),
       setbackFt: laySetbackFt,
       tableType: layTableType,
       fillDir: layFillDir,
@@ -3559,15 +3690,23 @@ function triggerLoadProject(){
   document.getElementById('project-load-input').click();
 }
 
+function showLoadProjectStatus(msg, type){
+  const el = document.getElementById('load-project-status');
+  if(!el) return;
+  el.style.display = 'flex';
+  el.className = 'inline-status ' + (type||'err');
+  el.innerHTML = `<span>${type==='ok'?'✓':'⚠'}</span><span>${msg}</span>`;
+}
+
 async function handleProjectFileLoad(file){
   if(!file) return;
   try{
     const text = await file.text();
     const data = JSON.parse(text);
     applyProjectData(data);
-    alert('Project loaded — location, PV system, and site layout have been restored.\nRe-enter your API key and re-run the sweep to see results.');
+    showLoadProjectStatus('Loaded — location, PV system, and site layout restored. Re-enter your API key and re-run the sweep.', 'ok');
   }catch(err){
-    alert('Could not load project file: ' + err.message);
+    showLoadProjectStatus('Could not load project file: ' + err.message);
   }
   // Reset the input so the same file can be re-selected later if needed
   document.getElementById('project-load-input').value = '';
@@ -3599,7 +3738,21 @@ function applyProjectData(data){
     const sl = data.siteLayout;
     layBoundaryLatLngs = sl.boundary || null;
     layBoundaryLayer = null; // force a fresh redraw
-    layObstructions = (sl.obstructions || []).map(latlngs => ({latlngs, leafletLayer:null}));
+    // Backward-compatible: older project files saved obstructions as a bare
+    // array of latlngs per entry; newer files save the full object
+    // (type, setbackFt, name). Handle both.
+    layObstructions = (sl.obstructions || []).map((entry, i) => {
+      if(Array.isArray(entry)){
+        return { latlngs:entry, leafletLayer:null, type:'polygon', setbackFt:0, name:`Obstruction ${i+1}` };
+      }
+      return {
+        latlngs: entry.latlngs || [],
+        leafletLayer: null,
+        type: entry.type || 'polygon',
+        setbackFt: entry.setbackFt || 0,
+        name: entry.name || `Obstruction ${i+1}`,
+      };
+    });
     laySetbackFt = sl.setbackFt || 0;
     setVal('lay-setback', laySetbackFt);
     layFillDir = sl.fillDir || 'center';
@@ -3654,8 +3807,9 @@ function applyProjectData(data){
 
 // ── KMZ export ───────────────────────────────────────────
 async function exportKMZ(){
-  if(selectedPVIdx===null){alert('Select a PV scenario first.');return;}
-  if(typeof JSZip==='undefined'){alert('JSZip not loaded. Check connection.');return;}
+  clearExportStatus();
+  if(selectedPVIdx===null){ showExportStatus('Select a PV scenario first.'); return; }
+  if(typeof JSZip==='undefined'){ showExportStatus('JSZip not loaded — check your connection and try again.'); return; }
   const scen=siteScenarios[selectedPVIdx];
   const proj=document.getElementById('project_name')?.value||'Project';
   let placemarks='';
@@ -3700,8 +3854,9 @@ async function exportKMZ(){
 
 // ── PDF export ───────────────────────────────────────────
 async function exportPDF(){
-  if(selectedPVIdx===null){alert('Select a PV scenario first.');return;}
-  if(typeof window.jspdf==='undefined'){alert('jsPDF not loaded. Check connection.');return;}
+  clearExportStatus();
+  if(selectedPVIdx===null){ showExportStatus('Select a PV scenario first.'); return; }
+  if(typeof window.jspdf==='undefined'){ showExportStatus('jsPDF not loaded — check your connection and try again.'); return; }
   const {jsPDF}=window.jspdf;
   const scen=siteScenarios[selectedPVIdx];
   const proj=document.getElementById('project_name')?.value||'PV + BESS Project';
@@ -4224,10 +4379,11 @@ function closeHelp(){
 
         <!-- Export -->
         <div class="tab-content" id="tab-export">
+          <div id="export-status" class="inline-status" style="display:none;margin-bottom:12px"></div>
           <div class="card">
             <div class="card-title">Save project</div>
             <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:16px">Save all your inputs to a file so you can reload this exact setup later. Available anytime — no sweep required.</div>
-            <button class="btn btn-run" onclick="exportProjectJSON()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
+            <button class="btn btn-secondary" onclick="exportProjectJSON()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
               💾&nbsp; Export Project (JSON)
               <br><span style="font-size:10px;opacity:.8;font-weight:400">Location, PV system, site layout, obstructions, settings — no API key included</span>
             </button>
@@ -4241,15 +4397,15 @@ function closeHelp(){
               <div class="card-title">Export selected layout</div>
               <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:16px" id="export-scenario-label">—</div>
               <div style="display:flex;flex-direction:column;gap:10px">
-                <button class="btn btn-run" onclick="exportKMZ()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
+                <button class="btn btn-secondary" onclick="exportKMZ()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
                   📥&nbsp; Export KMZ (Google Earth / GIS)
                   <br><span style="font-size:10px;opacity:.8;font-weight:400">Site boundary + table polygons, coloured by string count</span>
                 </button>
-                <button class="btn btn-run" onclick="exportPDF()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
+                <button class="btn btn-secondary" onclick="exportPDF()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
                   📄&nbsp; Export PDF Summary
                   <br><span style="font-size:10px;opacity:.8;font-weight:400">System summary + energy results + site details</span>
                 </button>
-                <button class="btn btn-run" onclick="export8760()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
+                <button class="btn btn-secondary" onclick="export8760()" style="width:100%;text-align:left;padding:12px 16px;line-height:1.6">
                   📊&nbsp; Export 8760 CSV
                   <br><span style="font-size:10px;opacity:.8;font-weight:400">Hourly: datetime · PV AC · DC potential · clipping · clipping flag</span>
                 </button>
