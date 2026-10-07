@@ -213,6 +213,20 @@ body.touring .tools, body.touring .hint, body.touring .info, body.touring #label
 .tour-ctl button:disabled{opacity:.4;cursor:default}
 body.walking .info{opacity:.96}
 @media (max-width:760px){ .walkbar{bottom:calc(46% + 16px)} .joy{bottom:calc(46% + 70px)} #walk-help{display:none} }
+
+.modal{position:fixed;inset:0;z-index:2500;background:rgba(10,16,22,.5);display:flex;align-items:center;justify-content:center}
+.modal[hidden]{display:none}
+.modal-card{width:min(440px, calc(100vw - 24px));padding:16px 18px;background:var(--raised)}
+.modal-card h3{margin:0 0 6px;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:24px}
+.sx-list{display:flex;flex-direction:column;gap:2px;margin:8px 0}
+.ss{position:fixed;inset:0;z-index:2600;background:#0d1217;display:flex;flex-direction:column}
+.ss[hidden]{display:none}
+.ss img{flex:1;min-height:0;width:100%;object-fit:contain;background:#0d1217}
+.ss-cap{display:flex;align-items:center;gap:16px;padding:12px 20px;background:#16212b;color:#e6ecf0}
+.ss-cap b{display:block;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:22px}
+.ss-cap span{font-size:15px;color:#b8c4ce}
+.ss-ctl{margin-left:auto;display:flex;gap:6px;align-items:center;flex:none}
+.ss-ctl #ss-n{color:#95a3ae;font-size:13px;margin-right:6px}
 #help-spot{position:fixed;z-index:3000;pointer-events:none;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(10,16,22,.55), 0 0 0 4px rgba(236,122,52,.35);
   transition:left .35s ease, top .35s ease, width .35s ease, height .35s ease, border-radius .35s ease}
 #help-bubble{position:fixed;z-index:3001;width:min(360px, calc(100vw - 24px));padding:14px 16px 12px;background:var(--raised);box-shadow:0 8px 28px rgba(0,0,0,.28);transition:left .35s ease, top .35s ease}
@@ -239,6 +253,21 @@ window.addEventListener('error', function (e) {
 <body>
 <div id="app">
   <div id="errbox" role="alert"></div>
+  <div class="modal" id="sx" hidden role="dialog" aria-label="Export slides">
+    <div class="modal-card panel">
+      <h3>Export slides</h3>
+      <p class="fine" style="margin-top:0">Captures the site from preset viewpoints, using your current layout, terrain and surroundings, at 1920 × 1080.</p>
+      <div id="sx-list" class="sx-list"></div>
+      <label class="tg" style="margin-top:8px"><input type="checkbox" id="sx-basis" checked> Include a site design basis slide (PDF)</label>
+      <p class="fine" id="sx-status"></p>
+      <div class="acts"><button class="btn primary" id="sx-pdf">Download PDF</button><button class="btn" id="sx-show">Play slideshow</button><button class="btn" id="sx-cancel">Cancel</button></div>
+    </div>
+  </div>
+  <div class="ss" id="ss" hidden>
+    <img id="ss-img" alt="">
+    <div class="ss-cap"><div><b id="ss-title"></b><span id="ss-cap"></span></div>
+      <div class="ss-ctl"><span id="ss-n"></span><button class="btn" id="ss-prev">←</button><button class="btn" id="ss-play">Pause</button><button class="btn" id="ss-next">→</button><button class="btn" id="ss-full">Full screen</button><button class="btn" id="ss-close">Close (Esc)</button></div></div>
+  </div>
   <div id="help-spot" hidden></div>
   <div id="help-bubble" class="panel" hidden role="dialog" aria-live="polite" aria-label="How to use">
     <div class="hb-step" id="help-step"></div>
@@ -364,6 +393,7 @@ window.addEventListener('error', function (e) {
       <h2>Actions</h2>
       <div class="acts">
         <button class="btn" id="a-basis">Site basis</button>
+        <button class="btn" id="a-slides">Export slides</button>
         <button class="btn" id="a-tour">Guided tour</button>
         <button class="btn" id="a-walk">Walk the site</button>
         <button class="btn" id="a-explode">Pull out all bays</button>
@@ -419,6 +449,7 @@ window.addEventListener('error', function (e) {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
 <script>
 (function(){
 "use strict";
@@ -473,7 +504,6 @@ function xfCard(k){ const x = BASIS.xf[k], o = BASIS.xf[1-k], first = k === 0 ? 
     ['Grouping rule','No more than 5 PCS per transformer','u'],
     ['LV side','Matches the inverter AC tier (600 V assumed)','i'],['MV side','Project collector voltage, not modeled','i'],
     ['Massing','Generic pad-mount placeholder, scaled by rating, not from a manufacturer spec','i']],
-    note:'At full output the transformer carries real power only; any reactive power requirement at the POI would need more MVA or curtailment.',
     cam:{target:(k ? site.xf2 : site.xf).clone().setY(1.1), r:7, theta:-2.5, phi:1.1}}; }
 function fenceAreaText(){ const a = site.fence.w*site.fence.d; return '≈' + Math.round(a).toLocaleString('en-US') + ' sq ft (' + (a/43560).toFixed(2) + ' ac)'; }
 const padM = box(7.8, 0.5, 4.8, M(0xa2a8ad, 0.95, 0)); padM.position.y = -0.25; padM.castShadow = false; padM.renderOrder = 3; scene.add(padM); pick(padM, {type:'ground', alt:'fence'});
@@ -815,7 +845,7 @@ const COMP = {
     ['2 MVA transformer', '2 inverters × 1,000 kW = 2.0 MW','u'],
     ['Site transformer capacity', '3 + 2 = 5 MVA','u'],
     ['Container loading', '750 kW on four, 1,000 kW on two; 4 h at 5 MW draws ≈3.0 or ≈4.0 MWh per container','c']],
-    note:'A 4/2 split keeps container loading closer to even than 3/3 (750 vs 1,000 kW instead of 667 vs 1,000 kW). 5 MVA at 5 MW leaves no reactive headroom; transformer losses and auxiliary load also come off the top before the POI.',
+    note:'A 4/2 split keeps container loading closer to even than 3/3 (750 vs 1,000 kW instead of 667 vs 1,000 kW).',
     cam:{target:HOME.target.clone(), r:HOME.r, theta:-0.55, phi:0.9}}),
   pcs:() => ({title:'Inverter (PCS)', sub:'Paired 1:1 with this container', rows:[
     ['AC rating','1.304 MW at 600 V (1.043–1.500 MW across 480–690 V)','d'],['Max DC input','2.1 MW','d'],['Efficiency','98.8%','d'],
@@ -2775,6 +2805,8 @@ const HELP = (() => {
     {el:() => q('#a-reset'), title:'Back to the overview', text:'Reset view returns to the whole site. Esc steps back one level at a time.', act:() => selectSystem()},
     {threeD:P3(() => site.fence.center.clone().setY(1.5), 110), title:'Fence and gate', text:'Click the fence for its area in square feet and acres. Move gate lets you drag the gate anywhere along the fence, and the buffer and grading follow.', act:() => selectComp('fence')},
     {el:() => q('#a-tour'), title:'Guided tour', text:'For presentations: an eleven-stop tour for landowners and stakeholders, with captions, autoplay and Next and Back.', act:() => selectSystem()},
+    {el:() => q('#sx').hidden ? q('#a-slides') : q('#sx .modal-card'), title:'Export slides', text:'Capture the site from preset viewpoints, with your layout, terrain and surroundings, then download them as a PDF with a site basis slide or play them as a full-screen slideshow.',
+      act:() => SLIDES.open(), leave:() => { $('#sx').hidden = true; }},
     {el:() => q(walk.on ? '#walkbar' : '#a-walk'), title:'Walk the site', text:'See it at eye level. Move with W, A, S and D or the arrow keys, drag to look around, and press Esc to leave. Here is a few seconds of walking in through the gate.',
       act:() => { startWalk(); walk.keys.add('KeyW'); demoTimer = setTimeout(() => walk.keys.delete('KeyW'), 3200); },
       leave:() => { clearTimeout(demoTimer); walk.keys.delete('KeyW'); if (walk.on) stopWalk(); }},
@@ -2840,6 +2872,123 @@ const HELP = (() => {
     else if (e.key === 'ArrowRight') { go(i + 1); e.stopImmediatePropagation(); }
     else if (e.key === 'ArrowLeft') { go(i - 1); e.stopImmediatePropagation(); } }, true);
   return {start, end, isOn:() => on};
+})();
+
+/* ================= Export slides: capture preset views, build a PDF or play a slideshow ================= */
+const SLIDES = (() => {
+  const W2 = 1920, H2 = 1080;
+  const views = [
+    {id:'overview', title:'Site overview', cap:'Six battery containers, six inverters and two transformers inside a 7 ft fence, with a 35 ft planted buffer.',
+      cam:() => ({target:HOME.target.clone(), r:HOME.r*1.0, theta:-0.55, phi:0.95})},
+    {id:'plan', title:'Plan view', cap:() => 'Top-down layout of the fence, landscape buffer, access drive and equipment. Fenced area ' + fenceAreaText().replace('≈', 'approx. ') + '.',
+      cam:() => ({target:HOME.target.clone().setY(0), r:HOME.r*1.2, theta:0, phi:0.05})},
+    {id:'gate', title:'Site entrance', cap:'A single gated entrance, with a graded gravel drive through the planted buffer.',
+      cam:() => { const c = site.fence.center, o = site.fence.out; return {target:V3(c.x - o[0]*4, 1.4, c.z - o[1]*4), r:22, theta:Math.atan2(o[0], o[1]) - 0.25, phi:1.3}; }},
+    {id:'containers', title:'Battery containers', cap:'Containers sit in back-to-back pairs on a concrete pad, doors facing out for servicing.',
+      cam:() => ({target:V3(site.unitsMid.x, 1.3, site.unitsMid.z), r:24, theta:0.45, phi:1.05})},
+    {id:'bay', title:'Inside a container', cap:'Each door opens onto a bay of two battery racks, eight packs tall, with their high-voltage boxes at the base.',
+      cam:() => ({target:toW(V3(racks[2].x, 1.3, RZ + PULL_R)), r:6.5, theta:toTh(0.55), phi:1.1}), bay:true},
+    {id:'power', title:'Inverters and transformers', cap:'Each container has its own inverter. Four inverters feed the 3 MVA transformer and two feed the 2 MVA transformer.',
+      cam:() => { const m = site.pcsMid.clone().lerp(site.xf, 0.4); return {target:m.setY(1.0), r:17, theta:0.6, phi:1.0}; }},
+    {id:'screen', title:'Screening from outside', cap:'Eye-level view, 5.5 ft above the ground, from just outside the 35 ft planted buffer.',
+      pose:() => { const f = site.fenceRect, o = site.fence.side === 's' ? -1 : 1, zf = o > 0 ? f.z1 : f.z0, x = (f.x0 + f.x1)/2;
+        const z = zf + o*(LB + 6), eye = T(x, z) + EYE;                      // standing on the ground outside the buffer
+        return {pos:V3(x, eye, z), look:V3(x, Math.max(eye, T(x, zf) + 1.6), zf - o*8)}; }},
+    {id:'context', title:'The site in its surroundings', cap:'The site with the roads, buildings, trees and water traced around it.', needs:() => ctx.features.length > 0,
+      cam:() => ({target:HOME.target.clone(), r:Math.min(150, Math.max(HOME.r*1.4, (site.ctxReach || 40)*2.1)), theta:-0.6, phi:0.8}), fog:[130, 420]}
+  ];
+  const txt = v => typeof v === 'function' ? v() : v;
+  function poseBay(on){ const r = racks[2];
+    r.pullT = r.pull = r.door = on ? 1 : 0; r.group.position.z = r.baseZ + PULL_R*r.pull; r.doorPivot.rotation.y = -1.6*r.door;
+    r.coolBr.forEach(b => b.visible = !on); r.dcBr.forEach(b => b.visible = !on); r.tags.forEach(t => t.visible = on); }
+  function capture(ids){
+    const keep = {cam:{target:cam.target.clone(), r:cam.r, theta:cam.theta, phi:cam.phi}, shell:shellMode, pr:renderer.getPixelRatio(), aspect:camera.aspect};
+    if (tour.on) endTour(); if (walk.on) stopWalk();
+    selectSystem(false); setShell('solid'); goal = null;
+    renderer.setPixelRatio(1); renderer.setSize(W2, H2, false); camera.aspect = W2/H2; camera.updateProjectionMatrix();
+    const shots = [];
+    views.filter(v => ids.includes(v.id) && (!v.needs || v.needs())).forEach(v => {
+      if (v.bay) poseBay(true);
+      const fog0 = scene.fog ? [scene.fog.near, scene.fog.far] : null; if (v.fog && scene.fog) { scene.fog.near = v.fog[0]; scene.fog.far = v.fog[1]; }   // wide shots: push the haze back
+      if (v.pose) { const p = v.pose(); camera.position.copy(p.pos); camera.lookAt(p.look); camera.updateMatrixWorld(); }
+      else { const c = v.cam(); cam.target.copy(c.target); cam.r = c.r; cam.theta = c.theta; cam.phi = c.phi; applyCam(); }
+      sky.position.copy(camera.position); renderer.render(scene, camera);
+      shots.push({title:v.title, cap:txt(v.cap), img:renderer.domElement.toDataURL('image/jpeg', 0.9)});
+      if (v.bay) poseBay(false);
+      if (fog0) { scene.fog.near = fog0[0]; scene.fog.far = fog0[1]; }
+    });
+    renderer.setPixelRatio(keep.pr); resize(); setShell(keep.shell);
+    Object.assign(cam, {r:keep.cam.r, theta:keep.cam.theta, phi:keep.cam.phi}); cam.target.copy(keep.cam.target); applyCam();
+    return shots;
+  }
+  const basisLines = () => ['Target at the point of interconnection: 5 MW / 20 MWh (4 hours)',
+    'Battery nameplate: 6 x 5,015 kWh = 30.09 MWh',
+    'Design energy: 5,015 kWh x 0.88 RTE x 0.85 year-10 retention = approx. ' + Math.round(BASIS.kwhY10).toLocaleString('en-US') + ' kWh per container, ' + BASIS.mwhY10.toFixed(2) + ' MWh site',
+    'Overbuild: approx. ' + Math.round((BASIS.mwhY10/BASIS.mwh - 1)*100) + '% over target at year 10, for degradation',
+    'Inverters: 6 x 1,304 kW, curtailed to 750 kW (4 units, 3 MVA transformer) and 1,000 kW (2 units, 2 MVA transformer)',
+    'Transformers: 3 MVA + 2 MVA = 5 MVA',
+    'Fenced area: ' + fenceAreaText().replace('≈', 'approx. ') + ', 20 ft setback from all equipment, 35 ft planted buffer'];
+  function makePDF(shots, withBasis){
+    const {jsPDF} = window.jspdf, pdf = new jsPDF({orientation:'landscape', unit:'pt', format:[960, 540]});
+    const ink = [22, 33, 43], ink2 = [85, 99, 111], acc = [208, 96, 26];
+    const today = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+    // title slide uses the overview image if available
+    if (shots[0]) { pdf.addImage(shots[0].img, 'JPEG', 0, 0, 960, 540); pdf.setFillColor(255, 255, 255); pdf.rect(0, 330, 960, 210, 'F'); }
+    pdf.setFillColor(...acc); pdf.rect(48, 362, 64, 5, 'F');
+    pdf.setTextColor(...ink); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(34); pdf.text('Battery Energy Storage Site', 48, 410);
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(18); pdf.setTextColor(...ink2); pdf.text('5 MW / 20 MWh  -  site views', 48, 442);
+    pdf.setFontSize(12); pdf.text(today + '  -  Conceptual layout for discussion', 48, 470);
+    if (withBasis) { pdf.addPage([960, 540], 'landscape'); pdf.setFillColor(...acc); pdf.rect(48, 52, 64, 5, 'F');
+      pdf.setTextColor(...ink); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(28); pdf.text('Site design basis', 48, 96);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(15); let y = 140;
+      basisLines().forEach(l => { pdf.setTextColor(...acc); pdf.text('-', 52, y); pdf.setTextColor(...ink); pdf.splitTextToSize(l, 820).forEach((t, k) => { pdf.text(t, 70, y); y += 22; }); y += 8; }); }
+    shots.forEach((s, k) => {
+      pdf.addPage([960, 540], 'landscape'); pdf.addImage(s.img, 'JPEG', 0, 0, 960, 540);
+      pdf.setFillColor(255, 255, 255); pdf.rect(0, 448, 960, 92, 'F'); pdf.setFillColor(...acc); pdf.rect(0, 448, 6, 92, 'F');
+      pdf.setTextColor(...ink); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.text(s.title, 32, 482);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12.5); pdf.setTextColor(...ink2); pdf.text(pdf.splitTextToSize(s.cap, 840), 32, 506);
+      pdf.setFontSize(10); pdf.text((k + 1) + ' / ' + shots.length, 912, 528, {align:'right'});
+    });
+    pdf.save('BESS_Site_Views.pdf');
+  }
+  // ---- slideshow overlay
+  let show = null;
+  function playShow(shots){
+    show = {shots, i:0, auto:true, t:performance.now()}; $('#ss').hidden = false; drawShow();
+    const tick = () => { if (!show) return; if (show.auto && performance.now() - show.t > 6000) { show.i = (show.i + 1) % show.shots.length; show.t = performance.now(); drawShow(); } requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+  function drawShow(){ const s = show.shots[show.i]; $('#ss-img').src = s.img; $('#ss-title').textContent = s.title; $('#ss-cap').textContent = s.cap;
+    $('#ss-n').textContent = (show.i + 1) + ' / ' + show.shots.length; $('#ss-play').textContent = show.auto ? 'Pause' : 'Play'; }
+  const stepShow = d => { show.i = (show.i + d + show.shots.length) % show.shots.length; show.t = performance.now(); drawShow(); };
+  function closeShow(){ show = null; $('#ss').hidden = true; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); }
+  $('#ss-prev').onclick = () => stepShow(-1); $('#ss-next').onclick = () => stepShow(1);
+  $('#ss-play').onclick = () => { show.auto = !show.auto; show.t = performance.now(); drawShow(); };
+  $('#ss-full').onclick = () => { const e = $('#ss'); (document.fullscreenElement ? document.exitFullscreen() : e.requestFullscreen()).catch(() => {}); };
+  $('#ss-close').onclick = closeShow;
+  addEventListener('keydown', e => { if (!show) return; if (e.key === 'Escape') { closeShow(); e.stopImmediatePropagation(); }
+    else if (e.key === 'ArrowRight') { stepShow(1); e.stopImmediatePropagation(); } else if (e.key === 'ArrowLeft') { stepShow(-1); e.stopImmediatePropagation(); } }, true);
+  // ---- dialog
+  function open(){
+    const list = $('#sx-list'); list.innerHTML = '';
+    views.forEach(v => { const ok = !v.needs || v.needs(); const l = document.createElement('label'); l.className = 'tg';
+      l.innerHTML = '<input type="checkbox" data-view-id="' + v.id + '"' + (ok ? ' checked' : ' disabled') + '> ' + v.title + (ok ? '' : ' <span class="fine">(trace surroundings in Map view first)</span>'); list.append(l); });
+    $('#sx-status').textContent = ''; $('#sx').hidden = false;
+  }
+  const chosen = () => [...document.querySelectorAll('[data-view-id]')].filter(b => b.checked).map(b => b.dataset.viewId);
+  function run(kind){
+    const ids = chosen(); if (!ids.length) { $('#sx-status').textContent = 'Pick at least one view.'; return; }
+    if (kind === 'pdf' && !window.jspdf) { $('#sx-status').textContent = 'The PDF library did not load. Check the internet connection and reload.'; return; }
+    $('#sx-status').textContent = 'Capturing views…';
+    setTimeout(() => { const shots = capture(ids);
+      if (kind === 'pdf') { makePDF(shots, $('#sx-basis').checked); $('#sx-status').textContent = 'Saved BESS_Site_Views.pdf (' + shots.length + ' views).'; }
+      else { $('#sx').hidden = true; playShow(shots); } }, 60);
+  }
+  $('#a-slides').onclick = open;
+  $('#sx-pdf').onclick = () => run('pdf');
+  $('#sx-show').onclick = () => run('show');
+  $('#sx-cancel').onclick = () => { $('#sx').hidden = true; };
+  return {open, capture, views, makePDF};
 })();
 
 buildArray();
