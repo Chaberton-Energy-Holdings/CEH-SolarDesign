@@ -225,6 +225,7 @@ body.walking .info{opacity:.96}
 .ss-cap{display:flex;align-items:center;gap:16px;padding:12px 20px;background:#16212b;color:#e6ecf0}
 .ss-cap b{display:block;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:22px}
 .ss-cap span{font-size:15px;color:#b8c4ce}
+.ss-disc{display:block;margin-top:3px;font-size:11.5px;color:#7f8c97}
 .ss-ctl{margin-left:auto;display:flex;gap:6px;align-items:center;flex:none}
 .ss-ctl #ss-n{color:#95a3ae;font-size:13px;margin-right:6px}
 #help-spot{position:fixed;z-index:3000;pointer-events:none;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(10,16,22,.55), 0 0 0 4px rgba(236,122,52,.35);
@@ -256,7 +257,7 @@ window.addEventListener('error', function (e) {
   <div class="modal" id="sx" hidden role="dialog" aria-label="Export slides">
     <div class="modal-card panel">
       <h3>Export slides</h3>
-      <p class="fine" style="margin-top:0">Captures the site from preset viewpoints, using your current layout, terrain and surroundings, at 1920 × 1080.</p>
+      <p class="fine" style="margin-top:0">Captures the site from preset viewpoints, using your current layout, terrain and surroundings, at 1920 × 1080. Every slide carries a note that this is an example layout and actual sites will vary.</p>
       <div id="sx-list" class="sx-list"></div>
       <label class="tg" style="margin-top:8px"><input type="checkbox" id="sx-basis" checked> Include a site design basis slide (PDF)</label>
       <p class="fine" id="sx-status"></p>
@@ -265,7 +266,7 @@ window.addEventListener('error', function (e) {
   </div>
   <div class="ss" id="ss" hidden>
     <img id="ss-img" alt="">
-    <div class="ss-cap"><div><b id="ss-title"></b><span id="ss-cap"></span></div>
+    <div class="ss-cap"><div><b id="ss-title"></b><span id="ss-cap"></span><small class="ss-disc">Example layout for illustration only. Actual sites will vary.</small></div>
       <div class="ss-ctl"><span id="ss-n"></span><button class="btn" id="ss-prev">←</button><button class="btn" id="ss-play">Pause</button><button class="btn" id="ss-next">→</button><button class="btn" id="ss-full">Full screen</button><button class="btn" id="ss-close">Close (Esc)</button></div></div>
   </div>
   <div id="help-spot" hidden></div>
@@ -492,6 +493,7 @@ function pick(o, data){ o.userData.pick = data; pickables.push(o); return o; }
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), M(0xcccccc, 1, 0));
 ground.rotation.x = -Math.PI/2; ground.position.y = -0.3; ground.renderOrder = 3; ground.receiveShadow = true; scene.add(ground);
 // ---- site design basis: 5 MW / 20 MWh (4 h) at the POI target
+const DISCLAIMER = 'Example layout for illustration only. Actual equipment, layout, grading and site characteristics will vary by project and are subject to final engineering and permitting.';
 const BASIS = {mw:5, mwh:20, cont:6, kwhNP:5015, rte:0.88, ret10:0.85, xf:[{mva:3, n:4, kw:750}, {mva:2, n:2, kw:1000}]};
 BASIS.kwhY10 = BASIS.kwhNP*BASIS.rte*BASIS.ret10;                 // 3,751 kWh per container deliverable at year 10
 BASIS.mwhY10 = BASIS.kwhY10*BASIS.cont/1000;                       // 22.51 MWh
@@ -845,7 +847,7 @@ const COMP = {
     ['2 MVA transformer', '2 inverters × 1,000 kW = 2.0 MW','u'],
     ['Site transformer capacity', '3 + 2 = 5 MVA','u'],
     ['Container loading', '750 kW on four, 1,000 kW on two; 4 h at 5 MW draws ≈3.0 or ≈4.0 MWh per container','c']],
-    note:'A 4/2 split keeps container loading closer to even than 3/3 (750 vs 1,000 kW instead of 667 vs 1,000 kW).',
+    note:'A 4/2 split keeps container loading closer to even than 3/3 (750 vs 1,000 kW instead of 667 vs 1,000 kW). ' + DISCLAIMER,
     cam:{target:HOME.target.clone(), r:HOME.r, theta:-0.55, phi:0.9}}),
   pcs:() => ({title:'Inverter (PCS)', sub:'Paired 1:1 with this container', rows:[
     ['AC rating','1.304 MW at 600 V (1.043–1.500 MW across 480–690 V)','d'],['Max DC input','2.1 MW','d'],['Efficiency','98.8%','d'],
@@ -997,7 +999,7 @@ const SIMPLE = {
   alarm:{title:'Warning light and siren', text:'Flashes and sounds to warn anyone nearby of a problem.'},
   estop:{title:'Emergency stop', text:'Shuts the system down immediately when pressed.'},
   dcout:{title:'Battery power cables', text:'Carry the battery’s power underground to the inverter paired with this container.'},
-  basis:{title:'About this site', text:'Designed to deliver 5 MW for 4 hours. The batteries are sized larger than that so the site still meets its target after years of normal battery wear.', facts:[['Output','5 MW for 4 hours'],['Battery','≈30 MWh nameplate'],['Still available at year 10','≈22.5 MWh'],['Transformers','3 MVA + 2 MVA']]},
+  basis:{title:'About this site', text:'Designed to deliver 5 MW for 4 hours. The batteries are sized larger than that so the site still meets its target after years of normal battery wear. This is an example layout; actual sites will vary.', facts:[['Output','5 MW for 4 hours'],['Battery','≈30 MWh nameplate'],['Still available at year 10','≈22.5 MWh'],['Transformers','3 MVA + 2 MVA']]},
   pcs:{title:'Inverter', text:'Converts the battery’s DC power into AC power for the grid, and back again to charge the batteries. Each container has its own.', facts:[['Rated','≈1.3 MW'],['Run at','0.75–1.0 MW'],['On this site','6']]},
   xfmr:{title:'Transformer', text:'Steps the inverters’ power up to a higher voltage so it can travel on utility lines.', facts:[['Size','3 MVA'],['Inverters served','4']]},
   xfmr2:{title:'Transformer', text:'Steps the inverters’ power up to a higher voltage so it can travel on utility lines.', facts:[['Size','2 MVA'],['Inverters served','2']]},
@@ -2937,17 +2939,20 @@ const SLIDES = (() => {
     pdf.setFillColor(...acc); pdf.rect(48, 362, 64, 5, 'F');
     pdf.setTextColor(...ink); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(34); pdf.text('Battery Energy Storage Site', 48, 410);
     pdf.setFont('helvetica', 'normal'); pdf.setFontSize(18); pdf.setTextColor(...ink2); pdf.text('5 MW / 20 MWh  -  site views', 48, 442);
-    pdf.setFontSize(12); pdf.text(today + '  -  Conceptual layout for discussion', 48, 470);
+    pdf.setFontSize(12); pdf.text(today + '  -  Example layout for illustration', 48, 470);
+    pdf.setFontSize(9.5); pdf.text(pdf.splitTextToSize(DISCLAIMER, 860), 48, 505);
     if (withBasis) { pdf.addPage([960, 540], 'landscape'); pdf.setFillColor(...acc); pdf.rect(48, 52, 64, 5, 'F');
       pdf.setTextColor(...ink); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(28); pdf.text('Site design basis', 48, 96);
       pdf.setFont('helvetica', 'normal'); pdf.setFontSize(15); let y = 140;
-      basisLines().forEach(l => { pdf.setTextColor(...acc); pdf.text('-', 52, y); pdf.setTextColor(...ink); pdf.splitTextToSize(l, 820).forEach((t, k) => { pdf.text(t, 70, y); y += 22; }); y += 8; }); }
+      basisLines().forEach(l => { pdf.setTextColor(...acc); pdf.text('-', 52, y); pdf.setTextColor(...ink); pdf.splitTextToSize(l, 820).forEach((t, k) => { pdf.text(t, 70, y); y += 22; }); y += 8; });
+      pdf.setFontSize(9.5); pdf.setTextColor(...ink2); pdf.text(pdf.splitTextToSize(DISCLAIMER, 860), 48, 505); }
     shots.forEach((s, k) => {
       pdf.addPage([960, 540], 'landscape'); pdf.addImage(s.img, 'JPEG', 0, 0, 960, 540);
       pdf.setFillColor(255, 255, 255); pdf.rect(0, 448, 960, 92, 'F'); pdf.setFillColor(...acc); pdf.rect(0, 448, 6, 92, 'F');
       pdf.setTextColor(...ink); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.text(s.title, 32, 482);
       pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12.5); pdf.setTextColor(...ink2); pdf.text(pdf.splitTextToSize(s.cap, 840), 32, 506);
       pdf.setFontSize(10); pdf.text((k + 1) + ' / ' + shots.length, 912, 528, {align:'right'});
+      pdf.setFontSize(8.5); pdf.setTextColor(130, 140, 150); pdf.text(DISCLAIMER, 32, 531);
     });
     pdf.save('BESS_Site_Views.pdf');
   }
